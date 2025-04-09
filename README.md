@@ -11,5 +11,21 @@ These have been inspired by
 
 They have been scaled to ratio 1.6, e.g. 1600x1000.
 
+```bash
+use ffmpeg.nu *
+
+let troop = open troops/panoceania/orc.nuon
+
+let blank = ffmpeg blank white 1600 1000 --output (mktemp --tmpdir XXXXXXX.png)
+let res = [$blank, $troop.skin] | ffmpeg combine "[1:v]scale=iw*0.5:ih*0.5[ovrl];[0:v][ovrl]overlay=50:50" --output (mktemp --tmpdir XXXXXXX.png)
+let res = [$res, $troop.icon] | ffmpeg combine "[1:v]scale=iw*0.5:ih*0.5[ovrl];[0:v][ovrl]overlay=50:50" --output (mktemp --tmpdir XXXXXXX.png)
+let res = $troop.hi | enumerate | reduce --fold $res { |it, acc|
+    let filter = $"[1:v]scale=iw*0.5:ih*0.5[ovrl];[0:v][ovrl]overlay=50:(50 + $it.index * 50)"
+    [$acc, $it.item] | ffmpeg combine $filter --output (mktemp --tmpdir XXXXXXX.png)
+}
+
+feh $res
+```
+
 [video-1]: https://youtu.be/DhcczP8GJhE
 [video-2]: https://youtu.be/fX7fCxJVDd4
