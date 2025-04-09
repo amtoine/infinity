@@ -20,6 +20,17 @@ def "log info" [msg: string] {
     print $"[(ansi cyan)INFO(ansi reset)] ($msg)"
 }
 
+export def "ffmpeg blank" [
+    color: string,
+    width: int,
+    height: int,
+    --output: path = "output.jpg",
+    --options: list<string> = $FFMPEG_OPTS,
+]: [ nothing -> path ] {
+    ffmpeg ...$options -f lavfi -i $"color=c=($color):s=($width)x($height):d=1" -frames:v 1 $output
+    $output
+}
+
 export def "ffmpeg apply" [
     transform: string,
     --output: path = "output.jpg",
