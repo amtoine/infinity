@@ -1,0 +1,30 @@
+{
+    isc: "Orc troops",
+    type: "veteran",
+    hi: [
+        "./troops/assets/hi-00001.png",
+        "./troops/assets/hi-00002.png",
+        "./troops/assets/hi-00003.png",
+    ],
+    icon: "./troops/assets/icon-00001.png",
+    skin: "./troops/assets/00001.png",
+    stats: {
+        MOV:  [6, 2],
+        CC:   15,
+        BS:   14,
+        PH:   14,
+        WIP:  12,
+        ARM:   4,
+        BTS:   3,
+        VITA:  2,
+        S:     2,
+        AVA:   2,
+    }
+    special_skills: ["Immunity (Shock)"],
+    weaponry: "MULTI Rifle",
+    equipment: null,
+    peripheral: null,
+    melee_weapons: ["Pistol", "CC Weapon"],
+    SWC: 0,
+    C: 29,
+}
