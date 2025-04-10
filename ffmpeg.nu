@@ -100,7 +100,16 @@ export def "ffmpeg blank" [
     --output: path = "output.jpg",
     --options: list<string> = $FFMPEG_OPTS,
 ]: [ nothing -> path ] {
-    ffmpeg ...$options -f lavfi -i $"color=c=($color):s=($width)x($height):d=1" -frames:v 1 $output
+    {
+        kind: "color",
+        options: {
+            c: $color,
+            s: $"($width)x($height)",
+            d: 1,
+        },
+    }
+    | ffmpeg options
+    | ffmpeg create $in --output $output --options $options
     $output
 }
 
