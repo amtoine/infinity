@@ -55,8 +55,9 @@ const C_BOX = { x: 1460, y: 850, w: (1560 - 1460), h: (960 - 850) }
 const C_FONT_SIZE = 30
 const C_OFFSET_X = 10
 
-const SPECIAL_SKILLS_BOX = { x: 920, y: 350, w: (1560 - 920), h: null }
-const SPECIAL_SKILLS_FONT_SIZE = 30
+const SPECIAL_SKILLS_BOX = { x: 1240, y: 350, w: (1560 - 1240), h: null }
+const SPECIAL_SKILLS_TITLE_FONT_SIZE = 30 + 2
+const SPECIAL_SKILLS_FONT_SIZE = 18
 const SPECIAL_SKILLS_OFFSET_X = 10
 
 export def main [troop: record, --color: string, --output: path = "output.png"] {
@@ -65,7 +66,7 @@ export def main [troop: record, --color: string, --output: path = "output.png"] 
         | str join " | "
 
     let hi_box_h = 70 * (($troop.hi | length) + 1)
-    let special_skills_box_h = 130 + 50 * (($troop.special_skills | length) - 1)
+    let special_skills_box_h = 100 + 30 * (($troop.special_skills | length) - 1)
 
     let transforms = [
         { kind: "drawtext", options: { text: $"'ISC\\: ($troop.isc)'", fontcolor: "black", fontsize: $ISC_FONT_SIZE, x: $ISC_POS.x, y: $ISC_POS.y } },
@@ -105,16 +106,16 @@ export def main [troop: record, --color: string, --output: path = "output.png"] 
                 let box = [
                     { kind: "drawbox",  options: { x: $SPECIAL_SKILLS_BOX.x, y: $SPECIAL_SKILLS_BOX.y, w: $SPECIAL_SKILLS_BOX.w, h: $special_skills_box_h, color: "black@0.5", t: "fill" } },
                     { kind: "drawbox",  options: { x: $SPECIAL_SKILLS_BOX.x, y: $SPECIAL_SKILLS_BOX.y, w: $SPECIAL_SKILLS_BOX.w, h: $special_skills_box_h, color: "black@0.5", t: "5" } },
-                    { kind: "drawtext", options: { text: "Special skills", fontfile: $BOLD_FONT, fontcolor: "white", fontsize: ($C_FONT_SIZE + 2), x: $"($SPECIAL_SKILLS_BOX.x)+($SPECIAL_SKILLS_OFFSET_X)", y: $"($SPECIAL_SKILLS_BOX.y)+30-th/2" } },
+                    { kind: "drawtext", options: { text: "Special skills", fontfile: $BOLD_FONT, fontcolor: "white", fontsize: $SPECIAL_SKILLS_TITLE_FONT_SIZE, x: $"($SPECIAL_SKILLS_BOX.x)+($SPECIAL_SKILLS_OFFSET_X)", y: $"($SPECIAL_SKILLS_BOX.y)+30-th/2" } },
                 ]
                 let skills = $troop.special_skills | enumerate | each { |it|
                     [
                         { kind: "drawtext", options: {
                             text: $it.item,
                             fontcolor: "white",
-                            fontsize: $SPECIAL_SKILLS_FONT_SIZE,
+                            fontsize: $SPECIAL_SKILLS_FONT_SIZE ,
                             x: $"($SPECIAL_SKILLS_BOX.x)+($SPECIAL_SKILLS_OFFSET_X)",
-                            y: $"($SPECIAL_SKILLS_BOX.y)+100+50*($it.index)-th/2" },
+                            y: $"($SPECIAL_SKILLS_BOX.y)+80+30*($it.index)-th/2" },
                         },
                     ]
                 }
@@ -125,12 +126,12 @@ export def main [troop: record, --color: string, --output: path = "output.png"] 
         { kind: "drawbox",  options: { x: $EQUIPMENT_BOX.x, y: $EQUIPMENT_BOX.y, w: $EQUIPMENT_BOX.w, h: $EQUIPMENT_BOX.h, color: "black@0.5", t: "fill" } },
         { kind: "drawbox",  options: { x: $EQUIPMENT_BOX.x, y: $EQUIPMENT_BOX.y, w: $EQUIPMENT_BOX.w, h: $EQUIPMENT_BOX.h, color: "black@0.5", t: "5" } },
         { kind: "drawtext", options: { text: "WEAPONRY | EQUIPMENT | PERIPHERAL", fontfile: $BOLD_FONT, fontcolor: "white", fontsize: ($EQUIPMENT_FONT_SIZE + 2), x: $"($EQUIPMENT_BOX.x)+($EQUIPMENT_OFFSET_X)", y: $"($BOTTOM_FIRST_ROW_Y)-th/2" } },
-        { kind: "drawtext", options: { text: $equipment_text, fontcolor: "white", fontsize: $EQUIPMENT_FONT_SIZE, x: $"($EQUIPMENT_BOX.x)+($EQUIPMENT_OFFSET_X)", y: $"($BOTTOM_SECOND_ROW_Y)-th/2" } },
+        { kind: "drawtext", options: { text: $equipment_text, fontcolor: "white", fontsize: ($EQUIPMENT_FONT_SIZE - 5), x: $"($EQUIPMENT_BOX.x)+($EQUIPMENT_OFFSET_X)", y: $"($BOTTOM_SECOND_ROW_Y)-th/2" } },
 
         { kind: "drawbox",  options: { x: $MELEE_BOX.x, y: $MELEE_BOX.y, w: $MELEE_BOX.w, h: $MELEE_BOX.h, color: "black@0.5", t: "fill" } },
         { kind: "drawbox",  options: { x: $MELEE_BOX.x, y: $MELEE_BOX.y, w: $MELEE_BOX.w, h: $MELEE_BOX.h, color: "black@0.5", t: "5" } },
         { kind: "drawtext", options: { text: "MELEE WEAPONS", fontfile: $BOLD_FONT, fontcolor: "white", fontsize: ($MELEE_FONT_SIZE + 2), x: $"($MELEE_BOX.x)+($MELEE_OFFSET_X)", y: $"($BOTTOM_FIRST_ROW_Y)-th/2" } },
-        { kind: "drawtext", options: { text: $"'($troop.melee_weapons | str join '\\, ')'", fontcolor: "white", fontsize: $MELEE_FONT_SIZE, x: $"($MELEE_BOX.x)+($MELEE_OFFSET_X)", y: $"($BOTTOM_SECOND_ROW_Y)-th/2" } },
+        { kind: "drawtext", options: { text: $"'($troop.melee_weapons | str join '\\, ')'", fontcolor: "white", fontsize: ($MELEE_FONT_SIZE - 5), x: $"($MELEE_BOX.x)+($MELEE_OFFSET_X)", y: $"($BOTTOM_SECOND_ROW_Y)-th/2" } },
 
         { kind: "drawbox",  options: { x: $SWC_BOX.x, y: $SWC_BOX.y, w: $SWC_BOX.w, h: $SWC_BOX.h, color: "black@0.5", t: "fill" } },
         { kind: "drawbox",  options: { x: $SWC_BOX.x, y: $SWC_BOX.y, w: $SWC_BOX.w, h: $SWC_BOX.h, color: "black@0.5", t: "5" } },

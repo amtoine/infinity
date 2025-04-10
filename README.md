@@ -3,7 +3,7 @@
 | Inspiration                                           | Mine                           |
 |-------------------------------------------------------|--------------------------------|
 | ![](assets/4fb8339e-3d5d-4f70-9e3e-3f76bb449dd4.jpeg) | ![](assets/panoceania-orc.png) |
-| ![](assets/c10788ac-cffd-4494-8f02-d7eaafcc30fa.jpeg) |                                |
+| ![](assets/c10788ac-cffd-4494-8f02-d7eaafcc30fa.jpeg) | ![](assets/jsa-shikami.png)    |
 | ![](assets/e3948ce6-e52d-4d15-be89-131ea8f03858.jpeg) |                                |
 
 > Sources:
