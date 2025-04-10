@@ -9,7 +9,7 @@ const NAME_OFFSET_X = 28
 
 const NAME_2_BOX = { x: 35, y: 780, w: (1560 - 35), h: (830 - 780) }
 const NAME_2_FONT_SIZE = 30
-const NAME_2_OFFSET_X = 5
+const NAME_2_OFFSET_X = 10
 
 const ICON_BOX = { x: 35, y: 35, w: (155 - 35), h: (155 - 35) }
 
@@ -66,11 +66,11 @@ export def main [troop: record, --output: path = "output.png"] {
         { kind: "drawtext", options: { text: $"'ISC\\: ($troop.isc)'", fontcolor: "black", fontsize: $ISC_FONT_SIZE, x: $ISC_POS.x, y: $ISC_POS.y } },
 
         { kind: "drawbox",  options: { x: $NAME_BOX.x, y: $NAME_BOX.y, w: $NAME_BOX.w, h: $NAME_BOX.h, color: $"($color)@1.0", t: "fill" } },
-        { kind: "drawbox",  options: { x: $NAME_BOX.x, y: $NAME_BOX.y, w: $NAME_BOX.w, h: $NAME_BOX.h, color: $"($color)@1.0", t: "5" } },
+        { kind: "drawbox",  options: { x: $NAME_BOX.x, y: $NAME_BOX.y, w: $NAME_BOX.w, h: $NAME_BOX.h, color: "black@0.4", t: "5" } },
         { kind: "drawtext", options: { text: $troop.name, fontcolor: "white", fontsize: $NAME_FONT_SIZE, x: $"($NAME_BOX.x)+($NAME_OFFSET_X)", y: $"($NAME_BOX.y)+($NAME_BOX.h / 2)-th/2" } },
 
         { kind: "drawbox",  options: { x: $NAME_2_BOX.x, y: $NAME_2_BOX.y, w: $NAME_2_BOX.w, h: $NAME_2_BOX.h, color: $"($color)@1.0", t: "fill" } },
-        { kind: "drawbox",  options: { x: $NAME_2_BOX.x, y: $NAME_2_BOX.y, w: $NAME_2_BOX.w, h: $NAME_2_BOX.h, color: $"($color)@1.0", t: "5" } },
+        { kind: "drawbox",  options: { x: $NAME_2_BOX.x, y: $NAME_2_BOX.y, w: $NAME_2_BOX.w, h: $NAME_2_BOX.h, color: "black@0.4", t: "5" } },
         { kind: "drawtext", options: { text: $troop.short_name, fontcolor: "white", fontsize: $NAME_2_FONT_SIZE, x: $"($NAME_2_BOX.x)+($NAME_2_OFFSET_X)", y: $"($NAME_2_BOX.y)+($NAME_2_BOX.h / 2)-th/2" } },
 
         { kind: "drawbox",  options: { x: $ICON_BOX.x, y: $ICON_BOX.y, w: $ICON_BOX.w, h: $ICON_BOX.h, color: "black@0.5", t: "fill" } },
@@ -81,7 +81,7 @@ export def main [troop: record, --output: path = "output.png"] {
         { kind: "drawtext", options: { text: "HI", fontcolor: "white", fontsize: $HI_TEXT_FONT_SIZE, x: $"($HI_TEXT_POS.x)-tw/2", y: $"($HI_TEXT_POS.y)-th/2" } },
 
         { kind: "drawbox",  options: { x: $STAT_KEYS_BOX.x, y: $STAT_KEYS_BOX.y, w: $STAT_KEYS_BOX.w, h: $STAT_KEYS_BOX.h, color: $"($color)@1.0", t: "fill" } },
-        { kind: "drawbox",  options: { x: $STAT_KEYS_BOX.x, y: $STAT_KEYS_BOX.y, w: $STAT_KEYS_BOX.w, h: $STAT_KEYS_BOX.h, color: $"($color)@1.0", t: "5" } },
+        { kind: "drawbox",  options: { x: $STAT_KEYS_BOX.x, y: $STAT_KEYS_BOX.y, w: $STAT_KEYS_BOX.w, h: $STAT_KEYS_BOX.h, color: "black@0.4", t: "5" } },
 
         { kind: "drawbox",  options: { x: $STAT_VALS_BOX.x, y: $STAT_VALS_BOX.y, w: $STAT_VALS_BOX.w, h: $STAT_VALS_BOX.h, color: "black@0.5", t: "fill" } },
         { kind: "drawbox",  options: { x: $STAT_VALS_BOX.x, y: $STAT_VALS_BOX.y, w: $STAT_VALS_BOX.w, h: $STAT_VALS_BOX.h, color: "black@0.5", t: "5" } },
