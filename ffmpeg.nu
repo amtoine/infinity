@@ -124,7 +124,11 @@ export def "ffmpeg apply" [
         output: $"(ansi purple)($output)(ansi reset)",
     } | log info $"($in.in) --($in.transform)--> ($in.output)"
 
-    ffmpeg ...$options -i $in -vf $transform $output
+    $in | try {
+        ffmpeg ...$options -i $in -vf $transform $output
+    } catch { |e|
+        error make --unspanned { msg: $e.msg }
+    }
     $output
 }
 
@@ -165,7 +169,11 @@ export def "ffmpeg combine" [
         output: $"(ansi purple)($output)(ansi reset)",
     } | log info $"($in.in) --($in.transform)--> ($in.output)"
 
-    ffmpeg ...$options ...($in | each {[ "-i", $in ]} | flatten) -filter_complex $transform $output
+    $in | try {
+        ffmpeg ...$options ...($in | each {[ "-i", $in ]} | flatten) -filter_complex $transform $output
+    } catch { |e|
+        error make --unspanned { msg: $e.msg }
+    }
     $output
 }
 
