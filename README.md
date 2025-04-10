@@ -14,10 +14,7 @@
 
 ## Build cards
 ```nushell
-use make.nu
-```
-```nushell
-make (open troops/panoceania/orc.nuon) --color "0x66b6d7" --output assets/panoceania-orc.png
+nu make.nu
 ```
 
 [video-1]: https://youtu.be/DhcczP8GJhE
