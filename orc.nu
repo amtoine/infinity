@@ -32,7 +32,7 @@ const STAT_OFFSET_X = 60
 
 const START = { kind: "color",    options: { c: "0xDDDDDD", s: "1600x1000", d: 1 } }
 
-const IMAGE = { kind: "overlay",  options: { x: "10", y: "H-h-50" } }
+const IMAGE = { kind: "overlay",  options: { x: "320-w/2", y: "H-h-50" } }
 
 const BOTTOM_FIRST_ROW_Y = 880
 const BOTTOM_SECOND_ROW_Y = 925
