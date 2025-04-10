@@ -1,5 +1,7 @@
 {
     isc: "Orc troops",
+    name: "ORC TROOPS",
+    short_name: "ORC",
     type: "veteran",
     hi: [
         "./troops/assets/hi-00001.png",
@@ -7,9 +9,10 @@
         "./troops/assets/hi-00003.png",
     ],
     icon: "./troops/assets/icon-00001.png",
+    faction_icon: "./troops/assets/panoceania.png",
     skin: "./troops/assets/00001.png",
     stats: {
-        MOV:  [6, 2],
+        MOV:  "6-2",
         CC:   15,
         BS:   14,
         PH:   14,
