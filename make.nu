@@ -55,7 +55,7 @@ const C_BOX = { x: 1460, y: 850, w: (1560 - 1460), h: (960 - 850) }
 const C_FONT_SIZE = 30
 const C_OFFSET_X = 10
 
-const SPECIAL_SKILLS_BOX = { x: 920, y: 350, w: (1560 - 920), h: (500 - 350) }
+const SPECIAL_SKILLS_BOX = { x: 920, y: 350, w: (1560 - 920), h: null }
 const SPECIAL_SKILLS_FONT_SIZE = 30
 const SPECIAL_SKILLS_OFFSET_X = 10
 
@@ -65,6 +65,7 @@ export def main [troop: record, --color: string, --output: path = "output.png"] 
         | str join " | "
 
     let hi_box_h = 70 * (($troop.hi | length) + 1)
+    let special_skills_box_h = 130 + 50 * (($troop.special_skills | length) - 1)
 
     let transforms = [
         { kind: "drawtext", options: { text: $"'ISC\\: ($troop.isc)'", fontcolor: "black", fontsize: $ISC_FONT_SIZE, x: $ISC_POS.x, y: $ISC_POS.y } },
@@ -97,10 +98,29 @@ export def main [troop: record, --color: string, --output: path = "output.png"] 
             ] } | flatten
         ),
 
-        { kind: "drawbox",  options: { x: $SPECIAL_SKILLS_BOX.x, y: $SPECIAL_SKILLS_BOX.y, w: $SPECIAL_SKILLS_BOX.w, h: $SPECIAL_SKILLS_BOX.h, color: "black@0.5", t: "fill" } },
-        { kind: "drawbox",  options: { x: $SPECIAL_SKILLS_BOX.x, y: $SPECIAL_SKILLS_BOX.y, w: $SPECIAL_SKILLS_BOX.w, h: $SPECIAL_SKILLS_BOX.h, color: "black@0.5", t: "5" } },
-        { kind: "drawtext", options: { text: "Special skills", fontfile: $BOLD_FONT, fontcolor: "white", fontsize: ($C_FONT_SIZE + 2), x: $"($SPECIAL_SKILLS_BOX.x)+($SPECIAL_SKILLS_BOX.w // 2)-tw/2", y: $"($BOTTOM_FIRST_ROW_Y)-th/2" } },
-        { kind: "drawtext", options: { text: $troop.special_skills.0, fontcolor: "white", fontsize: $C_FONT_SIZE, x: $"($SPECIAL_SKILLS_BOX.x)+($SPECIAL_SKILLS_BOX.w // 2)-tw/2", y: $"($BOTTOM_SECOND_ROW_Y)-th/2" } },
+        ...(
+            if ($troop.special_skills | is-empty) {
+                []
+            } else {
+                let box = [
+                    { kind: "drawbox",  options: { x: $SPECIAL_SKILLS_BOX.x, y: $SPECIAL_SKILLS_BOX.y, w: $SPECIAL_SKILLS_BOX.w, h: $special_skills_box_h, color: "black@0.5", t: "fill" } },
+                    { kind: "drawbox",  options: { x: $SPECIAL_SKILLS_BOX.x, y: $SPECIAL_SKILLS_BOX.y, w: $SPECIAL_SKILLS_BOX.w, h: $special_skills_box_h, color: "black@0.5", t: "5" } },
+                    { kind: "drawtext", options: { text: "Special skills", fontfile: $BOLD_FONT, fontcolor: "white", fontsize: ($C_FONT_SIZE + 2), x: $"($SPECIAL_SKILLS_BOX.x)+($SPECIAL_SKILLS_OFFSET_X)", y: $"($SPECIAL_SKILLS_BOX.y)+30-th/2" } },
+                ]
+                let skills = $troop.special_skills | enumerate | each { |it|
+                    [
+                        { kind: "drawtext", options: {
+                            text: $it.item,
+                            fontcolor: "white",
+                            fontsize: $SPECIAL_SKILLS_FONT_SIZE,
+                            x: $"($SPECIAL_SKILLS_BOX.x)+($SPECIAL_SKILLS_OFFSET_X)",
+                            y: $"($SPECIAL_SKILLS_BOX.y)+100+50*($it.index)-th/2" },
+                        },
+                    ]
+                }
+                $box | append ($skills | flatten)
+            }
+        ),
 
         { kind: "drawbox",  options: { x: $EQUIPMENT_BOX.x, y: $EQUIPMENT_BOX.y, w: $EQUIPMENT_BOX.w, h: $EQUIPMENT_BOX.h, color: "black@0.5", t: "fill" } },
         { kind: "drawbox",  options: { x: $EQUIPMENT_BOX.x, y: $EQUIPMENT_BOX.y, w: $EQUIPMENT_BOX.w, h: $EQUIPMENT_BOX.h, color: "black@0.5", t: "5" } },
