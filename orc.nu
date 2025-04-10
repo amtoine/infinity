@@ -35,21 +35,24 @@ const START = { kind: "color",    options: { c: "white", s: "1600x1000", d: 1 } 
 const IMAGE = { kind: "overlay",  options: { x: "10", y: "H-h-50" } }
 const FACTION_IMAGE = { kind: "overlay",  options: { x: "1455-w/2", y: "500-h/2" } }
 
+const BOTTOM_FIRST_ROW_Y = 880
+const BOTTOM_SECOND_ROW_Y = 925
+
 const EQUIPMENT_BOX = { x: 35, y: 850, w: (690 - 35), h: (960 - 850) }
 const EQUIPMENT_FONT_SIZE = 30
-const EQUIPMENT_OFFSET_X = 5
+const EQUIPMENT_OFFSET_X = 10
 
 const MELEE_BOX = { x: 710, y: 850, w: (1335 - 710), h: (960 - 850) }
 const MELEE_FONT_SIZE = 30
-const MELEE_OFFSET_X = 5
+const MELEE_OFFSET_X = 10
 
 const SWC_BOX = { x: 1355, y: 850, w: (1445 - 1355), h: (960 - 850) }
 const SWC_FONT_SIZE = 30
-const SWC_OFFSET_X = 5
+const SWC_OFFSET_X = 10
 
 const C_BOX = { x: 1460, y: 850, w: (1560 - 1460), h: (960 - 850) }
 const C_FONT_SIZE = 30
-const C_OFFSET_X = 5
+const C_OFFSET_X = 10
 
 const TRANSFORMS = [
     { kind: "drawtext", options: { text: "'ISC\\: Orc Troops'", fontcolor: "black", fontsize: $ISC_FONT_SIZE, x: $ISC_POS.x, y: $ISC_POS.y } },
@@ -107,15 +110,23 @@ const TRANSFORMS = [
 
     { kind: "drawbox",  options: { x: $EQUIPMENT_BOX.x, y: $EQUIPMENT_BOX.y, w: $EQUIPMENT_BOX.w, h: $EQUIPMENT_BOX.h, color: "black@0.5", t: "fill" } },
     { kind: "drawbox",  options: { x: $EQUIPMENT_BOX.x, y: $EQUIPMENT_BOX.y, w: $EQUIPMENT_BOX.w, h: $EQUIPMENT_BOX.h, color: "black@0.5", t: "5" } },
+    { kind: "drawtext", options: { text: "WEAPONRY | EQUIPMENT || PERIPHERAL", fontcolor: "white", fontsize: $EQUIPMENT_FONT_SIZE, x: $"($EQUIPMENT_BOX.x)+($EQUIPMENT_OFFSET_X)", y: $"($BOTTOM_FIRST_ROW_Y)-th/2" } },
+    { kind: "drawtext", options: { text: "MULTI Rifle", fontcolor: "white", fontsize: $EQUIPMENT_FONT_SIZE, x: $"($EQUIPMENT_BOX.x)+($EQUIPMENT_OFFSET_X)", y: $"($BOTTOM_SECOND_ROW_Y)-th/2" } },
 
     { kind: "drawbox",  options: { x: $MELEE_BOX.x, y: $MELEE_BOX.y, w: $MELEE_BOX.w, h: $MELEE_BOX.h, color: "black@0.5", t: "fill" } },
     { kind: "drawbox",  options: { x: $MELEE_BOX.x, y: $MELEE_BOX.y, w: $MELEE_BOX.w, h: $MELEE_BOX.h, color: "black@0.5", t: "5" } },
+    { kind: "drawtext", options: { text: "MELEE WEAPONS", fontcolor: "white", fontsize: $MELEE_FONT_SIZE, x: $"($MELEE_BOX.x)+($MELEE_OFFSET_X)", y: $"($BOTTOM_FIRST_ROW_Y)-th/2" } },
+    { kind: "drawtext", options: { text: "'Pistol\\, CCW'", fontcolor: "white", fontsize: $MELEE_FONT_SIZE, x: $"($MELEE_BOX.x)+($MELEE_OFFSET_X)", y: $"($BOTTOM_SECOND_ROW_Y)-th/2" } },
 
     { kind: "drawbox",  options: { x: $SWC_BOX.x, y: $SWC_BOX.y, w: $SWC_BOX.w, h: $SWC_BOX.h, color: "black@0.5", t: "fill" } },
     { kind: "drawbox",  options: { x: $SWC_BOX.x, y: $SWC_BOX.y, w: $SWC_BOX.w, h: $SWC_BOX.h, color: "black@0.5", t: "5" } },
+    { kind: "drawtext", options: { text: "SWC", fontcolor: "white", fontsize: $SWC_FONT_SIZE, x: $"($SWC_BOX.x)+($SWC_BOX.w // 2)-tw/2", y: $"($BOTTOM_FIRST_ROW_Y)-th/2" } },
+    { kind: "drawtext", options: { text: "0", fontcolor: "white", fontsize: $SWC_FONT_SIZE, x: $"($SWC_BOX.x)+($SWC_BOX.w // 2)-tw/2", y: $"($BOTTOM_SECOND_ROW_Y)-th/2" } },
 
     { kind: "drawbox",  options: { x: $C_BOX.x, y: $C_BOX.y, w: $C_BOX.w, h: $C_BOX.h, color: "black@0.5", t: "fill" } },
     { kind: "drawbox",  options: { x: $C_BOX.x, y: $C_BOX.y, w: $C_BOX.w, h: $C_BOX.h, color: "black@0.5", t: "5" } },
+    { kind: "drawtext", options: { text: "C", fontcolor: "white", fontsize: $C_FONT_SIZE, x: $"($C_BOX.x)+($C_BOX.w // 2)-tw/2", y: $"($BOTTOM_FIRST_ROW_Y)-th/2" } },
+    { kind: "drawtext", options: { text: "28", fontcolor: "white", fontsize: $C_FONT_SIZE, x: $"($C_BOX.x)+($C_BOX.w // 2)-tw/2", y: $"($BOTTOM_SECOND_ROW_Y)-th/2" } },
 ]
 
 export def main [] {
