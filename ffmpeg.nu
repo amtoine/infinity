@@ -20,6 +20,79 @@ def "log info" [msg: string] {
     print $"[(ansi cyan)INFO(ansi reset)] ($msg)"
 }
 
+export def "ffmpeg metadata" []: [
+    path -> record<
+        streams: record<index: int,
+            codec_name: string,
+            codec_long_name: string,
+            codec_type: string,
+            codec_tag_string: string,
+            codec_tag: string,
+            width: int,
+            height: int,
+            coded_width: int,
+            coded_height: int,
+            closed_captions: int,
+            has_b_frames: int,
+            sample_aspect_ratio: string,
+            display_aspect_ratio: string,
+            pix_fmt: string,
+            level: int,
+            color_range: string,
+            refs: int,
+            r_frame_rate: string,
+            avg_frame_rate: string,
+            time_base: string,
+            disposition: record<
+                default: int,
+                dub: int,
+                original: int,
+                comment: int,
+                lyrics: int,
+                karaoke: int,
+                forced: int,
+                hearing_impaired: int,
+                visual_impaired: int,
+                clean_effects: int,
+                attached_pic: int,
+                timed_thumbnails: int,
+            >,
+        >,
+        format: record<filename: string,
+            nb_streams: int,
+            nb_programs: int,
+            format_name: string,
+            format_long_name: string,
+            size: string,
+            probe_score: int>,
+    >
+] {
+    ffprobe -v quiet -print_format json -show_format -show_streams $in | from json | update streams { into record }
+}
+
+export def "ffmpeg options" []: [ record<kind: string, options: record> -> string ] {
+    let options = $in.options | items { |k, v| $"($k)=($v)" } | str join ":"
+    $"($in.kind)=($options)"
+}
+
+export def "ffmpeg create" [
+    transform: string,
+    --output: path = "output.jpg",
+    --options: list<string> = $FFMPEG_OPTS,
+]: [ nothing -> path ] {
+    {
+        transform: $"(ansi yellow)($transform)(ansi reset)",
+        output: $"(ansi purple)($output)(ansi reset)",
+    } | log info $"null --($in.transform)--> ($in.output)"
+
+    try {
+        ffmpeg ...$options -f lavfi -i $transform -frames:v 1 $output
+    } catch { |e|
+        error make --unspanned { msg: $e.msg }
+    }
+    $output
+}
+
 export def "ffmpeg blank" [
     color: string,
     width: int,
@@ -46,6 +119,32 @@ export def "ffmpeg apply" [
     $output
 }
 
+export def "ffmpeg mapply" [
+    transforms: list<string>,
+    --output: path = "output.jpg",
+    --options: list<string> = $FFMPEG_OPTS,
+]: [ any -> path ] {
+    let input = $in
+
+    let t = $input | describe --detailed
+    match $t.type {
+        "nothing" => {},
+        "string" => {},
+        _ => { error make --unspanned {
+            msg: $"expected input to be either a (ansi green)path(ansi reset) or (ansi green)nothing(ansi reset), found (ansi red)($t.type)(ansi reset)"
+        }},
+    }
+
+    $transforms | reduce --fold $input { |it, acc|
+        let output = mktemp --tmpdir "XXXXXXX.png"
+        if $acc == null {
+            ffmpeg create $it --output $output
+        } else {
+            $acc | ffmpeg apply $it --output $output
+        }
+    }
+}
+
 export def "ffmpeg combine" [
     transform: string,
     --output: path = "output.jpg",
@@ -60,3 +159,30 @@ export def "ffmpeg combine" [
     ffmpeg ...$options ...($in | each {[ "-i", $in ]} | flatten) -filter_complex $transform $output
     $output
 }
+
+export def "ffmpeg transform text" [text: string, color: string, size: float, pos: record<x: int, y: int>]: [
+    nothing -> record<kind: string, options: record>
+] { {
+    kind: "drawtext",
+    options: {
+        text: $text,
+        fontcolor: $color,
+        fontsize: $size,
+        x: $pos.x,
+        y: $pos.y,
+    }
+} }
+
+export def "ffmpeg transform box" [rect: record<x: int, y: int, w: int, h: int>, color: string, t: string]: [
+    nothing -> record<kind: string, options: record>
+] { {
+    kind: "drawbox",
+    options: {
+        x: $rect.x,
+        y: $rect.y,
+        w: $rect.w,
+        h: $rect.h,
+        color: $color,
+        t: $t,
+    }
+} }
