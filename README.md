@@ -12,5 +12,13 @@
 >
 > Screenshots of cards from these videos have been scaled to ratio 1.6, e.g. 1600x1000.
 
+## Build cards
+```nushell
+use make.nu
+```
+```nushell
+make (open troops/panoceania/orc.nuon) --color "0x66b6d7" --output assets/panoceania-orc.png
+```
+
 [video-1]: https://youtu.be/DhcczP8GJhE
 [video-2]: https://youtu.be/fX7fCxJVDd4

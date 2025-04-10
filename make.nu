@@ -53,9 +53,7 @@ const C_BOX = { x: 1460, y: 850, w: (1560 - 1460), h: (960 - 850) }
 const C_FONT_SIZE = 30
 const C_OFFSET_X = 10
 
-export def main [troop: record, --output: path = "output.png"] {
-    let color = "0x66b6d7"
-
+export def main [troop: record, --color: string, --output: path = "output.png"] {
     let equipment_text = [$troop.weaponry, $troop.equipment, $troop.peripheral]
         | each { default "_" }
         | str join " | "
