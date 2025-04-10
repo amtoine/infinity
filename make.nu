@@ -55,6 +55,10 @@ const C_BOX = { x: 1460, y: 850, w: (1560 - 1460), h: (960 - 850) }
 const C_FONT_SIZE = 30
 const C_OFFSET_X = 10
 
+const SPECIAL_SKILLS_BOX = { x: 920, y: 350, w: (1560 - 920), h: (500 - 350) }
+const SPECIAL_SKILLS_FONT_SIZE = 30
+const SPECIAL_SKILLS_OFFSET_X = 10
+
 export def main [troop: record, --color: string, --output: path = "output.png"] {
     let equipment_text = [$troop.weaponry, $troop.equipment, $troop.peripheral]
         | each { default "_" }
@@ -92,6 +96,11 @@ export def main [troop: record, --color: string, --output: path = "output.png"] 
                 { kind: "drawtext", options: { text: $it.item.v, fontcolor: "white", fontsize: $STAT_FONT_SIZE, x: $"($STAT_VALS_BOX.x)+($STAT_OFFSET_X)+($it.index)*($STAT_DX)-tw/2", y: $"($STAT_VALS_BOX.y)+($STAT_VALS_BOX.h / 2)-th/2" } },
             ] } | flatten
         ),
+
+        { kind: "drawbox",  options: { x: $SPECIAL_SKILLS_BOX.x, y: $SPECIAL_SKILLS_BOX.y, w: $SPECIAL_SKILLS_BOX.w, h: $SPECIAL_SKILLS_BOX.h, color: "black@0.5", t: "fill" } },
+        { kind: "drawbox",  options: { x: $SPECIAL_SKILLS_BOX.x, y: $SPECIAL_SKILLS_BOX.y, w: $SPECIAL_SKILLS_BOX.w, h: $SPECIAL_SKILLS_BOX.h, color: "black@0.5", t: "5" } },
+        { kind: "drawtext", options: { text: "Special skills", fontfile: $BOLD_FONT, fontcolor: "white", fontsize: ($C_FONT_SIZE + 2), x: $"($SPECIAL_SKILLS_BOX.x)+($SPECIAL_SKILLS_BOX.w // 2)-tw/2", y: $"($BOTTOM_FIRST_ROW_Y)-th/2" } },
+        { kind: "drawtext", options: { text: $troop.special_skills.0, fontcolor: "white", fontsize: $C_FONT_SIZE, x: $"($SPECIAL_SKILLS_BOX.x)+($SPECIAL_SKILLS_BOX.w // 2)-tw/2", y: $"($BOTTOM_SECOND_ROW_Y)-th/2" } },
 
         { kind: "drawbox",  options: { x: $EQUIPMENT_BOX.x, y: $EQUIPMENT_BOX.y, w: $EQUIPMENT_BOX.w, h: $EQUIPMENT_BOX.h, color: "black@0.5", t: "fill" } },
         { kind: "drawbox",  options: { x: $EQUIPMENT_BOX.x, y: $EQUIPMENT_BOX.y, w: $EQUIPMENT_BOX.w, h: $EQUIPMENT_BOX.h, color: "black@0.5", t: "5" } },
