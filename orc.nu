@@ -136,5 +136,5 @@ export def main [] {
         | ffmpeg mapply ($TRANSFORMS | each { ffmpeg options })
         | [$in, "troops/assets/hi-00001.png"] | ffmpeg combine ({ kind: "overlay",  options: { x: $"($HI_BOX.x + $HI_BOX.w // 2)-w/2", y: "255-h/2" } } | ffmpeg options) --output (mktemp --tmpdir XXXXXXX.png)
         | [$in, "troops/assets/hi-00002.png"] | ffmpeg combine ({ kind: "overlay",  options: { x: $"($HI_BOX.x + $HI_BOX.w // 2)-w/2", y: "330-h/2" } } | ffmpeg options) --output (mktemp --tmpdir XXXXXXX.png)
-        | [$in, "troops/assets/icon-00001.png"] | ffmpeg combine ({ kind: "overlay",  options: { x: $"($ICON_BOX.x + $ICON_BOX.w // 2)-w/2", y: $"($ICON_BOX.y + $ICON_BOX.h // 2)-h/2" } } | ffmpeg options) --output (mktemp --tmpdir XXXXXXX.png)
+        | [$in, "troops/assets/icon-00001.png"] | ffmpeg combine ({ kind: "overlay",  options: { x: $"($ICON_BOX.x + $ICON_BOX.w // 2)-w/2", y: $"($ICON_BOX.y + $ICON_BOX.h // 2)-h/2" } } | ffmpeg options) --output "assets/panoceania-orc.png"
 }
