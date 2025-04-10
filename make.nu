@@ -1,5 +1,7 @@
 use ffmpeg.nu *
 
+const BOLD_FONT = "/usr/share/fonts/Adwaita/AdwaitaMono-Bold.ttf"
+
 const ISC_POS = { x: 505, y: 50 }
 const ISC_FONT_SIZE = 30
 
@@ -65,7 +67,7 @@ export def main [troop: record, --color: string, --output: path = "output.png"] 
 
         { kind: "drawbox",  options: { x: $NAME_BOX.x, y: $NAME_BOX.y, w: $NAME_BOX.w, h: $NAME_BOX.h, color: $"($color)@1.0", t: "fill" } },
         { kind: "drawbox",  options: { x: $NAME_BOX.x, y: $NAME_BOX.y, w: $NAME_BOX.w, h: $NAME_BOX.h, color: "black@0.4", t: "5" } },
-        { kind: "drawtext", options: { text: $troop.name, fontcolor: "white", fontsize: $NAME_FONT_SIZE, x: $"($NAME_BOX.x)+($NAME_OFFSET_X)", y: $"($NAME_BOX.y)+($NAME_BOX.h / 2)-th/2" } },
+        { kind: "drawtext", options: { text: $troop.name, fontfile: $BOLD_FONT, fontcolor: "white", fontsize: $NAME_FONT_SIZE, x: $"($NAME_BOX.x)+($NAME_OFFSET_X)", y: $"($NAME_BOX.y)+($NAME_BOX.h / 2)-th/2" } },
 
         { kind: "drawbox",  options: { x: $NAME_2_BOX.x, y: $NAME_2_BOX.y, w: $NAME_2_BOX.w, h: $NAME_2_BOX.h, color: $"($color)@1.0", t: "fill" } },
         { kind: "drawbox",  options: { x: $NAME_2_BOX.x, y: $NAME_2_BOX.y, w: $NAME_2_BOX.w, h: $NAME_2_BOX.h, color: "black@0.4", t: "5" } },
@@ -76,7 +78,7 @@ export def main [troop: record, --color: string, --output: path = "output.png"] 
 
         { kind: "drawbox",  options: { x: $HI_BOX.x, y: $HI_BOX.y, w: $HI_BOX.w, h: $hi_box_h, color: "black@0.5", t: "fill" } },
         { kind: "drawbox",  options: { x: $HI_BOX.x, y: $HI_BOX.y, w: $HI_BOX.w, h: $hi_box_h, color: "black@0.5", t: "5" } },
-        { kind: "drawtext", options: { text: "HI", fontcolor: "white", fontsize: $HI_TEXT_FONT_SIZE, x: $"($HI_TEXT_POS.x)-tw/2", y: $"($HI_TEXT_POS.y)-th/2" } },
+        { kind: "drawtext", options: { text: "HI", fontfile: $BOLD_FONT, fontcolor: "white", fontsize: $HI_TEXT_FONT_SIZE, x: $"($HI_TEXT_POS.x)-tw/2", y: $"($HI_TEXT_POS.y)-th/2" } },
 
         { kind: "drawbox",  options: { x: $STAT_KEYS_BOX.x, y: $STAT_KEYS_BOX.y, w: $STAT_KEYS_BOX.w, h: $STAT_KEYS_BOX.h, color: $"($color)@1.0", t: "fill" } },
         { kind: "drawbox",  options: { x: $STAT_KEYS_BOX.x, y: $STAT_KEYS_BOX.y, w: $STAT_KEYS_BOX.w, h: $STAT_KEYS_BOX.h, color: "black@0.4", t: "5" } },
@@ -93,22 +95,22 @@ export def main [troop: record, --color: string, --output: path = "output.png"] 
 
         { kind: "drawbox",  options: { x: $EQUIPMENT_BOX.x, y: $EQUIPMENT_BOX.y, w: $EQUIPMENT_BOX.w, h: $EQUIPMENT_BOX.h, color: "black@0.5", t: "fill" } },
         { kind: "drawbox",  options: { x: $EQUIPMENT_BOX.x, y: $EQUIPMENT_BOX.y, w: $EQUIPMENT_BOX.w, h: $EQUIPMENT_BOX.h, color: "black@0.5", t: "5" } },
-        { kind: "drawtext", options: { text: "WEAPONRY | EQUIPMENT | PERIPHERAL", fontcolor: "white", fontsize: $EQUIPMENT_FONT_SIZE, x: $"($EQUIPMENT_BOX.x)+($EQUIPMENT_OFFSET_X)", y: $"($BOTTOM_FIRST_ROW_Y)-th/2" } },
+        { kind: "drawtext", options: { text: "WEAPONRY | EQUIPMENT | PERIPHERAL", fontfile: $BOLD_FONT, fontcolor: "white", fontsize: ($EQUIPMENT_FONT_SIZE + 2), x: $"($EQUIPMENT_BOX.x)+($EQUIPMENT_OFFSET_X)", y: $"($BOTTOM_FIRST_ROW_Y)-th/2" } },
         { kind: "drawtext", options: { text: $equipment_text, fontcolor: "white", fontsize: $EQUIPMENT_FONT_SIZE, x: $"($EQUIPMENT_BOX.x)+($EQUIPMENT_OFFSET_X)", y: $"($BOTTOM_SECOND_ROW_Y)-th/2" } },
 
         { kind: "drawbox",  options: { x: $MELEE_BOX.x, y: $MELEE_BOX.y, w: $MELEE_BOX.w, h: $MELEE_BOX.h, color: "black@0.5", t: "fill" } },
         { kind: "drawbox",  options: { x: $MELEE_BOX.x, y: $MELEE_BOX.y, w: $MELEE_BOX.w, h: $MELEE_BOX.h, color: "black@0.5", t: "5" } },
-        { kind: "drawtext", options: { text: "MELEE WEAPONS", fontcolor: "white", fontsize: $MELEE_FONT_SIZE, x: $"($MELEE_BOX.x)+($MELEE_OFFSET_X)", y: $"($BOTTOM_FIRST_ROW_Y)-th/2" } },
+        { kind: "drawtext", options: { text: "MELEE WEAPONS", fontfile: $BOLD_FONT, fontcolor: "white", fontsize: ($MELEE_FONT_SIZE + 2), x: $"($MELEE_BOX.x)+($MELEE_OFFSET_X)", y: $"($BOTTOM_FIRST_ROW_Y)-th/2" } },
         { kind: "drawtext", options: { text: $"'($troop.melee_weapons | str join '\\, ')'", fontcolor: "white", fontsize: $MELEE_FONT_SIZE, x: $"($MELEE_BOX.x)+($MELEE_OFFSET_X)", y: $"($BOTTOM_SECOND_ROW_Y)-th/2" } },
 
         { kind: "drawbox",  options: { x: $SWC_BOX.x, y: $SWC_BOX.y, w: $SWC_BOX.w, h: $SWC_BOX.h, color: "black@0.5", t: "fill" } },
         { kind: "drawbox",  options: { x: $SWC_BOX.x, y: $SWC_BOX.y, w: $SWC_BOX.w, h: $SWC_BOX.h, color: "black@0.5", t: "5" } },
-        { kind: "drawtext", options: { text: "SWC", fontcolor: "white", fontsize: $SWC_FONT_SIZE, x: $"($SWC_BOX.x)+($SWC_BOX.w // 2)-tw/2", y: $"($BOTTOM_FIRST_ROW_Y)-th/2" } },
+        { kind: "drawtext", options: { text: "SWC", fontfile: $BOLD_FONT, fontcolor: "white", fontsize: ($SWC_FONT_SIZE + 2), x: $"($SWC_BOX.x)+($SWC_BOX.w // 2)-tw/2", y: $"($BOTTOM_FIRST_ROW_Y)-th/2" } },
         { kind: "drawtext", options: { text: $troop.SWC, fontcolor: "white", fontsize: $SWC_FONT_SIZE, x: $"($SWC_BOX.x)+($SWC_BOX.w // 2)-tw/2", y: $"($BOTTOM_SECOND_ROW_Y)-th/2" } },
 
         { kind: "drawbox",  options: { x: $C_BOX.x, y: $C_BOX.y, w: $C_BOX.w, h: $C_BOX.h, color: "black@0.5", t: "fill" } },
         { kind: "drawbox",  options: { x: $C_BOX.x, y: $C_BOX.y, w: $C_BOX.w, h: $C_BOX.h, color: "black@0.5", t: "5" } },
-        { kind: "drawtext", options: { text: "C", fontcolor: "white", fontsize: $C_FONT_SIZE, x: $"($C_BOX.x)+($C_BOX.w // 2)-tw/2", y: $"($BOTTOM_FIRST_ROW_Y)-th/2" } },
+        { kind: "drawtext", options: { text: "C", fontfile: $BOLD_FONT, fontcolor: "white", fontsize: ($C_FONT_SIZE + 2), x: $"($C_BOX.x)+($C_BOX.w // 2)-tw/2", y: $"($BOTTOM_FIRST_ROW_Y)-th/2" } },
         { kind: "drawtext", options: { text: $troop.C, fontcolor: "white", fontsize: $C_FONT_SIZE, x: $"($C_BOX.x)+($C_BOX.w // 2)-tw/2", y: $"($BOTTOM_SECOND_ROW_Y)-th/2" } },
     ]
 
