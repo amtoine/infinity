@@ -1,0 +1,38 @@
+{
+    isc: "Nyoka Assault Troops",
+    name: "NYOKA Assault Troops",
+    short_name: "NYOKA FTO",
+    faction: "o-12",
+    asset: "o-12-starmada-nyoka.2",
+    classification: "trained",
+    type: "LI",
+    characteristics: [
+        "cube",
+        "regular",
+    ],
+    stats: {
+        MOV:  "4-4",
+        CC:   19,
+        BS:   12,
+        PH:   11,
+        WIP:  13,
+        ARM:   1,
+        BTS:   3,
+        VITA:  1,
+        S:     2,
+        AVA:   5,
+    }
+    special_skills: [
+        "BS Attack (SR-1)",
+        "Climbing Plus",
+        "Courage",
+        "Immunity (Shock)",
+        "Terrain (Zero-G)"
+    ],
+    weaponry: "Heavy Rocket Launcher\\, Chain-colt",
+    equipment: null,
+    peripheral: null,
+    melee_weapons: ["Shock CC Weapon", "Heavy Pistol (+1B)"],
+    SWC: 1,
+    C: 18,
+}
