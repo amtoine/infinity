@@ -1,0 +1,36 @@
+{
+    isc: "Tunguska Cheerkillers",
+    name: "Tunguska CHEERKILLERS",
+    short_name: "CHEERKILLERS",
+    faction: "nomads",
+    asset: "nomads-tunguska-cheerkiller.2",
+    classification: "trained",
+    type: "LI",
+    characteristics: [
+        "cube",
+        "regular",
+    ],
+    stats: {
+        MOV:  "4-4",
+        CC:   19,
+        BS:   12,
+        PH:   12,
+        WIP:  13,
+        ARM:   1,
+        BTS:   0,
+        VITA:  1,
+        S:     2,
+        AVA:   5,
+    }
+    special_skills: [
+        "Dodge (+3)",
+        "Martial Arts L1",
+        "Super-Jump",
+    ],
+    weaponry: "AP Rifle\\, Nanopulser",
+    equipment: null,
+    peripheral: null,
+    melee_weapons: ["MULTI Pistol (+1B)", "Shock CC Weapon"],
+    SWC: 0,
+    C: 18,
+}

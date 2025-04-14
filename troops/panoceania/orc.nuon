@@ -2,16 +2,15 @@
     isc: "Orc troops",
     name: "ORC TROOPS",
     short_name: "ORC",
+    faction: "panoceania",
+    asset: "panoceania-orc",
     classification: "veteran",
     type: "HI",
-    tokens: [
-        "./troops/assets/tokens/groupable.png",
-        "./troops/assets/tokens/regular_order.png",
-        "./troops/assets/tokens/hackable.png",
+    characteristics: [
+        "cube",
+        "regular",
+        "hackable",
     ],
-    icon: "./troops/assets/icons/panoceania-orc.png",
-    faction_icon: "./troops/assets/factions/panoceania.png",
-    skin: "./troops/assets/troops/panoceania-orc.png",
     stats: {
         MOV:  "6-2",
         CC:   15,

@@ -1,0 +1,36 @@
+{
+    isc: "Grenzers\\, Grenz Security Team",
+    name: "GRENZERS\\, Grenz Security Team",
+    short_name: "GRENZERS",
+    faction: "nomads",
+    asset: "nomads-tunguska-grenzer",
+    classification: "veteran",
+    type: "MI",
+    characteristics: [
+        "cube",
+        "regular",
+    ],
+    stats: {
+        MOV:  "4-4",
+        CC:   16,
+        BS:   13,
+        PH:   11,
+        WIP:  13,
+        ARM:   3,
+        BTS:   6,
+        VITA:  1,
+        S:     2,
+        AVA:   5,
+    }
+    special_skills: [
+        "Courage",
+        "Immunity (Shock)",
+        "Warhorse",
+    ],
+    weaponry: "Missile Launcher",
+    equipment: "Multispectral Visor L1",
+    peripheral: null,
+    melee_weapons: ["Pistol", "Breaker Pistol", "CC Weapon"],
+    SWC: 1.5,
+    C: 28,
+}

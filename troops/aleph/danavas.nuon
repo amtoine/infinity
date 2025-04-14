@@ -1,0 +1,34 @@
+{
+    isc: "Danavas Hackers",
+    name: "DANAVAS Hackers",
+    short_name: "'DANAVAS (Hacker\\, Hacking Device Plus \\[UPGRADE\\: Oblivion (+1B)\\])'",
+    faction: "aleph",
+    asset: "aleph-danavas",
+    classification: "line",
+    type: "LI",
+    characteristics: [
+        "regular",
+        "cube.2",
+    ],
+    stats: {
+        MOV:  "4-4",
+        CC:   15,
+        BS:   11,
+        PH:   11,
+        WIP:  15,
+        ARM:   1,
+        BTS:   3,
+        VITA:  1,
+        S:     2,
+        AVA:   2,
+    }
+    special_skills: [
+        "Courage",
+    ],
+    weaponry: "Combi Rifle\\, Pitcher",
+    equipment: null,
+    peripheral: null,
+    melee_weapons: ["Breaker Pistol", "CC Weapon"],
+    SWC: 0.5,
+    C: 22,
+}
