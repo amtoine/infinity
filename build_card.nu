@@ -157,7 +157,7 @@ export def main [troop: record, --color: string, --output: path = "output.png"] 
                 options: { x: $"($CHARACTERISTICS_BOX.x + $CHARACTERISTICS_BOX.w // 2)-w/2", y: $"255+($it.index * 75)-h/2" },
             } | ffmpeg options) --output (mktemp --tmpdir XXXXXXX.png)
         }
-        | [$in, ({ parent: "./troops/assets/icons/", stem: $troop.asset, extension: "png" } | path join) ] | ffmpeg combine ({
+        | [$in, ({ parent: "./troops/assets/icons/", stem: ($troop.asset | str replace --regex '\..*$' ''), extension: "png" } | path join) ] | ffmpeg combine ({
             kind: "overlay",
             options: { x: $"($ICON_BOX.x + $ICON_BOX.w // 2)-w/2", y: $"($ICON_BOX.y + $ICON_BOX.h // 2)-h/2" },
         } | ffmpeg options) --output $output
