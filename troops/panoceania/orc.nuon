@@ -29,5 +29,5 @@
     peripheral: null,
     melee_weapons: ["Pistol", "CC Weapon"],
     SWC: 0,
-    C: 29,
+    C: 28,
 }

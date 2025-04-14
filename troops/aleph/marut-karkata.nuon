@@ -24,6 +24,11 @@
     }
     special_skills: [
         "Courage",
+        "Dodge (+3)",
+        "Mimetism (-3)",
+        "Peripheral (Ancillary)",
+        "Specialist Operative",
+        "Terrain (Total)",
     ],
     weaponry: null,
     equipment: null,
