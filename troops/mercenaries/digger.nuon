@@ -3,8 +3,8 @@
     name: "Full Power DIGGERS",
     short_name: "DIGGER",
     faction: null,
-    asset: "mercenary-diggers",
-    classification: "mercenary",
+    asset: "mercenaries-digger",
+    classification: "mercenaries",
     type: "HI",
     characteristics: [
         "cube",

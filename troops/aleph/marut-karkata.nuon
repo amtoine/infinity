@@ -3,7 +3,7 @@
     name: "KARKATA Ancillary Remote Unit",
     short_name: "KARKATA",
     faction: "aleph",
-    asset: "aleph-maruts-karkata",
+    asset: "aleph-marut-karkata",
     classification: "",
     type: "REM",
     characteristics: [
