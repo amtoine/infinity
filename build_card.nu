@@ -15,9 +15,9 @@ const NAME_2_OFFSET_X = 10
 
 const ICON_BOX = { x: 35, y: 35, w: (155 - 35), h: (155 - 35) }
 
-const HI_BOX = { x: 35, y: 175, w: (120 - 35), h: null }
-const HI_TEXT_POS = { x: ($HI_BOX.x + $HI_BOX.w // 2), y: 195 }
-const HI_TEXT_FONT_SIZE = 30
+const TOKENS_BOX = { x: 35, y: 175, w: (120 - 35), h: null }
+const TOKENS_TEXT_POS = { x: ($TOKENS_BOX.x + $TOKENS_BOX.w // 2), y: 195 }
+const TOKENS_TEXT_FONT_SIZE = 30
 
 const BASE_POS = { x: 325, y: 950 }
 
@@ -65,7 +65,7 @@ export def main [troop: record, --color: string, --output: path = "output.png"] 
         | each { default "_" }
         | str join " | "
 
-    let hi_box_h = 70 * (($troop.hi | length) + 1)
+    let tokens_box_h = $TOKENS_BOX.w // 2 + (if ($troop.tokens | is-empty) { 0 } else { 10 }) + 75 * ($troop.tokens | length)
     let special_skills_box_h = 100 + 30 * (($troop.special_skills | length) - 1)
 
     let transforms = [
@@ -82,9 +82,9 @@ export def main [troop: record, --color: string, --output: path = "output.png"] 
         { kind: "drawbox",  options: { x: $ICON_BOX.x, y: $ICON_BOX.y, w: $ICON_BOX.w, h: $ICON_BOX.h, color: "black@0.5", t: "fill" } },
         { kind: "drawbox",  options: { x: $ICON_BOX.x, y: $ICON_BOX.y, w: $ICON_BOX.w, h: $ICON_BOX.h, color: "black@0.5", t: "5" } },
 
-        { kind: "drawbox",  options: { x: $HI_BOX.x, y: $HI_BOX.y, w: $HI_BOX.w, h: $hi_box_h, color: "black@0.5", t: "fill" } },
-        { kind: "drawbox",  options: { x: $HI_BOX.x, y: $HI_BOX.y, w: $HI_BOX.w, h: $hi_box_h, color: "black@0.5", t: "5" } },
-        { kind: "drawtext", options: { text: "HI", fontfile: $BOLD_FONT, fontcolor: "white", fontsize: $HI_TEXT_FONT_SIZE, x: $"($HI_TEXT_POS.x)-tw/2", y: $"($HI_TEXT_POS.y)-th/2" } },
+        { kind: "drawbox",  options: { x: $TOKENS_BOX.x, y: $TOKENS_BOX.y, w: $TOKENS_BOX.w, h: $tokens_box_h, color: "black@0.5", t: "fill" } },
+        { kind: "drawbox",  options: { x: $TOKENS_BOX.x, y: $TOKENS_BOX.y, w: $TOKENS_BOX.w, h: $tokens_box_h, color: "black@0.5", t: "5" } },
+        { kind: "drawtext", options: { text: $troop.extra_type, fontfile: $BOLD_FONT, fontcolor: "white", fontsize: $TOKENS_TEXT_FONT_SIZE, x: $"($TOKENS_TEXT_POS.x)-tw/2", y: $"($TOKENS_TEXT_POS.y)-th/2" } },
 
         { kind: "drawbox",  options: { x: $STAT_KEYS_BOX.x, y: $STAT_KEYS_BOX.y, w: $STAT_KEYS_BOX.w, h: $STAT_KEYS_BOX.h, color: $"($color)@1.0", t: "fill" } },
         { kind: "drawbox",  options: { x: $STAT_KEYS_BOX.x, y: $STAT_KEYS_BOX.y, w: $STAT_KEYS_BOX.w, h: $STAT_KEYS_BOX.h, color: "black@0.4", t: "5" } },
@@ -149,12 +149,12 @@ export def main [troop: record, --color: string, --output: path = "output.png"] 
         | [$in, $troop.faction_icon] | ffmpeg combine "[1:v]format=rgba,colorchannelmixer=aa=0.5[ol];[0:v][ol]overlay=x=1455-w/2:y=500-h/2" --output (mktemp --tmpdir XXXXXXX.png)
         | ffmpeg mapply ($transforms | each { ffmpeg options })
 
-    $troop.hi
+    $troop.tokens
         | enumerate
         | reduce --fold $tmp { |it, acc|
             [$acc, $it.item] | ffmpeg combine ({
                 kind: "overlay",
-                options: { x: $"($HI_BOX.x + $HI_BOX.w // 2)-w/2", y: $"255+($it.index * 75)-h/2" },
+                options: { x: $"($TOKENS_BOX.x + $TOKENS_BOX.w // 2)-w/2", y: $"255+($it.index * 75)-h/2" },
             } | ffmpeg options) --output (mktemp --tmpdir XXXXXXX.png)
         }
         | [$in, $troop.icon] | ffmpeg combine ({

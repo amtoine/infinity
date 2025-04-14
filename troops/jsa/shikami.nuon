@@ -3,7 +3,8 @@
     name: "SHIKAMI",
     short_name: "SHIKAMI",
     type: "elite",
-    hi: [
+    extra_type: "HI",
+    tokens: [
         "./troops/assets/tokens/00001.png",
         "./troops/assets/tokens/00002.png",
         "./troops/assets/tokens/00003.png",
