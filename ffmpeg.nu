@@ -10,15 +10,13 @@ export-env {
     }
 }
 
+use log.nu [ "log debug" ]
+
 export const PADDING = "pad=width=iw:height=ih+64:y=32:color=white"
 export const FLIPPING = "vflip,hflip"
 export const STACKING = "[0][1]hstack=inputs=2"
 
 export const FFMPEG_OPTS = [ -y -hide_banner -loglevel quiet ]
-
-def "log info" [msg: string] {
-    print $"[(ansi cyan)INFO(ansi reset)] ($msg)"
-}
 
 export def "ffmpeg metadata" []: [
     path -> record<
@@ -83,7 +81,7 @@ export def "ffmpeg create" [
     {
         transform: $"(ansi yellow)($transform)(ansi reset)",
         output: $"(ansi purple)($output)(ansi reset)",
-    } | log info $"null --($in.transform)--> ($in.output)"
+    } | log debug $"null --($in.transform)--> ($in.output)"
 
     try {
         ffmpeg ...$options -f lavfi -i $transform -frames:v 1 $output
@@ -122,7 +120,7 @@ export def "ffmpeg apply" [
         in: $"(ansi purple)($in)(ansi reset)",
         transform: $"(ansi yellow)($transform)(ansi reset)",
         output: $"(ansi purple)($output)(ansi reset)",
-    } | log info $"($in.in) --($in.transform)--> ($in.output)"
+    } | log debug $"($in.in) --($in.transform)--> ($in.output)"
 
     $in | try {
         ffmpeg ...$options -i $in -vf $transform $output
@@ -167,7 +165,7 @@ export def "ffmpeg combine" [
         in: ($in | each { $'(ansi purple)($in)(ansi reset)' } | str join ', '),
         transform: $"(ansi yellow)($transform)(ansi reset)",
         output: $"(ansi purple)($output)(ansi reset)",
-    } | log info $"($in.in) --($in.transform)--> ($in.output)"
+    } | log debug $"($in.in) --($in.transform)--> ($in.output)"
 
     $in | try {
         ffmpeg ...$options ...($in | each {[ "-i", $in ]} | flatten) -filter_complex $transform $output

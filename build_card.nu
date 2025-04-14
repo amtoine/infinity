@@ -1,4 +1,5 @@
 use ffmpeg.nu *
+use log.nu [ "log info" ]
 
 const BOLD_FONT = "/usr/share/fonts/Adwaita/AdwaitaMono-Bold.ttf"
 
@@ -165,4 +166,6 @@ export def main [troop: record, --color: string, --output: path = "output.png"] 
             kind: "overlay",
             options: { x: $"($ICON_BOX.x + $ICON_BOX.w // 2)-w/2", y: $"($ICON_BOX.y + $ICON_BOX.h // 2)-h/2" },
         } | ffmpeg options) --output $output
+
+    log info $"(ansi purple)($output)(ansi reset)"
 }
