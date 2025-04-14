@@ -1,7 +1,7 @@
 {
     isc: "Tunguska Cheerkillers",
     name: "Tunguska CHEERKILLERS",
-    short_name: "CHEERKILLERS",
+    short_name: "CHEERKILLER",
     faction: "nomads",
     asset: "nomads-tunguska-cheerkiller.3",
     classification: "trained",

@@ -1,7 +1,7 @@
 {
     isc: "Grenzers\\, Grenz Security Team",
     name: "GRENZERS\\, Grenz Security Team",
-    short_name: "GRENZERS",
+    short_name: "GRENZER",
     faction: "nomads",
     asset: "nomads-tunguska-grenzer",
     classification: "veteran",
