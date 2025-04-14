@@ -5,9 +5,9 @@
     type: "veteran",
     extra_type: "HI",
     tokens: [
-        "./troops/assets/tokens/00001.png",
-        "./troops/assets/tokens/00002.png",
-        "./troops/assets/tokens/00003.png",
+        "./troops/assets/tokens/groupable.png",
+        "./troops/assets/tokens/regular_order.png",
+        "./troops/assets/tokens/hackable.png",
     ],
     icon: "./troops/assets/icons/panoceania-orc.png",
     faction_icon: "./troops/assets/factions/panoceania.png",
