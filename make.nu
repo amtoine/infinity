@@ -44,12 +44,12 @@ def "main showcase" [] {
     }
 }
 
-def "main troops" [] {
+def "main troops" [name: string = ""] {
     use build_card.nu
 
     mkdir out/
 
-    for t in $TROOPS {
+    for t in ($TROOPS | where name =~ $name) {
         let troop_file = { parent: "troops", stem: $t.name, extension: "nuon" } | path join
         let output = { parent: "out", stem: ($t.name | str replace '/' '-'), extension: "png" } | path join
         build_card (open $troop_file) --color $t.color --output $output
