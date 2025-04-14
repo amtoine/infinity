@@ -2,8 +2,8 @@
     isc: "Shikami",
     name: "SHIKAMI",
     short_name: "SHIKAMI",
-    type: "elite",
-    extra_type: "HI",
+    classification: "elite",
+    type: "HI",
     tokens: [
         "./troops/assets/tokens/groupable.png",
         "./troops/assets/tokens/regular_order.png",

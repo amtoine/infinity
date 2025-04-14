@@ -84,7 +84,7 @@ export def main [troop: record, --color: string, --output: path = "output.png"] 
 
         { kind: "drawbox",  options: { x: $TOKENS_BOX.x, y: $TOKENS_BOX.y, w: $TOKENS_BOX.w, h: $tokens_box_h, color: "black@0.5", t: "fill" } },
         { kind: "drawbox",  options: { x: $TOKENS_BOX.x, y: $TOKENS_BOX.y, w: $TOKENS_BOX.w, h: $tokens_box_h, color: "black@0.5", t: "5" } },
-        { kind: "drawtext", options: { text: $troop.extra_type, fontfile: $BOLD_FONT, fontcolor: "white", fontsize: $TOKENS_TEXT_FONT_SIZE, x: $"($TOKENS_TEXT_POS.x)-tw/2", y: $"($TOKENS_TEXT_POS.y)-th/2" } },
+        { kind: "drawtext", options: { text: $troop.type, fontfile: $BOLD_FONT, fontcolor: "white", fontsize: $TOKENS_TEXT_FONT_SIZE, x: $"($TOKENS_TEXT_POS.x)-tw/2", y: $"($TOKENS_TEXT_POS.y)-th/2" } },
 
         { kind: "drawbox",  options: { x: $STAT_KEYS_BOX.x, y: $STAT_KEYS_BOX.y, w: $STAT_KEYS_BOX.w, h: $STAT_KEYS_BOX.h, color: $"($color)@1.0", t: "fill" } },
         { kind: "drawbox",  options: { x: $STAT_KEYS_BOX.x, y: $STAT_KEYS_BOX.y, w: $STAT_KEYS_BOX.w, h: $STAT_KEYS_BOX.h, color: "black@0.4", t: "5" } },

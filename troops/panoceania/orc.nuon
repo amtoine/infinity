@@ -2,8 +2,8 @@
     isc: "Orc troops",
     name: "ORC TROOPS",
     short_name: "ORC",
-    type: "veteran",
-    extra_type: "HI",
+    classification: "veteran",
+    type: "HI",
     tokens: [
         "./troops/assets/tokens/groupable.png",
         "./troops/assets/tokens/regular_order.png",
