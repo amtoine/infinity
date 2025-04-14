@@ -63,7 +63,7 @@ const SPECIAL_SKILLS_OFFSET_X = 10
 export def main [troop: record, --color: string, --output: path = "output.png"] {
     let equipment_text = [$troop.weaponry, $troop.equipment, $troop.peripheral]
         | each { default "_" }
-        | str join " | "
+        | $"($in.0) | ($in.1) || ($in.2)"
 
     let characteristics_box_h = $CHARACTERISTICS_BOX.w // 2 + (if ($troop.characteristics | is-empty) { 0 } else { 10 }) + 75 * ($troop.characteristics | length)
     let special_skills_box_h = 100 + 30 * (($troop.special_skills | length) - 1)
@@ -125,7 +125,7 @@ export def main [troop: record, --color: string, --output: path = "output.png"] 
 
         { kind: "drawbox",  options: { x: $EQUIPMENT_BOX.x, y: $EQUIPMENT_BOX.y, w: $EQUIPMENT_BOX.w, h: $EQUIPMENT_BOX.h, color: "black@0.5", t: "fill" } },
         { kind: "drawbox",  options: { x: $EQUIPMENT_BOX.x, y: $EQUIPMENT_BOX.y, w: $EQUIPMENT_BOX.w, h: $EQUIPMENT_BOX.h, color: "black@0.5", t: "5" } },
-        { kind: "drawtext", options: { text: "WEAPONRY | EQUIPMENT | PERIPHERAL", fontfile: $BOLD_FONT, fontcolor: "white", fontsize: ($EQUIPMENT_FONT_SIZE + 2), x: $"($EQUIPMENT_BOX.x)+($EQUIPMENT_OFFSET_X)", y: $"($BOTTOM_FIRST_ROW_Y)-th/2" } },
+        { kind: "drawtext", options: { text: "WEAPONRY | EQUIPMENT || PERIPHERAL", fontfile: $BOLD_FONT, fontcolor: "white", fontsize: ($EQUIPMENT_FONT_SIZE + 2), x: $"($EQUIPMENT_BOX.x)+($EQUIPMENT_OFFSET_X)", y: $"($BOTTOM_FIRST_ROW_Y)-th/2" } },
         { kind: "drawtext", options: { text: $equipment_text, fontcolor: "white", fontsize: ($EQUIPMENT_FONT_SIZE - 5), x: $"($EQUIPMENT_BOX.x)+($EQUIPMENT_OFFSET_X)", y: $"($BOTTOM_SECOND_ROW_Y)-th/2" } },
 
         { kind: "drawbox",  options: { x: $MELEE_BOX.x, y: $MELEE_BOX.y, w: $MELEE_BOX.w, h: $MELEE_BOX.h, color: "black@0.5", t: "fill" } },
