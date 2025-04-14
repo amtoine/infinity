@@ -15,9 +15,9 @@ const NAME_2_OFFSET_X = 10
 
 const ICON_BOX = { x: 35, y: 35, w: (155 - 35), h: (155 - 35) }
 
-const TOKENS_BOX = { x: 35, y: 175, w: (120 - 35), h: null }
-const TOKENS_TEXT_POS = { x: ($TOKENS_BOX.x + $TOKENS_BOX.w // 2), y: 195 }
-const TOKENS_TEXT_FONT_SIZE = 30
+const CHARACTERISTICS_BOX = { x: 35, y: 175, w: (120 - 35), h: null }
+const CHARACTERISTICS_TEXT_POS = { x: ($CHARACTERISTICS_BOX.x + $CHARACTERISTICS_BOX.w // 2), y: 195 }
+const CHARACTERISTICS_TEXT_FONT_SIZE = 30
 
 const BASE_POS = { x: 325, y: 950 }
 
@@ -65,7 +65,7 @@ export def main [troop: record, --color: string, --output: path = "output.png"] 
         | each { default "_" }
         | str join " | "
 
-    let tokens_box_h = $TOKENS_BOX.w // 2 + (if ($troop.tokens | is-empty) { 0 } else { 10 }) + 75 * ($troop.tokens | length)
+    let characteristics_box_h = $CHARACTERISTICS_BOX.w // 2 + (if ($troop.characteristics | is-empty) { 0 } else { 10 }) + 75 * ($troop.characteristics | length)
     let special_skills_box_h = 100 + 30 * (($troop.special_skills | length) - 1)
 
     let transforms = [
@@ -82,9 +82,9 @@ export def main [troop: record, --color: string, --output: path = "output.png"] 
         { kind: "drawbox",  options: { x: $ICON_BOX.x, y: $ICON_BOX.y, w: $ICON_BOX.w, h: $ICON_BOX.h, color: "black@0.5", t: "fill" } },
         { kind: "drawbox",  options: { x: $ICON_BOX.x, y: $ICON_BOX.y, w: $ICON_BOX.w, h: $ICON_BOX.h, color: "black@0.5", t: "5" } },
 
-        { kind: "drawbox",  options: { x: $TOKENS_BOX.x, y: $TOKENS_BOX.y, w: $TOKENS_BOX.w, h: $tokens_box_h, color: "black@0.5", t: "fill" } },
-        { kind: "drawbox",  options: { x: $TOKENS_BOX.x, y: $TOKENS_BOX.y, w: $TOKENS_BOX.w, h: $tokens_box_h, color: "black@0.5", t: "5" } },
-        { kind: "drawtext", options: { text: $troop.type, fontfile: $BOLD_FONT, fontcolor: "white", fontsize: $TOKENS_TEXT_FONT_SIZE, x: $"($TOKENS_TEXT_POS.x)-tw/2", y: $"($TOKENS_TEXT_POS.y)-th/2" } },
+        { kind: "drawbox",  options: { x: $CHARACTERISTICS_BOX.x, y: $CHARACTERISTICS_BOX.y, w: $CHARACTERISTICS_BOX.w, h: $characteristics_box_h, color: "black@0.5", t: "fill" } },
+        { kind: "drawbox",  options: { x: $CHARACTERISTICS_BOX.x, y: $CHARACTERISTICS_BOX.y, w: $CHARACTERISTICS_BOX.w, h: $characteristics_box_h, color: "black@0.5", t: "5" } },
+        { kind: "drawtext", options: { text: $troop.type, fontfile: $BOLD_FONT, fontcolor: "white", fontsize: $CHARACTERISTICS_TEXT_FONT_SIZE, x: $"($CHARACTERISTICS_TEXT_POS.x)-tw/2", y: $"($CHARACTERISTICS_TEXT_POS.y)-th/2" } },
 
         { kind: "drawbox",  options: { x: $STAT_KEYS_BOX.x, y: $STAT_KEYS_BOX.y, w: $STAT_KEYS_BOX.w, h: $STAT_KEYS_BOX.h, color: $"($color)@1.0", t: "fill" } },
         { kind: "drawbox",  options: { x: $STAT_KEYS_BOX.x, y: $STAT_KEYS_BOX.y, w: $STAT_KEYS_BOX.w, h: $STAT_KEYS_BOX.h, color: "black@0.4", t: "5" } },
@@ -145,19 +145,19 @@ export def main [troop: record, --color: string, --output: path = "output.png"] 
     ]
 
     let tmp = ffmpeg create ($START | ffmpeg options) --output (mktemp --tmpdir XXXXXXX.png)
-        | [$in, $troop.skin] | ffmpeg combine ($IMAGE | ffmpeg options) --output (mktemp --tmpdir XXXXXXX.png)
-        | [$in, $troop.faction_icon] | ffmpeg combine "[1:v]format=rgba,colorchannelmixer=aa=0.5[ol];[0:v][ol]overlay=x=1455-w/2:y=500-h/2" --output (mktemp --tmpdir XXXXXXX.png)
+        | [$in, ({ parent: "./troops/assets/troops/", stem: $troop.asset, extension: "png" } | path join)] | ffmpeg combine ($IMAGE | ffmpeg options) --output (mktemp --tmpdir XXXXXXX.png)
+        | [$in, ({ parent: "./troops/assets/factions/", stem: $troop.faction, extension: "png" } | path join)] | ffmpeg combine "[1:v]format=rgba,colorchannelmixer=aa=0.5[ol];[0:v][ol]overlay=x=1455-w/2:y=500-h/2" --output (mktemp --tmpdir XXXXXXX.png)
         | ffmpeg mapply ($transforms | each { ffmpeg options })
 
-    $troop.tokens
+    $troop.characteristics
         | enumerate
         | reduce --fold $tmp { |it, acc|
-            [$acc, $it.item] | ffmpeg combine ({
+            [$acc, ({ parent: "./troops/assets/characteristics/", stem: $it.item, extension: "png" } | path join)] | ffmpeg combine ({
                 kind: "overlay",
-                options: { x: $"($TOKENS_BOX.x + $TOKENS_BOX.w // 2)-w/2", y: $"255+($it.index * 75)-h/2" },
+                options: { x: $"($CHARACTERISTICS_BOX.x + $CHARACTERISTICS_BOX.w // 2)-w/2", y: $"255+($it.index * 75)-h/2" },
             } | ffmpeg options) --output (mktemp --tmpdir XXXXXXX.png)
         }
-        | [$in, $troop.icon] | ffmpeg combine ({
+        | [$in, ({ parent: "./troops/assets/icons/", stem: $troop.asset, extension: "png" } | path join) ] | ffmpeg combine ({
             kind: "overlay",
             options: { x: $"($ICON_BOX.x + $ICON_BOX.w // 2)-w/2", y: $"($ICON_BOX.y + $ICON_BOX.h // 2)-h/2" },
         } | ffmpeg options) --output $output
