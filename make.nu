@@ -11,10 +11,14 @@ const COLORS = {
     "o-12":        "0xdece67",
 }
 
-const TROOPS = [
+const SHOWCASE = [
     [name,                            color];
     ["panoceania/orc",                $COLORS.panoceania],
     ["jsa/shikami",                   $COLORS.jsa],
+]
+
+const TROOPS = [
+    [name,                            color];
     ["nomads/tunguska-cheerkiller.1", $COLORS.nomads],
     ["nomads/tunguska-cheerkiller.2", $COLORS.nomads],
     ["nomads/tunguska-cheerkiller.3", $COLORS.nomads],
@@ -28,7 +32,19 @@ const TROOPS = [
     ["o-12/starmada-nyoka.3",         $COLORS.o-12],
 ]
 
-def "main" [] {
+def "main showcase" [] {
+    use build_card.nu
+
+    mkdir out/
+
+    for t in $SHOWCASE {
+        let troop_file = { parent: "troops", stem: $t.name, extension: "nuon" } | path join
+        let output = { parent: "out", stem: ($t.name | str replace '/' '-'), extension: "png" } | path join
+        build_card (open $troop_file) --color $t.color --output $output
+    }
+}
+
+def "main troops" [] {
     use build_card.nu
 
     mkdir out/
@@ -39,3 +55,5 @@ def "main" [] {
         build_card (open $troop_file) --color $t.color --output $output
     }
 }
+
+def "main" [] {}
