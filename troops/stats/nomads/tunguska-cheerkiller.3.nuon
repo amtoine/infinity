@@ -3,6 +3,7 @@
     name: "Tunguska CHEERKILLERS",
     short_name: "CHEERKILLER",
     faction: "nomads",
+    allowed_factions: ["tunguska"],
     asset: "nomads-tunguska-cheerkiller.3",
     classification: "Spec. Trained Troops",
     reference: "https://infinityuniverse.com/army/infinity/tunguska/tunguska-cheerkillers",

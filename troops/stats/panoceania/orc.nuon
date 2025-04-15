@@ -3,6 +3,7 @@
     name: "ORC TROOPS",
     short_name: "ORC",
     faction: "panoceania",
+    allowed_factions: ["panoceania", "svalarheima-s-winter-force", "white-company"],
     asset: "panoceania-orc",
     classification: "Veteran Troops",
     reference: "https://infinityuniverse.com/army/infinity/panoceania/orc-troops",

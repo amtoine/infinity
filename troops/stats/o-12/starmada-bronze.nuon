@@ -3,6 +3,7 @@
     name: "BRONZES, Deep Space Peacemaker Corps",
     short_name: "BRONZE",
     faction: "o-12",
+    allowed_factions: ["starmada"],
     asset: "o-12-starmada-bronze",
     classification: "Veteran Troops",
     reference: "https://infinityuniverse.com/army/infinity/starmada/bronzes",

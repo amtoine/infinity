@@ -3,6 +3,7 @@
     name: "KARKATA Ancillary Remote Unit",
     short_name: "KARKATA",
     faction: "aleph",
+    allowed_factions: ["aleph", "sss"],
     asset: "aleph-marut-karkata",
     classification: "",
     reference: "https://infinityuniverse.com/army/infinity/aleph/maruts",

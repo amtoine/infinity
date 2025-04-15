@@ -3,6 +3,7 @@
     name: "GRENZERS, Grenz Security Team",
     short_name: "GRENZER",
     faction: "nomads",
+    allowed_factions: ["nomads", "tunguska"],
     asset: "nomads-tunguska-grenzer",
     classification: "Veteran Troops",
     reference: "https://infinityuniverse.com/army/infinity/tunguska/grenzers-grenz-security-team",

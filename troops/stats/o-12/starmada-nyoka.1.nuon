@@ -3,6 +3,7 @@
     name: "NYOKA Assault Troops",
     short_name: "NYOKA FTO (Forward Observer)",
     faction: "o-12",
+    allowed_factions: ["starmada"],
     asset: "o-12-starmada-nyoka.1",
     classification: "Spec. Trained Troops",
     reference: "https://infinityuniverse.com/army/infinity/starmada/nyoka-assault-troops",

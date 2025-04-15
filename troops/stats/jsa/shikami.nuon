@@ -3,6 +3,7 @@
     name: "SHIKAMI",
     short_name: "SHIKAMI",
     faction: "jsa",
+    allowed_factions: ["jsa", "ouban"],
     asset: "jsa-shikami",
     classification: "Elite Troops",
     reference: "https://infinityuniverse.com/army/infinity/jsa/shikami",

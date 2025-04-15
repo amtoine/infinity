@@ -3,6 +3,7 @@
     name: "DANAVAS Hackers",
     short_name: "DANAVAS (Hacker, Hacking Device Plus [UPGRADE: Oblivion (+1B)])",
     faction: "aleph",
+    allowed_factions: ["aleph", "sss", "white-company"],
     asset: "aleph-danavas",
     classification: "Line Troops",
     reference: "https://infinityuniverse.com/army/infinity/aleph/danavas-hackers",

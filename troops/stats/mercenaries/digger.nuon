@@ -3,6 +3,7 @@
     name: "Full Power DIGGERS",
     short_name: "DIGGER",
     faction: null,
+    allowed_factions: [],
     asset: "mercenaries-digger",
     classification: "Mercenary Troops",
     reference: "https://infinityuniverse.com/army/infinity/starmada/merc-diggers-armed-prospectors",
