@@ -26,11 +26,11 @@
     }
     special_skills: [
         "Courage",
-        "Immunity (Shock)",
+        { name: "Immunity", mod: "Shock" },
         "Warhorse",
     ],
     weaponry: ["Missile Launcher"],
-    equipment: ["Multispectral Visor L1"],
+    equipment: [{ name: "Multispectral Visor", mod: "L1" }],
     peripheral: [],
     melee_weapons: ["Pistol", "Breaker Pistol", "CC Weapon"],
     SWC: 1.5,

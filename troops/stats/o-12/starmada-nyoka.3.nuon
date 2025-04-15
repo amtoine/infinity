@@ -25,11 +25,11 @@
         AVA:   5,
     }
     special_skills: [
-        "BS Attack (SR-1)",
+        { name: "BS Attack", mod: "SR-1" },
         "Climbing Plus",
         "Courage",
-        "Immunity (Shock)",
-        "Terrain (Zero-G)"
+        { name: "Immunity", mod: "Shock" },
+        { name: "Terrain", mod: "Zero-G" },
     ],
     weaponry: ["Red Fury", "Chain-colt"],
     equipment: [],

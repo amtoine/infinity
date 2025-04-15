@@ -74,6 +74,14 @@ def "ffmpeg-text" [text: string] {
 export def main [troop: record, --color: string, --output: path = "output.png"] {
     let equipment_text = [$troop.weaponry, $troop.equipment, $troop.peripheral]
         | each { default [] }
+        | each {
+            each { |it|
+                match ($it | describe --detailed).type {
+                    "string" => $it,
+                    "record" => $"($it.name) \(($it.mod)\)"
+                }
+            }
+        }
         | each { if ($in | is-empty) { "_" } else { $in | str join "\\, " } }
         | $"($in.0) | ($in.1) || ($in.2)"
 
@@ -122,9 +130,13 @@ export def main [troop: record, --color: string, --output: path = "output.png"] 
                     { kind: "drawtext", options: { text: (ffmpeg-text "Special skills"), fontfile: $BOLD_FONT, fontcolor: "white", fontsize: $SPECIAL_SKILLS_TITLE_FONT_SIZE, x: $"($SPECIAL_SKILLS_BOX.x)+($SPECIAL_SKILLS_OFFSET_X)", y: $"($SPECIAL_SKILLS_BOX.y)+30-th/2" } },
                 ]
                 let skills = $troop.special_skills | enumerate | each { |it|
+                    let text = match ($it.item | describe --detailed).type {
+                        "string" => $it.item,
+                        "record" => $"($it.item.name) \(($it.item.mod)\)"
+                    }
                     [
                         { kind: "drawtext", options: {
-                            text: (ffmpeg-text $"($it.item)"),
+                            text: (ffmpeg-text $text),
                             fontfile: $REGULAR_FONT,
                             fontcolor: "white",
                             fontsize: $SPECIAL_SKILLS_FONT_SIZE ,
@@ -145,7 +157,15 @@ export def main [troop: record, --color: string, --output: path = "output.png"] 
         { kind: "drawbox",  options: { x: $MELEE_BOX.x, y: $MELEE_BOX.y, w: $MELEE_BOX.w, h: $MELEE_BOX.h, color: "black@0.5", t: "fill" } },
         { kind: "drawbox",  options: { x: $MELEE_BOX.x, y: $MELEE_BOX.y, w: $MELEE_BOX.w, h: $MELEE_BOX.h, color: "black@0.5", t: "5" } },
         { kind: "drawtext", options: { text: (ffmpeg-text "MELEE WEAPONS"), fontfile: $BOLD_FONT, fontcolor: "white", fontsize: ($MELEE_FONT_SIZE + 2), x: $"($MELEE_BOX.x)+($MELEE_OFFSET_X)", y: $"($BOTTOM_FIRST_ROW_Y)-th/2" } },
-        { kind: "drawtext", options: { text: (ffmpeg-text $"($troop.melee_weapons | str join ', ')"), fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: ($MELEE_FONT_SIZE - 5), x: $"($MELEE_BOX.x)+($MELEE_OFFSET_X)", y: $"($BOTTOM_SECOND_ROW_Y)-th/2" } },
+        (do {
+            let text = $troop.melee_weapons | each { |it|
+                match ($it | describe --detailed).type {
+                    "string" => $it,
+                    "record" => $"($it.name) \(($it.mod)\)",
+                }
+            } | str join ", "
+            { kind: "drawtext", options: { text: (ffmpeg-text $text), fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: ($MELEE_FONT_SIZE - 5), x: $"($MELEE_BOX.x)+($MELEE_OFFSET_X)", y: $"($BOTTOM_SECOND_ROW_Y)-th/2" } }
+        }),
 
         { kind: "drawbox",  options: { x: $SWC_BOX.x, y: $SWC_BOX.y, w: $SWC_BOX.w, h: $SWC_BOX.h, color: "black@0.5", t: "fill" } },
         { kind: "drawbox",  options: { x: $SWC_BOX.x, y: $SWC_BOX.y, w: $SWC_BOX.w, h: $SWC_BOX.h, color: "black@0.5", t: "5" } },

@@ -25,14 +25,14 @@
         AVA:   5,
     }
     special_skills: [
-        "Dodge (+3)",
-        "Martial Arts L1",
+        { name: "Dodge", mod: "+3" },
+        { name: "Martial Arts", mod: "L1" },
         "Super-Jump",
     ],
     weaponry: ["AP Rifle", "Nanopulser"],
     equipment: [],
     peripheral: [],
-    melee_weapons: ["MULTI Pistol (+1B)", "Shock CC Weapon"],
+    melee_weapons: [{ name: "MULTI Pistol", mod: "+1B" }, "Shock CC Weapon"],
     SWC: 0,
     C: 18,
 }

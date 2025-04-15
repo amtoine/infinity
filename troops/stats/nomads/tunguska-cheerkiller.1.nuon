@@ -25,8 +25,8 @@
         AVA:   5,
     }
     special_skills: [
-        "Dodge (+3)",
-        "Martial Arts L1",
+        { name: "Dodge", mod: "+3" },
+        { name: "Martial Arts", mod: "L1" },
         "Super-Jump",
     ],
     weaponry: ["Submachine Gun", "Nanopulser"],
