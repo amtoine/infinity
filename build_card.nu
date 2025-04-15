@@ -82,6 +82,7 @@ export def main [troop: record, --color: string, --output: path = "output.png"] 
 
     let transforms = [
         { kind: "drawtext", options: { text: (ffmpeg-text $"ISC: ($troop.isc)"), fontfile: $REGULAR_FONT, fontcolor: "black", fontsize: $ISC_FONT_SIZE, x: $ISC_POS.x, y: $ISC_POS.y } },
+        { kind: "drawtext", options: { text: (ffmpeg-text $troop.classification), fontfile: $REGULAR_FONT, fontcolor: "black", fontsize: $ISC_FONT_SIZE, x: $"($NAME_BOX.x)+($NAME_BOX.w)-($NAME_OFFSET_X)-tw", y: $ISC_POS.y } },
 
         { kind: "drawbox",  options: { x: $NAME_BOX.x, y: $NAME_BOX.y, w: $NAME_BOX.w, h: $NAME_BOX.h, color: $"($color)@1.0", t: "fill" } },
         { kind: "drawbox",  options: { x: $NAME_BOX.x, y: $NAME_BOX.y, w: $NAME_BOX.w, h: $NAME_BOX.h, color: "black@0.4", t: "5" } },
