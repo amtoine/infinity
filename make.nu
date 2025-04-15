@@ -1,4 +1,6 @@
+use log.nu [ "log info" ]
 def "main git" [] {
+    log info "git config diff.exif.textconv exiftool"
     git config diff.exif.textconv exiftool
 }
 
@@ -40,6 +42,8 @@ def "main showcase" [] {
     for t in $SHOWCASE {
         let troop_file = { parent: "troops", stem: $t.name, extension: "nuon" } | path join
         let output = { parent: "out", stem: ($t.name | str replace '/' '-'), extension: "png" } | path join
+
+        log info $t.name
         build_card (open $troop_file) --color $t.color --output $output
     }
 }
@@ -52,6 +56,8 @@ def "main troops" [name: string = ""] {
     for t in ($TROOPS | where name =~ $name) {
         let troop_file = { parent: "troops", stem: $t.name, extension: "nuon" } | path join
         let output = { parent: "out", stem: ($t.name | str replace '/' '-'), extension: "png" } | path join
+
+        log info $t.name
         build_card (open $troop_file) --color $t.color --output $output
     }
 }
