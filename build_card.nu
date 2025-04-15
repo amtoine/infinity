@@ -62,6 +62,15 @@ const SPECIAL_SKILLS_TITLE_FONT_SIZE = 30 + 2
 const SPECIAL_SKILLS_FONT_SIZE = 18
 const SPECIAL_SKILLS_OFFSET_X = 10
 
+def "ffmpeg-text" [text: string] {
+    $text
+        | str replace --all ":" "\\:"
+        | str replace --all "," "\\,"
+        | str replace --all "[" "\\["
+        | str replace --all "]" "\\]"
+        | $"'($in)'"
+}
+
 export def main [troop: record, --color: string, --output: path = "output.png"] {
     let equipment_text = [$troop.weaponry, $troop.equipment, $troop.peripheral]
         | each { default [] }
@@ -72,22 +81,22 @@ export def main [troop: record, --color: string, --output: path = "output.png"] 
     let special_skills_box_h = 100 + 30 * (($troop.special_skills | length) - 1)
 
     let transforms = [
-        { kind: "drawtext", options: { text: $"'ISC\\: ($troop.isc)'", fontfile: $REGULAR_FONT, fontcolor: "black", fontsize: $ISC_FONT_SIZE, x: $ISC_POS.x, y: $ISC_POS.y } },
+        { kind: "drawtext", options: { text: (ffmpeg-text $"ISC: ($troop.isc)"), fontfile: $REGULAR_FONT, fontcolor: "black", fontsize: $ISC_FONT_SIZE, x: $ISC_POS.x, y: $ISC_POS.y } },
 
         { kind: "drawbox",  options: { x: $NAME_BOX.x, y: $NAME_BOX.y, w: $NAME_BOX.w, h: $NAME_BOX.h, color: $"($color)@1.0", t: "fill" } },
         { kind: "drawbox",  options: { x: $NAME_BOX.x, y: $NAME_BOX.y, w: $NAME_BOX.w, h: $NAME_BOX.h, color: "black@0.4", t: "5" } },
-        { kind: "drawtext", options: { text: $troop.name, fontfile: $BOLD_FONT, fontcolor: "white", fontsize: $NAME_FONT_SIZE, x: $"($NAME_BOX.x)+($NAME_OFFSET_X)", y: $"($NAME_BOX.y)+($NAME_BOX.h / 2)-th/2" } },
+        { kind: "drawtext", options: { text: (ffmpeg-text $troop.name), fontfile: $BOLD_FONT, fontcolor: "white", fontsize: $NAME_FONT_SIZE, x: $"($NAME_BOX.x)+($NAME_OFFSET_X)", y: $"($NAME_BOX.y)+($NAME_BOX.h / 2)-th/2" } },
 
         { kind: "drawbox",  options: { x: $NAME_2_BOX.x, y: $NAME_2_BOX.y, w: $NAME_2_BOX.w, h: $NAME_2_BOX.h, color: $"($color)@1.0", t: "fill" } },
         { kind: "drawbox",  options: { x: $NAME_2_BOX.x, y: $NAME_2_BOX.y, w: $NAME_2_BOX.w, h: $NAME_2_BOX.h, color: "black@0.4", t: "5" } },
-        { kind: "drawtext", options: { text: $troop.short_name, fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: $NAME_2_FONT_SIZE, x: $"($NAME_2_BOX.x)+($NAME_2_OFFSET_X)", y: $"($NAME_2_BOX.y)+($NAME_2_BOX.h / 2)-th/2" } },
+        { kind: "drawtext", options: { text: (ffmpeg-text $troop.short_name), fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: $NAME_2_FONT_SIZE, x: $"($NAME_2_BOX.x)+($NAME_2_OFFSET_X)", y: $"($NAME_2_BOX.y)+($NAME_2_BOX.h / 2)-th/2" } },
 
         { kind: "drawbox",  options: { x: $ICON_BOX.x, y: $ICON_BOX.y, w: $ICON_BOX.w, h: $ICON_BOX.h, color: "black@0.5", t: "fill" } },
         { kind: "drawbox",  options: { x: $ICON_BOX.x, y: $ICON_BOX.y, w: $ICON_BOX.w, h: $ICON_BOX.h, color: "black@0.5", t: "5" } },
 
         { kind: "drawbox",  options: { x: $CHARACTERISTICS_BOX.x, y: $CHARACTERISTICS_BOX.y, w: $CHARACTERISTICS_BOX.w, h: $characteristics_box_h, color: "black@0.5", t: "fill" } },
         { kind: "drawbox",  options: { x: $CHARACTERISTICS_BOX.x, y: $CHARACTERISTICS_BOX.y, w: $CHARACTERISTICS_BOX.w, h: $characteristics_box_h, color: "black@0.5", t: "5" } },
-        { kind: "drawtext", options: { text: $troop.type, fontfile: $BOLD_FONT, fontcolor: "white", fontsize: $CHARACTERISTICS_TEXT_FONT_SIZE, x: $"($CHARACTERISTICS_TEXT_POS.x)-tw/2", y: $"($CHARACTERISTICS_TEXT_POS.y)-th/2" } },
+        { kind: "drawtext", options: { text: (ffmpeg-text $troop.type), fontfile: $BOLD_FONT, fontcolor: "white", fontsize: $CHARACTERISTICS_TEXT_FONT_SIZE, x: $"($CHARACTERISTICS_TEXT_POS.x)-tw/2", y: $"($CHARACTERISTICS_TEXT_POS.y)-th/2" } },
 
         { kind: "drawbox",  options: { x: $STAT_KEYS_BOX.x, y: $STAT_KEYS_BOX.y, w: $STAT_KEYS_BOX.w, h: $STAT_KEYS_BOX.h, color: $"($color)@1.0", t: "fill" } },
         { kind: "drawbox",  options: { x: $STAT_KEYS_BOX.x, y: $STAT_KEYS_BOX.y, w: $STAT_KEYS_BOX.w, h: $STAT_KEYS_BOX.h, color: "black@0.4", t: "5" } },
@@ -97,8 +106,8 @@ export def main [troop: record, --color: string, --output: path = "output.png"] 
 
         ...(
             $troop.stats | transpose k v | enumerate | each { |it| [
-                { kind: "drawtext", options: { text: $it.item.k, fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: $STAT_FONT_SIZE, x: $"($STAT_KEYS_BOX.x)+($STAT_OFFSET_X)+($it.index)*($STAT_DX)-tw/2", y: $"($STAT_KEYS_BOX.y)+($STAT_KEYS_BOX.h / 2)-th/2" } },
-                { kind: "drawtext", options: { text: $it.item.v, fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: $STAT_FONT_SIZE, x: $"($STAT_VALS_BOX.x)+($STAT_OFFSET_X)+($it.index)*($STAT_DX)-tw/2", y: $"($STAT_VALS_BOX.y)+($STAT_VALS_BOX.h / 2)-th/2" } },
+                { kind: "drawtext", options: { text: (ffmpeg-text $"($it.item.k)"), fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: $STAT_FONT_SIZE, x: $"($STAT_KEYS_BOX.x)+($STAT_OFFSET_X)+($it.index)*($STAT_DX)-tw/2", y: $"($STAT_KEYS_BOX.y)+($STAT_KEYS_BOX.h / 2)-th/2" } },
+                { kind: "drawtext", options: { text: (ffmpeg-text $"($it.item.v)"), fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: $STAT_FONT_SIZE, x: $"($STAT_VALS_BOX.x)+($STAT_OFFSET_X)+($it.index)*($STAT_DX)-tw/2", y: $"($STAT_VALS_BOX.y)+($STAT_VALS_BOX.h / 2)-th/2" } },
             ] } | flatten
         ),
 
@@ -109,12 +118,12 @@ export def main [troop: record, --color: string, --output: path = "output.png"] 
                 let box = [
                     { kind: "drawbox",  options: { x: $SPECIAL_SKILLS_BOX.x, y: $SPECIAL_SKILLS_BOX.y, w: $SPECIAL_SKILLS_BOX.w, h: $special_skills_box_h, color: "black@0.5", t: "fill" } },
                     { kind: "drawbox",  options: { x: $SPECIAL_SKILLS_BOX.x, y: $SPECIAL_SKILLS_BOX.y, w: $SPECIAL_SKILLS_BOX.w, h: $special_skills_box_h, color: "black@0.5", t: "5" } },
-                    { kind: "drawtext", options: { text: "Special skills", fontfile: $BOLD_FONT, fontcolor: "white", fontsize: $SPECIAL_SKILLS_TITLE_FONT_SIZE, x: $"($SPECIAL_SKILLS_BOX.x)+($SPECIAL_SKILLS_OFFSET_X)", y: $"($SPECIAL_SKILLS_BOX.y)+30-th/2" } },
+                    { kind: "drawtext", options: { text: (ffmpeg-text "Special skills"), fontfile: $BOLD_FONT, fontcolor: "white", fontsize: $SPECIAL_SKILLS_TITLE_FONT_SIZE, x: $"($SPECIAL_SKILLS_BOX.x)+($SPECIAL_SKILLS_OFFSET_X)", y: $"($SPECIAL_SKILLS_BOX.y)+30-th/2" } },
                 ]
                 let skills = $troop.special_skills | enumerate | each { |it|
                     [
                         { kind: "drawtext", options: {
-                            text: $it.item,
+                            text: (ffmpeg-text $"($it.item)"),
                             fontfile: $REGULAR_FONT,
                             fontcolor: "white",
                             fontsize: $SPECIAL_SKILLS_FONT_SIZE ,
@@ -129,23 +138,23 @@ export def main [troop: record, --color: string, --output: path = "output.png"] 
 
         { kind: "drawbox",  options: { x: $EQUIPMENT_BOX.x, y: $EQUIPMENT_BOX.y, w: $EQUIPMENT_BOX.w, h: $EQUIPMENT_BOX.h, color: "black@0.5", t: "fill" } },
         { kind: "drawbox",  options: { x: $EQUIPMENT_BOX.x, y: $EQUIPMENT_BOX.y, w: $EQUIPMENT_BOX.w, h: $EQUIPMENT_BOX.h, color: "black@0.5", t: "5" } },
-        { kind: "drawtext", options: { text: "WEAPONRY | EQUIPMENT || PERIPHERAL", fontfile: $BOLD_FONT, fontcolor: "white", fontsize: ($EQUIPMENT_FONT_SIZE + 2), x: $"($EQUIPMENT_BOX.x)+($EQUIPMENT_OFFSET_X)", y: $"($BOTTOM_FIRST_ROW_Y)-th/2" } },
-        { kind: "drawtext", options: { text: $equipment_text, fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: ($EQUIPMENT_FONT_SIZE - 5), x: $"($EQUIPMENT_BOX.x)+($EQUIPMENT_OFFSET_X)", y: $"($BOTTOM_SECOND_ROW_Y)-th/2" } },
+        { kind: "drawtext", options: { text: (ffmpeg-text "WEAPONRY | EQUIPMENT || PERIPHERAL"), fontfile: $BOLD_FONT, fontcolor: "white", fontsize: ($EQUIPMENT_FONT_SIZE + 2), x: $"($EQUIPMENT_BOX.x)+($EQUIPMENT_OFFSET_X)", y: $"($BOTTOM_FIRST_ROW_Y)-th/2" } },
+        { kind: "drawtext", options: { text: (ffmpeg-text $equipment_text), fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: ($EQUIPMENT_FONT_SIZE - 5), x: $"($EQUIPMENT_BOX.x)+($EQUIPMENT_OFFSET_X)", y: $"($BOTTOM_SECOND_ROW_Y)-th/2" } },
 
         { kind: "drawbox",  options: { x: $MELEE_BOX.x, y: $MELEE_BOX.y, w: $MELEE_BOX.w, h: $MELEE_BOX.h, color: "black@0.5", t: "fill" } },
         { kind: "drawbox",  options: { x: $MELEE_BOX.x, y: $MELEE_BOX.y, w: $MELEE_BOX.w, h: $MELEE_BOX.h, color: "black@0.5", t: "5" } },
-        { kind: "drawtext", options: { text: "MELEE WEAPONS", fontfile: $BOLD_FONT, fontcolor: "white", fontsize: ($MELEE_FONT_SIZE + 2), x: $"($MELEE_BOX.x)+($MELEE_OFFSET_X)", y: $"($BOTTOM_FIRST_ROW_Y)-th/2" } },
-        { kind: "drawtext", options: { text: $"'($troop.melee_weapons | str join '\\, ')'", fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: ($MELEE_FONT_SIZE - 5), x: $"($MELEE_BOX.x)+($MELEE_OFFSET_X)", y: $"($BOTTOM_SECOND_ROW_Y)-th/2" } },
+        { kind: "drawtext", options: { text: (ffmpeg-text "MELEE WEAPONS"), fontfile: $BOLD_FONT, fontcolor: "white", fontsize: ($MELEE_FONT_SIZE + 2), x: $"($MELEE_BOX.x)+($MELEE_OFFSET_X)", y: $"($BOTTOM_FIRST_ROW_Y)-th/2" } },
+        { kind: "drawtext", options: { text: (ffmpeg-text $"($troop.melee_weapons | str join '), ')"), fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: ($MELEE_FONT_SIZE - 5), x: $"($MELEE_BOX.x)+($MELEE_OFFSET_X)", y: $"($BOTTOM_SECOND_ROW_Y)-th/2" } },
 
         { kind: "drawbox",  options: { x: $SWC_BOX.x, y: $SWC_BOX.y, w: $SWC_BOX.w, h: $SWC_BOX.h, color: "black@0.5", t: "fill" } },
         { kind: "drawbox",  options: { x: $SWC_BOX.x, y: $SWC_BOX.y, w: $SWC_BOX.w, h: $SWC_BOX.h, color: "black@0.5", t: "5" } },
-        { kind: "drawtext", options: { text: "SWC", fontfile: $BOLD_FONT, fontcolor: "white", fontsize: ($SWC_FONT_SIZE + 2), x: $"($SWC_BOX.x)+($SWC_BOX.w // 2)-tw/2", y: $"($BOTTOM_FIRST_ROW_Y)-th/2" } },
-        { kind: "drawtext", options: { text: $troop.SWC, fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: $SWC_FONT_SIZE, x: $"($SWC_BOX.x)+($SWC_BOX.w // 2)-tw/2", y: $"($BOTTOM_SECOND_ROW_Y)-th/2" } },
+        { kind: "drawtext", options: { text: (ffmpeg-text "SWC"), fontfile: $BOLD_FONT, fontcolor: "white", fontsize: ($SWC_FONT_SIZE + 2), x: $"($SWC_BOX.x)+($SWC_BOX.w // 2)-tw/2", y: $"($BOTTOM_FIRST_ROW_Y)-th/2" } },
+        { kind: "drawtext", options: { text: (ffmpeg-text $"($troop.SWC)"), fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: $SWC_FONT_SIZE, x: $"($SWC_BOX.x)+($SWC_BOX.w // 2)-tw/2", y: $"($BOTTOM_SECOND_ROW_Y)-th/2" } },
 
         { kind: "drawbox",  options: { x: $C_BOX.x, y: $C_BOX.y, w: $C_BOX.w, h: $C_BOX.h, color: "black@0.5", t: "fill" } },
         { kind: "drawbox",  options: { x: $C_BOX.x, y: $C_BOX.y, w: $C_BOX.w, h: $C_BOX.h, color: "black@0.5", t: "5" } },
-        { kind: "drawtext", options: { text: "C", fontfile: $BOLD_FONT, fontcolor: "white", fontsize: ($C_FONT_SIZE + 2), x: $"($C_BOX.x)+($C_BOX.w // 2)-tw/2", y: $"($BOTTOM_FIRST_ROW_Y)-th/2" } },
-        { kind: "drawtext", options: { text: $troop.C, fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: $C_FONT_SIZE, x: $"($C_BOX.x)+($C_BOX.w // 2)-tw/2", y: $"($BOTTOM_SECOND_ROW_Y)-th/2" } },
+        { kind: "drawtext", options: { text: (ffmpeg-text "C"), fontfile: $BOLD_FONT, fontcolor: "white", fontsize: ($C_FONT_SIZE + 2), x: $"($C_BOX.x)+($C_BOX.w // 2)-tw/2", y: $"($BOTTOM_FIRST_ROW_Y)-th/2" } },
+        { kind: "drawtext", options: { text: (ffmpeg-text $"($troop.C)"), fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: $C_FONT_SIZE, x: $"($C_BOX.x)+($C_BOX.w // 2)-tw/2", y: $"($BOTTOM_SECOND_ROW_Y)-th/2" } },
     ]
 
     let tmp = ffmpeg create ($START | ffmpeg options) --output (mktemp --tmpdir XXXXXXX.png)

@@ -1,7 +1,7 @@
 {
     isc: "Danavas Hackers",
     name: "DANAVAS Hackers",
-    short_name: "'DANAVAS (Hacker\\, Hacking Device Plus \\[UPGRADE\\: Oblivion (+1B)\\])'",
+    short_name: "DANAVAS (Hacker, Hacking Device Plus [UPGRADE: Oblivion (+1B)])",
     faction: "aleph",
     asset: "aleph-danavas",
     classification: "Line Troops",
