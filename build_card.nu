@@ -71,7 +71,210 @@ def "ffmpeg-text" [text: string] {
         | $"'($in)'"
 }
 
+def put-weapon-chart [equipment: record, x: int, y: int, --no-header]: [ path -> path ] {
+    const RANGES = ['8"', '16"', '24"', '32"', '40"', '48"', '96"']
+    const STATS = [
+        [field,                    short];
+        [PS,                       PS],
+        [B,                        B],
+        [AMMUNITION,               AMMO],
+        ["SAVING ROLL ATTRIBUTE",  ATTR],
+        ["NUMBER OF SAVING ROLLS", SR],
+        # ["TRAITS",                 TRAITS],
+    ]
+    let m = 20
+    let w = 20
+    let foo = $STATS | zip ($STATS | skip 1) | reduce --fold [($m + $w * ($STATS.0.short | str length) / 2)] { |it, acc|
+        $acc | append (($acc | last) + $m + $w * (($it.0.short | str length) / 2 + ($it.1.short | str length) / 2))
+    }
+
+    let range_cell_width = 100
+    let range_cell_height = 50
+
+    let transforms = [
+        ...(
+            if $no_header {
+                []
+            } else {
+                $RANGES | enumerate | each { |it| {
+                    kind: "drawtext",
+                    options: {
+                        text: (ffmpeg-text $it.item),
+                        fontfile: $BOLD_FONT, fontcolor: "black", fontsize: 30,
+                        x: $"($x + $range_cell_width / 2 + $it.index * $range_cell_width)-tw/2", y: $y,
+                    },
+                }}
+            }
+        ),
+        ...($RANGES | enumerate | each { |it|
+            let color = match ($equipment | get $it.item) {
+                "+3" | 3 | "3" => "0x76ac5d",
+                "0" | 0 => "0x59b9d1",
+                "-3" | -3 => "0xea9931",
+                "-6" | -6 => "0xdc3e4c",
+                "null" => "0x231f20",
+                _ => "0xcdd5de",
+            }
+
+            { kind: "drawbox",  options: { x: ($x + $it.index * $range_cell_width), y: (if $no_header { $y } else { $y + 30 }), w: $range_cell_width, h: $range_cell_height, color: $color, t: "fill" } }
+        }),
+        ...(
+            if $no_header {
+                []
+            } else {
+                $STATS | zip $foo | enumerate | each { |it| {
+                    kind: "drawtext",
+                    options: {
+                        text: (ffmpeg-text $it.item.0.short),
+                        fontfile: $BOLD_FONT, fontcolor: "black", fontsize: 30,
+                        x: $"($x + ($RANGES | length) * $range_cell_width + $it.item.1)-tw/2", y: $y,
+                    },
+                }}
+            }
+        ),
+        ...($STATS | zip $foo | enumerate | each { |it| {
+            kind: "drawtext",
+            options: {
+                text: (ffmpeg-text $"($equipment | get $it.item.0.field)"),
+                fontfile: $REGULAR_FONT, fontcolor: "black", fontsize: 30,
+                x: $"($x + ($RANGES | length) * $range_cell_width + $it.item.1)-tw/2", y: $"(if $no_header { $y } else { $y + 30 })+($range_cell_height / 2)-th/2",
+            },
+        }}),
+    ]
+
+    $in | ffmpeg mapply ($transforms | each { ffmpeg options }) --output (mktemp --tmpdir XXXXXXX.png)
+}
+
 export def main [troop: record, --color: string, --output: path = "output.png"] {
+    let charts = [
+        [name,             type];
+
+        [cc-weapons,       cc],
+        [pistols,          pistol],
+        [rifles,           rifle],
+        [uncategorized,    null],
+        [grenades,         grenade],
+        [submachine-guns,  submachine_gun],
+        [shotguns,         shotgun],
+        [red_furies,       red_fury],
+        [rocket_launchers, rocket_launcher],
+    ] | reduce --fold [] { |it, acc|
+        $acc ++ (
+            { parent: "charts/weapons", stem: $it.name, extension: "csv" } | path join | open $in | insert type $it.type
+        )
+    }
+    let equipments = $troop.weaponry ++ $troop.equipment ++ $troop.peripheral ++ $troop.melee_weapons
+
+    for e in $equipments {
+        let name = match ($e | describe --detailed).type {
+            "string" => $e,
+            "record" => $e.name,
+        }
+        let res = $charts | where NAME == ($name | str upcase)
+        if $res != [] {
+            print $res
+        }
+    }
+
+    let start_x = 250
+
+    let res = ffmpeg create ($START | ffmpeg options) --output (mktemp --tmpdir XXXXXXX.png)
+        | ffmpeg apply (
+            {
+                kind: "drawtext",
+                options: {
+                    text: (ffmpeg-text "Pistol"),
+                    fontfile: $REGULAR_FONT, fontcolor: "black", fontsize: 30,
+                    x: $"($start_x)-10-tw", y: $"50+30+25-th/2",
+                },
+            }
+            | ffmpeg options
+        ) --output (mktemp --tmpdir XXXXXXX.png)
+        | put-weapon-chart ($charts | where NAME == "PISTOL" | into record) $start_x 50
+        | ffmpeg apply (
+            {
+                kind: "drawtext",
+                options: {
+                    text: (ffmpeg-text "Grenades"),
+                    fontfile: $REGULAR_FONT, fontcolor: "black", fontsize: 30,
+                    x: $"($start_x)-10-tw", y: $"140+25-th/2",
+                },
+            }
+            | ffmpeg options
+        ) --output (mktemp --tmpdir XXXXXXX.png)
+        | put-weapon-chart ($charts | where NAME == "GRENADES" | into record) $start_x 140 --no-header
+        | ffmpeg apply (
+            {
+                kind: "drawtext",
+                options: {
+                    text: (ffmpeg-text "Chain Rifle"),
+                    fontfile: $REGULAR_FONT, fontcolor: "black", fontsize: 30,
+                    x: $"($start_x)-10-tw", y: $"200+25-th/2",
+                },
+            }
+            | ffmpeg options
+        ) --output (mktemp --tmpdir XXXXXXX.png)
+        | put-weapon-chart ($charts | where NAME == "CHAIN RIFLE" | into record) $start_x 200 --no-header
+        | ffmpeg apply (
+            {
+                kind: "drawtext",
+                options: {
+                    text: (ffmpeg-text "AP CC Weapon"),
+                    fontfile: $REGULAR_FONT, fontcolor: "black", fontsize: 30,
+                    x: $"($start_x)-10-tw", y: $"260+25-th/2",
+                },
+            }
+            | ffmpeg options
+        ) --output (mktemp --tmpdir XXXXXXX.png)
+        | put-weapon-chart ($charts | where NAME == "AP CC WEAPON" | into record) $start_x 260 --no-header
+        | ffmpeg apply (
+            {
+                kind: "drawtext",
+                options: {
+                    text: (ffmpeg-text $"Pistol  ($charts | where NAME == 'PISTOL' | into record | get TRAITS)"),
+                    fontfile: $REGULAR_FONT, fontcolor: "black", fontsize: 30,
+                    x: $"($start_x)-10", y: "450",
+                },
+            }
+            | ffmpeg options
+        ) --output (mktemp --tmpdir XXXXXXX.png)
+        | ffmpeg apply (
+            {
+                kind: "drawtext",
+                options: {
+                    text: (ffmpeg-text $"Chain Rifle ($charts | where NAME == 'CHAIN RIFLE' | into record | get TRAITS)"),
+                    fontfile: $REGULAR_FONT, fontcolor: "black", fontsize: 30,
+                    x: $"($start_x)-10", y: "550",
+                },
+            }
+            | ffmpeg options
+        ) --output (mktemp --tmpdir XXXXXXX.png)
+        | ffmpeg apply (
+            {
+                kind: "drawtext",
+                options: {
+                    text: (ffmpeg-text $"Grenades ($charts | where NAME == 'GRENADES' | into record | get TRAITS)"),
+                    fontfile: $REGULAR_FONT, fontcolor: "black", fontsize: 30,
+                    x: $"($start_x)-10", y: "650",
+                },
+            }
+            | ffmpeg options
+        ) --output (mktemp --tmpdir XXXXXXX.png)
+        | ffmpeg apply (
+            {
+                kind: "drawtext",
+                options: {
+                    text: (ffmpeg-text $"AP CC Weapon ($charts | where NAME == 'AP CC WEAPON' | into record | get TRAITS)"),
+                    fontfile: $REGULAR_FONT, fontcolor: "black", fontsize: 30,
+                    x: $"($start_x)-10", y: "750",
+                },
+            }
+            | ffmpeg options
+        ) --output (mktemp --tmpdir XXXXXXX.png)
+    cp $res foo.png
+
+    return
+
     let equipment_text = [$troop.weaponry, $troop.equipment, $troop.peripheral]
         | each { default [] }
         | each {
