@@ -4,7 +4,8 @@
     short_name: "ORC",
     faction: "panoceania",
     asset: "panoceania-orc",
-    classification: "veteran",
+    classification: "Veteran Troops",
+    reference: "https://infinityuniverse.com/army/infinity/panoceania/orc-troops",
     type: "HI",
     characteristics: [
         "cube",

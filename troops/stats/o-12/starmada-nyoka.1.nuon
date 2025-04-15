@@ -4,7 +4,8 @@
     short_name: "NYOKA FTO (Forward Observer)",
     faction: "o-12",
     asset: "o-12-starmada-nyoka.1",
-    classification: "trained",
+    classification: "Spec. Trained Troops",
+    reference: "https://infinityuniverse.com/army/infinity/starmada/nyoka-assault-troops",
     type: "LI",
     characteristics: [
         "cube",

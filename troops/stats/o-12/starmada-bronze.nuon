@@ -4,7 +4,8 @@
     short_name: "BRONZE",
     faction: "o-12",
     asset: "o-12-starmada-bronze",
-    classification: "veteran",
+    classification: "Veteran Troops",
+    reference: "https://infinityuniverse.com/army/infinity/starmada/bronzes",
     type: "HI",
     characteristics: [
         "cube",

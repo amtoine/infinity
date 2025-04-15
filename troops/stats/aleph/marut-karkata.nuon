@@ -5,6 +5,7 @@
     faction: "aleph",
     asset: "aleph-marut-karkata",
     classification: "",
+    reference: "https://infinityuniverse.com/army/infinity/aleph/maruts",
     type: "REM",
     characteristics: [
         "hackable",

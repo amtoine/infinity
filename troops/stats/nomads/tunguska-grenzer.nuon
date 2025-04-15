@@ -4,7 +4,8 @@
     short_name: "GRENZER",
     faction: "nomads",
     asset: "nomads-tunguska-grenzer",
-    classification: "veteran",
+    classification: "Veteran Troops",
+    reference: "https://infinityuniverse.com/army/infinity/tunguska/grenzers-grenz-security-team",
     type: "MI",
     characteristics: [
         "cube",

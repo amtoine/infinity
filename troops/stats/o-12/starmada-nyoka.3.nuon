@@ -4,7 +4,8 @@
     short_name: "NYOKA (Parachutist)",
     faction: "o-12",
     asset: "o-12-starmada-nyoka.3",
-    classification: "trained",
+    classification: "Spec. Trained Troops",
+    reference: "https://infinityuniverse.com/army/infinity/starmada/nyoka-assault-troops",
     type: "LI",
     characteristics: [
         "cube",

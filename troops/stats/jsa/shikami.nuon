@@ -4,7 +4,8 @@
     short_name: "SHIKAMI",
     faction: "jsa",
     asset: "jsa-shikami",
-    classification: "elite",
+    classification: "Elite Troops",
+    reference: "https://infinityuniverse.com/army/infinity/jsa/shikami",
     type: "HI",
     characteristics: [
         "cube",
