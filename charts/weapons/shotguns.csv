@@ -1,0 +1,6 @@
+NAME,8",16",24",32",40",48",96",PS,B,AMMUNITION,"SAVING ROLL ATTRIBUTE","NUMBER OF SAVING ROLLS",TRAITS
+"BOARDING SHOTGUN",+6,0,-3,null,null,null,null,6,2,AP,ARM/2,1,""
+"HEAVY SHOTGUN",+6,0,-3,null,null,null,null,5,2,AP,ARM/2,1,""
+"LIGHT SHOTGUN",+6,0,-3,null,null,null,null,7,2,N,ARM,1,""
+"T2 BOARDING SHOTGUN",+6,0,-3,null,null,null,null,6,2,T2,ARM,1,"ANTI-MATERIEL"
+"VULKAN SHOTGUN",+6,0,-3,null,null,null,null,6,2,AP,ARM/2,1,"CONTINUOUS DAMAGE"
