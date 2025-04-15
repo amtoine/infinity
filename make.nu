@@ -40,7 +40,7 @@ def "main showcase" [] {
     mkdir out/
 
     for t in $SHOWCASE {
-        let troop_file = { parent: "troops", stem: $t.name, extension: "nuon" } | path join
+        let troop_file = { parent: "troops/stats", stem: $t.name, extension: "nuon" } | path join
         let output = { parent: "out", stem: ($t.name | str replace '/' '-'), extension: "png" } | path join
 
         log info $t.name
@@ -54,7 +54,7 @@ def "main troops" [name: string = ""] {
     mkdir out/
 
     for t in ($TROOPS | where name =~ $name) {
-        let troop_file = { parent: "troops", stem: $t.name, extension: "nuon" } | path join
+        let troop_file = { parent: "troops/stats", stem: $t.name, extension: "nuon" } | path join
         let output = { parent: "out", stem: ($t.name | str replace '/' '-'), extension: "png" } | path join
 
         log info $t.name
