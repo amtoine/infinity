@@ -1,7 +1,19 @@
 use log.nu [ "log info" ]
+
+const FONT_UPSTREAM = "https://download.gnome.org/sources/adwaita-fonts/48/adwaita-fonts-48.2.tar.xz"
+const FONT_LOCAL = "/tmp/adwaita-fonts-48.2.tar.xz"
+
 def "main git" [] {
     log info "git config diff.exif.textconv exiftool"
     git config diff.exif.textconv exiftool
+}
+
+def "main font" [] {
+    log info $"curl -fLo ($FONT_LOCAL) ($FONT_UPSTREAM)"
+    curl -fLo $FONT_LOCAL $FONT_UPSTREAM
+
+    log info $"tar xvf ($FONT_LOCAL)"
+    tar xvf $FONT_LOCAL
 }
 
 const COLORS = {
