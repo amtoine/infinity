@@ -167,7 +167,7 @@ export def main [troop: record, --color: string, --output: path = "output.png"] 
         }
         | ffmpeg mapply ($transforms | each { ffmpeg options })
 
-    $troop.characteristics
+    let tmp = $troop.characteristics
         | enumerate
         | reduce --fold $tmp { |it, acc|
             [$acc, ({ parent: "./troops/assets/characteristics/", stem: $it.item, extension: "png" } | path join)] | ffmpeg combine ({
@@ -178,7 +178,18 @@ export def main [troop: record, --color: string, --output: path = "output.png"] 
         | [$in, ({ parent: "./troops/assets/icons/", stem: ($troop.asset | str replace --regex '\..*$' ''), extension: "png" } | path join) ] | ffmpeg combine ({
             kind: "overlay",
             options: { x: $"($ICON_BOX.x + $ICON_BOX.w // 2)-w/2", y: $"($ICON_BOX.y + $ICON_BOX.h // 2)-h/2" },
-        } | ffmpeg options) --output $output
+        } | ffmpeg options) --output (mktemp --tmpdir XXXXXXX.png)
+
+    let tmp = $troop.allowed_factions
+        | enumerate
+        | reduce --fold $tmp { |it, acc|
+            [$acc, ({ parent: "./troops/assets/factions/70/", stem: $it.item, extension: "png" } | path join)] | ffmpeg combine ({
+                kind: "overlay",
+                options: { x: $"($STAT_VALS_BOX.x)+50+($it.index * 80)-w/2", y: $"($STAT_VALS_BOX.y)+($STAT_VALS_BOX.h)+50-h/2" },
+            } | ffmpeg options) --output (mktemp --tmpdir XXXXXXX.png)
+        }
+
+    cp $tmp $output
 
     log info $"(ansi purple)($output)(ansi reset)"
 }
