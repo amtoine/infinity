@@ -161,7 +161,7 @@ export def main [troop: record, --color: string, --output: path = "output.png"] 
     let tmp = ffmpeg create ($START | ffmpeg options) --output (mktemp --tmpdir XXXXXXX.png)
         | [$in, ({ parent: "./troops/assets/minis/", stem: $troop.asset, extension: "png" } | path join)] | ffmpeg combine ($IMAGE | ffmpeg options) --output (mktemp --tmpdir XXXXXXX.png)
         | if $troop.faction != null {
-            [$in, ({ parent: "./troops/assets/factions/", stem: $troop.faction, extension: "png" } | path join)] | ffmpeg combine "[1:v]format=rgba,colorchannelmixer=aa=0.5[ol];[0:v][ol]overlay=x=1455-w/2:y=500-h/2" --output (mktemp --tmpdir XXXXXXX.png)
+            [$in, ({ parent: "./troops/assets/factions/940/", stem: $troop.faction, extension: "png" } | path join)] | ffmpeg combine "[1:v]format=rgba,colorchannelmixer=aa=0.5[ol];[0:v][ol]overlay=x=1455-w/2:y=500-h/2" --output (mktemp --tmpdir XXXXXXX.png)
         } else {
             $in
         }
