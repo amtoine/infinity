@@ -29,9 +29,9 @@
         "Immunity (Shock)",
         "Terrain (Zero-G)"
     ],
-    weaponry: "Heavy Rocket Launcher\\, Chain-colt",
-    equipment: null,
-    peripheral: null,
+    weaponry: ["Heavy Rocket Launcher", "Chain-colt"],
+    equipment: [],
+    peripheral: [],
     melee_weapons: ["Shock CC Weapon", "Heavy Pistol (+1B)"],
     SWC: 1,
     C: 18,

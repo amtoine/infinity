@@ -63,7 +63,8 @@ const SPECIAL_SKILLS_OFFSET_X = 10
 
 export def main [troop: record, --color: string, --output: path = "output.png"] {
     let equipment_text = [$troop.weaponry, $troop.equipment, $troop.peripheral]
-        | each { default "_" }
+        | each { default [] }
+        | each { if ($in | is-empty) { "_" } else { $in | str join "\\, " } }
         | $"($in.0) | ($in.1) || ($in.2)"
 
     let characteristics_box_h = $CHARACTERISTICS_BOX.w // 2 + (if ($troop.characteristics | is-empty) { 0 } else { 10 }) + 75 * ($troop.characteristics | length)

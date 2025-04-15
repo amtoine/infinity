@@ -24,9 +24,9 @@
         AVA:   2,
     }
     special_skills: ["Immunity (Shock)"],
-    weaponry: "MULTI Rifle",
-    equipment: null,
-    peripheral: null,
+    weaponry: ["MULTI Rifle"],
+    equipment: [],
+    peripheral: [],
     melee_weapons: ["Pistol", "CC Weapon"],
     SWC: 0,
     C: 28,

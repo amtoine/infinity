@@ -25,9 +25,9 @@
     special_skills: [
         "Courage",
     ],
-    weaponry: "Combi Rifle\\, Pitcher",
-    equipment: null,
-    peripheral: null,
+    weaponry: ["Combi Rifle", "Pitcher"],
+    equipment: [],
+    peripheral: [],
     melee_weapons: ["Breaker Pistol", "CC Weapon"],
     SWC: 0.5,
     C: 22,

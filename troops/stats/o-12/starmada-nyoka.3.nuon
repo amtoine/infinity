@@ -29,9 +29,9 @@
         "Immunity (Shock)",
         "Terrain (Zero-G)"
     ],
-    weaponry: "Red Fury\\, Chain-colt",
-    equipment: null,
-    peripheral: null,
+    weaponry: ["Red Fury", "Chain-colt"],
+    equipment: [],
+    peripheral: [],
     melee_weapons: ["Pistol", "Shock CC Weapon"],
     SWC: 1,
     C: 29,

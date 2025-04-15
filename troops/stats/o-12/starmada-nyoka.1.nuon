@@ -29,9 +29,9 @@
         "Immunity (Shock)",
         "Terrain (Zero-G)"
     ],
-    weaponry: "MULTI Rifle\\, Chain-colt",
-    equipment: null,
-    peripheral: null,
+    weaponry: ["MULTI Rifle", "Chain-colt"],
+    equipment: [],
+    peripheral: [],
     melee_weapons: ["Pistol", "Shock CC Weapon"],
     SWC: 0,
     C: 22,
