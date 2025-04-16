@@ -367,7 +367,17 @@ def gen-charts-page [troop: record, output: path] {
 
 }
 
-export def main [troop: record, --color: string, --output: path = "output.png"] {
-    gen-stat-page $troop $color $output
-    gen-charts-page $troop $output
+export def main [troop: record, --color: string, --output: path = "output.png", --stats, --charts] {
+    match [$stats, $charts] {
+        [true, true] | [false, false] => {
+            gen-stat-page $troop $color $output
+            gen-charts-page $troop $output
+        },
+        [true, false] => {
+            gen-stat-page $troop $color $output
+        },
+        [false, true] => {
+            gen-charts-page $troop $output
+        },
+    }
 }

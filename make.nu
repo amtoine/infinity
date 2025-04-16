@@ -46,7 +46,7 @@ const TROOPS = [
     ["o-12/starmada-nyoka.3",         $COLORS.o-12],
 ]
 
-def "main showcase" [] {
+def "main showcase" [--stats, --charts] {
     use build_card.nu
 
     mkdir out/
@@ -56,11 +56,11 @@ def "main showcase" [] {
         let output = { parent: "out", stem: ($t.name | str replace '/' '-'), extension: "png" } | path join
 
         log info $t.name
-        build_card (open $troop_file) --color $t.color --output $output
+        build_card (open $troop_file) --color $t.color --output $output --stats=$stats --charts=$charts
     }
 }
 
-def "main troops" [name: string = ""] {
+def "main troops" [name: string = "", --stats, --charts] {
     use build_card.nu
 
     mkdir out/
@@ -70,7 +70,7 @@ def "main troops" [name: string = ""] {
         let output = { parent: "out", stem: ($t.name | str replace '/' '-'), extension: "png" } | path join
 
         log info $t.name
-        build_card (open $troop_file) --color $t.color --output $output
+        build_card (open $troop_file) --color $t.color --output $output --stats=$stats --charts=$charts
     }
 }
 
