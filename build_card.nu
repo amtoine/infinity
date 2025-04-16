@@ -80,7 +80,7 @@ def put-weapon-chart [equipment: record, x: int, y: int, --no-header]: [ path ->
         [AMMUNITION,               AMMO],
         ["SAVING ROLL ATTRIBUTE",  ATTR],
         ["NUMBER OF SAVING ROLLS", SR],
-        # ["TRAITS",                 TRAITS],
+        ["TRAITS",                 TRAITS],
     ]
     let m = 20
     let w = 20
@@ -132,14 +132,23 @@ def put-weapon-chart [equipment: record, x: int, y: int, --no-header]: [ path ->
                 }}
             }
         ),
-        ...($STATS | zip $positions | enumerate | each { |it| {
-            kind: "drawtext",
-            options: {
-                text: (ffmpeg-text $"($equipment | get $it.item.0.field)"),
-                fontfile: $REGULAR_FONT, fontcolor: "black", fontsize: 30,
-                x: $"($x + ($RANGES | length) * $range_cell_width + $it.item.1)-tw/2", y: $"(if $no_header { $y } else { $y + 30 })+($range_cell_height / 2)-th/2",
-            },
-        }}),
+        ...($STATS | zip $positions | enumerate | each { |it|
+            if $it.item.0.field == "TRAITS" {{
+                kind: "drawtext",
+                options: {
+                    text: (ffmpeg-text (if ($equipment | get $it.item.0.field | is-empty) { "" } else { "*" })),
+                    fontfile: $REGULAR_FONT, fontcolor: "black", fontsize: 30,
+                    x: $"($x + ($RANGES | length) * $range_cell_width + $it.item.1)-tw/2", y: $"(if $no_header { $y } else { $y + 30 })+($range_cell_height / 2)-th/2",
+                },
+            }} else {{
+                kind: "drawtext",
+                options: {
+                    text: (ffmpeg-text $"($equipment | get $it.item.0.field)"),
+                    fontfile: $REGULAR_FONT, fontcolor: "black", fontsize: 30,
+                    x: $"($x + ($RANGES | length) * $range_cell_width + $it.item.1)-tw/2", y: $"(if $no_header { $y } else { $y + 30 })+($range_cell_height / 2)-th/2",
+                },
+            }}
+        }),
     ]
 
     $in | ffmpeg mapply ($transforms | each { ffmpeg options }) --output (mktemp --tmpdir XXXXXXX.png)
