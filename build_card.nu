@@ -324,13 +324,13 @@ def gen-charts-page [troop: record, output: path] {
         }
         | insert stats { |var|
             let equipment = $charts | where NAME == ($var.name | str upcase)
-            match ($equipment | length) {
-                1 => { $equipment | into record },
-                0 => { log warning $"(ansi cyan)($var.name)(ansi reset) not found in charts" },
-                _ => { log warning $"multiple charts for (ansi cyan)($var.name)(ansi reset)" },
+            if ($equipment | length) == 0 {
+                log warning $"(ansi cyan)($var.name)(ansi reset) not found in charts"
             }
+            $equipment | each { into record }
         }
         | where not ($it.stats | is-empty)
+        | flatten stats
 
     let start_x = 250
 
