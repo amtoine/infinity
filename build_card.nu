@@ -145,7 +145,7 @@ def put-weapon-chart [equipment: record, x: int, y: int, --no-header]: [ path ->
     $in | ffmpeg mapply ($transforms | each { ffmpeg options }) --output (mktemp --tmpdir XXXXXXX.png)
 }
 
-export def main [troop: record, --color: string, --output: path = "output.png"] {
+def gen-stat-page [troop: record, color: string, output: path] {
     let equipment_text = [$troop.weaponry, $troop.equipment, $troop.peripheral]
         | each { default [] }
         | each {
@@ -286,7 +286,9 @@ export def main [troop: record, --color: string, --output: path = "output.png"] 
     let out = $output | path parse | update stem { $in ++ ".1" } | path join
     cp $tmp $out
     log info $"\t(ansi purple)($out)(ansi reset)"
+}
 
+def gen-charts-page [troop: record, output: path] {
     let charts = [
         [name,             type];
 
@@ -305,71 +307,48 @@ export def main [troop: record, --color: string, --output: path = "output.png"] 
         )
     }
     let equipments = $troop.weaponry ++ $troop.equipment ++ $troop.peripheral ++ $troop.melee_weapons
+        | each { |it|
+            match ($it | describe --detailed).type {
+                "string" => { name: $it },
+                "record" => $it,
+            }
+        }
+        | insert stats { |var|
+            let equipment = $charts | where NAME == ($var.name | str upcase)
+            match ($equipment | length) {
+                1 => { $equipment | into record },
+                0 => { log warning $"(ansi cyan)($var.name)(ansi reset) not found in charts" },
+                _ => { log warning $"multiple charts for (ansi cyan)($var.name)(ansi reset)" },
+            }
+        }
+        | where not ($it.stats | is-empty)
 
     let start_x = 250
 
-    let transforms = $equipments | enumerate | each { |var|
-        let name = match ($var.item | describe --detailed).type {
-            "string" => $var.item,
-            "record" => $var.item.name,
-        }
-        let key = $name | str upcase
+    let transforms = $equipments | enumerate | each { |var| [
+        {
+            kind: "drawtext",
+            options: {
+                text: (ffmpeg-text $var.item.name),
+                x: $"($start_x)-10-tw", y: $"50+30+($var.index * 60)+25-th/2",
+                fontfile: $REGULAR_FONT, fontcolor: "black", fontsize: 30,
+            },
+        },
+        {
+            kind: "drawtext",
+            options: {
+                text: (ffmpeg-text $"($var.item.name)  ($var.item.stats | get TRAITS)"),
+                x: $"($start_x)-10", y: $"450+($var.index * 100)",
+                fontfile: $REGULAR_FONT, fontcolor: "black", fontsize: 30,
+            },
+        },
+    ] } | flatten
 
-        let equipment = $charts | where NAME == $key
-        match ($equipment | length) {
-            0 => {
-                log warning $"(ansi cyan)($name)(ansi reset) not found in charts"
-                []
-            },
-            1 => {[
-                {
-                    kind: "drawtext",
-                    options: {
-                        text: (ffmpeg-text $key),
-                        x: $"($start_x)-10-tw", y: $"50+30+($var.index * 60)+25-th/2",
-                        fontfile: $REGULAR_FONT, fontcolor: "black", fontsize: 30,
-                    },
-                },
-                {
-                    kind: "drawtext",
-                    options: {
-                        text: (ffmpeg-text $"($name)  ($equipment | into record | get TRAITS)"),
-                        x: $"($start_x)-10", y: $"450+($var.index * 100)",
-                        fontfile: $REGULAR_FONT, fontcolor: "black", fontsize: 30,
-                    },
-                },
-            ]},
-            _ => {
-                log warning $"multiple charts for (ansi cyan)($name)(ansi reset)"
-                []
-            },
-        }
-    } | flatten
-
-    let weapon_bars = $equipments | enumerate | each { |var|
-        let name = match ($var.item | describe --detailed).type {
-            "string" => $var.item,
-            "record" => $var.item.name,
-        }
-        let key = $name | str upcase
-
-        let equipment = $charts | where NAME == $key
-        match ($equipment | length) {
-            0 => {
-                log warning $"(ansi cyan)($name)(ansi reset) not found in charts"
-                []
-            },
-            1 => {[{
-                equipment: ($equipment | into record),
-                x: $start_x,
-                y: (50 + (if $var.index == 0 { 0 } else { 30 }) + ($var.index * 60)),
-            }]},
-            _ => {
-                log warning $"multiple charts for (ansi cyan)($name)(ansi reset)"
-                []
-            },
-        }
-    } | flatten
+    let weapon_bars = $equipments | enumerate | each { |var| {
+        equipment: $var.item.stats,
+        x: $start_x,
+        y: (50 + (if $var.index == 0 { 0 } else { 30 }) + ($var.index * 60)),
+    }}
 
     let res = ffmpeg create ($START | ffmpeg options) --output (mktemp --tmpdir XXXXXXX.png)
         | ffmpeg mapply ($transforms | each { ffmpeg options }) --output (mktemp --tmpdir XXXXXXX.png)
@@ -386,4 +365,9 @@ export def main [troop: record, --color: string, --output: path = "output.png"] 
     cp $res $out
     log info $"\t(ansi purple)($out)(ansi reset)"
 
+}
+
+export def main [troop: record, --color: string, --output: path = "output.png"] {
+    gen-stat-page $troop $color $output
+    gen-charts-page $troop $output
 }
