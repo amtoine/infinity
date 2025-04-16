@@ -1,6 +1,8 @@
 use ffmpeg.nu *
 use log.nu [ "log info", "log warning" ]
 
+const CANVAS_W = 1600
+
 const BOLD_FONT = "./adwaita-fonts-48.2/mono/AdwaitaMono-Bold.ttf"
 const REGULAR_FONT = "./adwaita-fonts-48.2/mono/AdwaitaMono-Regular.ttf"
 
@@ -97,6 +99,7 @@ const CHART_VERT_SPACE = 30
 const CHART_ATTR_INTERSPACE = 20
 const CHART_RANGE_CELL_WIDTH = 100
 const CHART_RANGE_CELL_HEIGHT = 50
+const CHART_START_X = 20
 
 def put-weapon-chart [equipment: record, x: int, y: int, column_widths: record, --no-header]: [ path -> path ] {
     let widths = $column_widths | values
@@ -365,14 +368,14 @@ def gen-charts-page [troop: record, output: path] {
         return
     }
 
-    let start_x = 20 + 18 * ($equipments.name | each { str length } | math max)
+    let start_x = $CHART_START_X + $CHART_FONT_CHAR_SIZE * ($equipments.name | each { str length } | math max)
 
     let names_transforms = $equipments | enumerate | each { |var| {
         kind: "drawtext",
         options: {
             text: (ffmpeg-text $var.item.name),
             x: $"($start_x)-10-tw", y: $"50+30+($var.index * 60)+25-th/2",
-            fontfile: $BOLD_FONT, fontcolor: "black", fontsize: 30,
+            fontfile: $BOLD_FONT, fontcolor: "black", fontsize: $CHART_FONT_SIZE,
         },
     }}
 
@@ -380,7 +383,7 @@ def gen-charts-page [troop: record, output: path] {
         | where not ($it.stats.TRAITS | is-empty)
         | enumerate
         | each { |var|
-            let x_space = (1600 - $start_x - 20) / 18 | into int
+            let x_space = ($CANVAS_W - $start_x - $CHART_START_X) / $CHART_FONT_CHAR_SIZE | into int
             let traits = $var.item.stats.TRAITS | split row ", "
             let res = generate { |var|
                 let res = $var
@@ -421,7 +424,7 @@ def gen-charts-page [troop: record, output: path] {
             options: {
                 text: (ffmpeg-text $var.item.name),
                 x: $"($start_x)-10-tw", y: $"50+30+60*($equipments | length)+50+($var.index * 50)",
-                fontfile: $BOLD_FONT, fontcolor: "black", fontsize: 30,
+                fontfile: $BOLD_FONT, fontcolor: "black", fontsize: $CHART_FONT_SIZE,
             },
         }}
     let traits_values_transforms = $traits
@@ -431,7 +434,7 @@ def gen-charts-page [troop: record, output: path] {
             options: {
                 text: (ffmpeg-text $var.item.traits),
                 x: ($start_x + 20), y: $"50+30+60*($equipments | length)+50+($var.index * 50)",
-                fontfile: $REGULAR_FONT, fontcolor: "black", fontsize: 30,
+                fontfile: $REGULAR_FONT, fontcolor: "black", fontsize: $CHART_FONT_SIZE,
             },
         }}
 
