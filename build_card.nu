@@ -139,7 +139,7 @@ def put-weapon-chart [equipment: record, x: int, y: int, column_widths: record, 
                 options: {
                     x: ($x + $it.index * $CHART_RANGE_CELL_WIDTH), y: (if $no_header { $y } else { $y + $CHART_VERT_SPACE }),
                     w: $CHART_RANGE_CELL_WIDTH, h: $CHART_RANGE_CELL_HEIGHT,
-                    $color: $color, t: "fill",
+                    color: $color, t: "fill",
                 },
             }
         }),
