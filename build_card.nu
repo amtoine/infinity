@@ -345,8 +345,45 @@ def gen-charts-page [troop: record, output: path] {
         },
     }}
 
-    let traits_names_transforms = $equipments
+    let traits = $equipments
         | where not ($it.stats.TRAITS | is-empty)
+        | enumerate
+        | each { |var|
+            let x_space = (1600 - $start_x - 20) / 18 | into int
+            let traits = $var.item.stats.TRAITS | split row ", "
+            let res = generate { |var|
+                let res = $var
+                    | skip 1
+                    | reduce --fold [$var.0] { |it, acc| $acc ++ [$"($acc | last), ($it)"] }
+                    | where ($it | str length) <= $x_space
+                    | last
+                    | split row ", "
+
+                let next = $var | skip ($res | length)
+
+                if ($next | is-empty) {
+                    { out: $res }
+                } else {
+                    { out: $res, next: $next }
+                }
+            } $traits
+            $res | each { str join ", " } | enumerate | each { |it|
+                let name = if $it.index == 0 {
+                    $var.item.name
+                } else {
+                    ""
+                }
+                let traits = if $it.index < ($res | length) - 1 {
+                    $it.item ++ ","
+                } else {
+                    $it.item
+                }
+                { name: $name, traits: $traits }
+            }
+        }
+        | flatten
+
+    let traits_names_transforms = $traits
         | enumerate
         | each { |var| {
             kind: "drawtext",
@@ -356,13 +393,12 @@ def gen-charts-page [troop: record, output: path] {
                 fontfile: $BOLD_FONT, fontcolor: "black", fontsize: 30,
             },
         }}
-    let traits_values_transforms = $equipments
-        | where not ($it.stats.TRAITS | is-empty)
+    let traits_values_transforms = $traits
         | enumerate
         | each { |var| {
             kind: "drawtext",
             options: {
-                text: (ffmpeg-text $var.item.stats.TRAITS),
+                text: (ffmpeg-text $var.item.traits),
                 x: ($start_x + 20), y: $"50+30+60*($equipments | length)+50+($var.index * 50)",
                 fontfile: $REGULAR_FONT, fontcolor: "black", fontsize: 30,
             },
