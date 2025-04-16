@@ -334,14 +334,14 @@ def gen-charts-page [troop: record, output: path] {
         | where not ($it.stats | is-empty)
         | flatten stats
 
-    let start_x = 20 + 19 * ($equipments.name | each { str length } | math max)
+    let start_x = 20 + 18 * ($equipments.name | each { str length } | math max)
 
     let names_transforms = $equipments | enumerate | each { |var| {
         kind: "drawtext",
         options: {
             text: (ffmpeg-text $var.item.name),
             x: $"($start_x)-10-tw", y: $"50+30+($var.index * 60)+25-th/2",
-            fontfile: $REGULAR_FONT, fontcolor: "black", fontsize: 30,
+            fontfile: $BOLD_FONT, fontcolor: "black", fontsize: 30,
         },
     }}
 
@@ -353,7 +353,7 @@ def gen-charts-page [troop: record, output: path] {
             options: {
                 text: (ffmpeg-text $var.item.name),
                 x: $"($start_x)-10-tw", y: $"50+30+60*($equipments | length)+50+($var.index * 50)",
-                fontfile: $REGULAR_FONT, fontcolor: "black", fontsize: 30,
+                fontfile: $BOLD_FONT, fontcolor: "black", fontsize: 30,
             },
         }}
     let traits_values_transforms = $equipments
