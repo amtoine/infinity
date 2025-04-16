@@ -334,6 +334,11 @@ def gen-charts-page [troop: record, output: path] {
         | where not ($it.stats | is-empty)
         | flatten stats
 
+    if ($equipments | is-empty) {
+        log warning "\tno equipment"
+        return
+    }
+
     let start_x = 20 + 18 * ($equipments.name | each { str length } | math max)
 
     let names_transforms = $equipments | enumerate | each { |var| {
