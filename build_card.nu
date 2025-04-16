@@ -82,16 +82,29 @@ const STATS = [
     ["TRAITS",                 TRAITS],
 ]
 
-def put-weapon-chart [equipment: record, x: int, y: int, column_widths: record, --no-header]: [ path -> path ] {
-    let m = 20
-    let w = 20
-    let widths = $column_widths | values
-    let positions = $widths | zip ($widths | skip 1) | reduce --fold [($m + $w * $widths.0)] { |it, acc|
-        $acc | append (($acc | last) + $m + $w * ($it.0 + $it.1) / 2)
-    }
+const CORVUS_BELLI_COLORS = {
+    green:  "0x76ac5d",
+    blue:   "0x59b9d1",
+    yellow: "0xea9931",
+    red:    "0xdc3e4c",
+    black:  "0x231f20",
+    gray:   "0xcdd5de",
+}
 
-    let range_cell_width = 100
-    let range_cell_height = 50
+const CHART_FONT_SIZE = 30
+const CHART_FONT_CHAR_SIZE = 18
+const CHART_VERT_SPACE = 30
+const CHART_ATTR_INTERSPACE = 20
+const CHART_RANGE_CELL_WIDTH = 100
+const CHART_RANGE_CELL_HEIGHT = 50
+
+def put-weapon-chart [equipment: record, x: int, y: int, column_widths: record, --no-header]: [ path -> path ] {
+    let widths = $column_widths | values
+    let positions = $widths
+        | zip ($widths | skip 1)
+        | reduce --fold [($CHART_ATTR_INTERSPACE + $CHART_FONT_CHAR_SIZE * $widths.0)] { |it, acc|
+            $acc | append (($acc | last) + $CHART_ATTR_INTERSPACE + $CHART_FONT_CHAR_SIZE * ($it.0 + $it.1) / 2)
+        }
 
     let transforms = [
         ...(
@@ -102,23 +115,30 @@ def put-weapon-chart [equipment: record, x: int, y: int, column_widths: record, 
                     kind: "drawtext",
                     options: {
                         text: (ffmpeg-text $it.item),
-                        fontfile: $BOLD_FONT, fontcolor: "black", fontsize: 30,
-                        x: $"($x + $range_cell_width / 2 + $it.index * $range_cell_width)-tw/2", y: $y,
+                        fontfile: $BOLD_FONT, fontcolor: "black", fontsize: $CHART_FONT_SIZE,
+                        x: $"($x + $CHART_RANGE_CELL_WIDTH / 2 + $it.index * $CHART_RANGE_CELL_WIDTH)-tw/2", y: $y,
                     },
                 }}
             }
         ),
         ...($RANGES | enumerate | each { |it|
             let color = match ($equipment | get $it.item) {
-                "+3" | 3 | "3" => "0x76ac5d",
-                "0" | 0 => "0x59b9d1",
-                "-3" | -3 => "0xea9931",
-                "-6" | -6 => "0xdc3e4c",
-                "null" => "0x231f20",
-                _ => "0xcdd5de",
+                "+3" | 3 | "3" => $CORVUS_BELLI_COLORS.green,
+                "0" | 0 => $CORVUS_BELLI_COLORS.blue,
+                "-3" | -3 => $CORVUS_BELLI_COLORS.yellow,
+                "-6" | -6 => $CORVUS_BELLI_COLORS.red,
+                "null" => $CORVUS_BELLI_COLORS.black,
+                _ => $CORVUS_BELLI_COLORS.gray,
             }
 
-            { kind: "drawbox",  options: { x: ($x + $it.index * $range_cell_width), y: (if $no_header { $y } else { $y + 30 }), w: $range_cell_width, h: $range_cell_height, color: $color, t: "fill" } }
+            {
+                kind: "drawbox",
+                options: {
+                    x: ($x + $it.index * $CHART_RANGE_CELL_WIDTH), y: (if $no_header { $y } else { $y + $CHART_VERT_SPACE }),
+                    w: $CHART_RANGE_CELL_WIDTH, h: $CHART_RANGE_CELL_HEIGHT,
+                    $color: $color, t: "fill",
+                },
+            }
         }),
         ...(
             if $no_header {
@@ -128,8 +148,8 @@ def put-weapon-chart [equipment: record, x: int, y: int, column_widths: record, 
                     kind: "drawtext",
                     options: {
                         text: (ffmpeg-text $it.item.0.short),
-                        fontfile: $BOLD_FONT, fontcolor: "black", fontsize: 30,
-                        x: $"($x + ($RANGES | length) * $range_cell_width + $it.item.1)-tw/2", y: $y,
+                        fontfile: $BOLD_FONT, fontcolor: "black", fontsize: $CHART_FONT_SIZE,
+                        x: $"($x + ($RANGES | length) * $CHART_RANGE_CELL_WIDTH + $it.item.1)-tw/2", y: $y,
                     },
                 }}
             }
@@ -139,15 +159,17 @@ def put-weapon-chart [equipment: record, x: int, y: int, column_widths: record, 
                 kind: "drawtext",
                 options: {
                     text: (ffmpeg-text (if ($equipment | get $it.item.0.field | is-empty) { "" } else { "*" })),
-                    fontfile: $REGULAR_FONT, fontcolor: "black", fontsize: 30,
-                    x: $"($x + ($RANGES | length) * $range_cell_width + $it.item.1)-tw/2", y: $"(if $no_header { $y } else { $y + 30 })+($range_cell_height / 2)-th/2",
+                    fontfile: $REGULAR_FONT, fontcolor: "black", fontsize: $CHART_FONT_SIZE,
+                    x: $"($x + ($RANGES | length) * $CHART_RANGE_CELL_WIDTH + $it.item.1)-tw/2",
+                    y: $"(if $no_header { $y } else { $y + $CHART_VERT_SPACE })+($CHART_RANGE_CELL_HEIGHT / 2)-th/2",
                 },
             }} else {{
                 kind: "drawtext",
                 options: {
                     text: (ffmpeg-text $"($equipment | get $it.item.0.field)"),
-                    fontfile: $REGULAR_FONT, fontcolor: "black", fontsize: 30,
-                    x: $"($x + ($RANGES | length) * $range_cell_width + $it.item.1)-tw/2", y: $"(if $no_header { $y } else { $y + 30 })+($range_cell_height / 2)-th/2",
+                    fontfile: $REGULAR_FONT, fontcolor: "black", fontsize: $CHART_FONT_SIZE,
+                    x: $"($x + ($RANGES | length) * $CHART_RANGE_CELL_WIDTH + $it.item.1)-tw/2",
+                    y: $"(if $no_header { $y } else { $y + $CHART_VERT_SPACE })+($CHART_RANGE_CELL_HEIGHT / 2)-th/2",
                 },
             }}
         }),
