@@ -27,6 +27,10 @@ def __log [msg: string, min_level: int, color: string, label: string] {
     }
 }
 
+export def "log warning" [msg: string] {
+    __log $msg $LOG_LEVELS.WARNING "yellow" "WARNING"
+}
+
 export def "log info" [msg: string] {
     __log $msg $LOG_LEVELS.INFO "cyan" "INFO"
 }
