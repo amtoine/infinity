@@ -71,21 +71,23 @@ def "ffmpeg-text" [text: string] {
         | $"'($in)'"
 }
 
-def put-weapon-chart [equipment: record, x: int, y: int, --no-header]: [ path -> path ] {
-    const RANGES = ['8"', '16"', '24"', '32"', '40"', '48"', '96"']
-    const STATS = [
-        [field,                    short];
-        [PS,                       PS],
-        [B,                        B],
-        [AMMUNITION,               AMMO],
-        ["SAVING ROLL ATTRIBUTE",  ATTR],
-        ["NUMBER OF SAVING ROLLS", SR],
-        ["TRAITS",                 TRAITS],
-    ]
+const RANGES = ['8"', '16"', '24"', '32"', '40"', '48"', '96"']
+const STATS = [
+    [field,                    short];
+    [PS,                       PS],
+    [B,                        B],
+    [AMMUNITION,               AMMO],
+    ["SAVING ROLL ATTRIBUTE",  ATTR],
+    ["NUMBER OF SAVING ROLLS", SR],
+    ["TRAITS",                 TRAITS],
+]
+
+def put-weapon-chart [equipment: record, x: int, y: int, column_widths: record, --no-header]: [ path -> path ] {
     let m = 20
     let w = 20
-    let positions = $STATS | zip ($STATS | skip 1) | reduce --fold [($m + $w * ($STATS.0.short | str length) / 2)] { |it, acc|
-        $acc | append (($acc | last) + $m + $w * (($it.0.short | str length) / 2 + ($it.1.short | str length) / 2))
+    let widths = $column_widths | values
+    let positions = $widths | zip ($widths | skip 1) | reduce --fold [($m + $w * $widths.0)] { |it, acc|
+        $acc | append (($acc | last) + $m + $w * ($it.0 + $it.1) / 2)
     }
 
     let range_cell_width = 100
@@ -366,6 +368,18 @@ def gen-charts-page [troop: record, output: path] {
             },
         }}
 
+    let column_widths_values = $STATS.field
+        | reduce --fold ($equipments | flatten | select ...$STATS.field) { |it, acc|
+            $acc | update $it { into string | str length }
+        }
+        | math max
+        | update TRAITS { "TRAITS" | str length }
+        | transpose
+        | transpose --header-row
+
+    let column_widths_keys = $STATS | insert len { $in.short | str length } | reject short | transpose --header-row
+    let column_widths = $column_widths_keys | append $column_widths_values| math max
+
     let weapon_bars = $equipments | enumerate | each { |var| {
         equipment: $var.item.stats,
         x: $start_x,
@@ -382,7 +396,7 @@ def gen-charts-page [troop: record, output: path] {
         | insert item.no_header { $in.index > 0 }
         | get item
         | reduce --fold $res { |it, acc|
-            $acc | put-weapon-chart $it.equipment $it.x $it.y --no-header=$it.no_header
+            $acc | put-weapon-chart $it.equipment $it.x $it.y $column_widths --no-header=$it.no_header
         }
 
     let out = $output | path parse | update stem { $in ++ ".2" } | path join
