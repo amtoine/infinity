@@ -338,7 +338,7 @@ def gen-charts-page [troop: record, output: path] {
             kind: "drawtext",
             options: {
                 text: (ffmpeg-text $"($var.item.name)  ($var.item.stats | get TRAITS)"),
-                x: $"($start_x)-10", y: $"450+($var.index * 100)",
+                x: $"($start_x)-10", y: $"50+30+60*($equipments | length)+50+($var.index * 100)",
                 fontfile: $REGULAR_FONT, fontcolor: "black", fontsize: 30,
             },
         },
