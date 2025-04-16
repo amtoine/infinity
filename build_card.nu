@@ -325,24 +325,26 @@ def gen-charts-page [troop: record, output: path] {
 
     let start_x = 250
 
-    let transforms = $equipments | enumerate | each { |var| [
-        {
-            kind: "drawtext",
-            options: {
-                text: (ffmpeg-text $var.item.name),
-                x: $"($start_x)-10-tw", y: $"50+30+($var.index * 60)+25-th/2",
-                fontfile: $REGULAR_FONT, fontcolor: "black", fontsize: 30,
-            },
+    let names_transforms = $equipments | enumerate | each { |var| {
+        kind: "drawtext",
+        options: {
+            text: (ffmpeg-text $var.item.name),
+            x: $"($start_x)-10-tw", y: $"50+30+($var.index * 60)+25-th/2",
+            fontfile: $REGULAR_FONT, fontcolor: "black", fontsize: 30,
         },
-        {
+    }}
+
+    let traits_transforms = $equipments
+        | where not ($it.stats.TRAITS | is-empty)
+        | enumerate
+        | each { |var| {
             kind: "drawtext",
             options: {
-                text: (ffmpeg-text $"($var.item.name)  ($var.item.stats | get TRAITS)"),
+                text: (ffmpeg-text $"($var.item.name)  ($var.item.stats.TRAITS)"),
                 x: $"($start_x)-10", y: $"50+30+60*($equipments | length)+50+($var.index * 100)",
                 fontfile: $REGULAR_FONT, fontcolor: "black", fontsize: 30,
             },
-        },
-    ] } | flatten
+        }}
 
     let weapon_bars = $equipments | enumerate | each { |var| {
         equipment: $var.item.stats,
@@ -351,7 +353,8 @@ def gen-charts-page [troop: record, output: path] {
     }}
 
     let res = ffmpeg create ($START | ffmpeg options) --output (mktemp --tmpdir XXXXXXX.png)
-        | ffmpeg mapply ($transforms | each { ffmpeg options }) --output (mktemp --tmpdir XXXXXXX.png)
+        | ffmpeg mapply ($names_transforms | each { ffmpeg options }) --output (mktemp --tmpdir XXXXXXX.png)
+        | ffmpeg mapply ($traits_transforms | each { ffmpeg options }) --output (mktemp --tmpdir XXXXXXX.png)
 
     let res = $weapon_bars
         | enumerate
