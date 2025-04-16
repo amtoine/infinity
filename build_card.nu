@@ -332,7 +332,7 @@ def gen-charts-page [troop: record, output: path] {
         | where not ($it.stats | is-empty)
         | flatten stats
 
-    let start_x = 250
+    let start_x = 20 + 19 * ($equipments.name | each { str length } | math max)
 
     let names_transforms = $equipments | enumerate | each { |var| {
         kind: "drawtext",
@@ -343,14 +343,25 @@ def gen-charts-page [troop: record, output: path] {
         },
     }}
 
-    let traits_transforms = $equipments
+    let traits_names_transforms = $equipments
         | where not ($it.stats.TRAITS | is-empty)
         | enumerate
         | each { |var| {
             kind: "drawtext",
             options: {
-                text: (ffmpeg-text $"($var.item.name)  ($var.item.stats.TRAITS)"),
-                x: $"($start_x)-10", y: $"50+30+60*($equipments | length)+50+($var.index * 100)",
+                text: (ffmpeg-text $var.item.name),
+                x: $"($start_x)-10-tw", y: $"50+30+60*($equipments | length)+50+($var.index * 50)",
+                fontfile: $REGULAR_FONT, fontcolor: "black", fontsize: 30,
+            },
+        }}
+    let traits_values_transforms = $equipments
+        | where not ($it.stats.TRAITS | is-empty)
+        | enumerate
+        | each { |var| {
+            kind: "drawtext",
+            options: {
+                text: (ffmpeg-text $var.item.stats.TRAITS),
+                x: ($start_x + 20), y: $"50+30+60*($equipments | length)+50+($var.index * 50)",
                 fontfile: $REGULAR_FONT, fontcolor: "black", fontsize: 30,
             },
         }}
@@ -363,7 +374,8 @@ def gen-charts-page [troop: record, output: path] {
 
     let res = ffmpeg create ($START | ffmpeg options) --output (mktemp --tmpdir XXXXXXX.png)
         | ffmpeg mapply ($names_transforms | each { ffmpeg options }) --output (mktemp --tmpdir XXXXXXX.png)
-        | ffmpeg mapply ($traits_transforms | each { ffmpeg options }) --output (mktemp --tmpdir XXXXXXX.png)
+        | ffmpeg mapply ($traits_names_transforms | each { ffmpeg options }) --output (mktemp --tmpdir XXXXXXX.png)
+        | ffmpeg mapply ($traits_values_transforms | each { ffmpeg options }) --output (mktemp --tmpdir XXXXXXX.png)
 
     let res = $weapon_bars
         | enumerate
