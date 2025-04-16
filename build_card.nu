@@ -84,7 +84,7 @@ def put-weapon-chart [equipment: record, x: int, y: int, --no-header]: [ path ->
     ]
     let m = 20
     let w = 20
-    let foo = $STATS | zip ($STATS | skip 1) | reduce --fold [($m + $w * ($STATS.0.short | str length) / 2)] { |it, acc|
+    let positions = $STATS | zip ($STATS | skip 1) | reduce --fold [($m + $w * ($STATS.0.short | str length) / 2)] { |it, acc|
         $acc | append (($acc | last) + $m + $w * (($it.0.short | str length) / 2 + ($it.1.short | str length) / 2))
     }
 
@@ -122,7 +122,7 @@ def put-weapon-chart [equipment: record, x: int, y: int, --no-header]: [ path ->
             if $no_header {
                 []
             } else {
-                $STATS | zip $foo | enumerate | each { |it| {
+                $STATS | zip $positions | enumerate | each { |it| {
                     kind: "drawtext",
                     options: {
                         text: (ffmpeg-text $it.item.0.short),
@@ -132,7 +132,7 @@ def put-weapon-chart [equipment: record, x: int, y: int, --no-header]: [ path ->
                 }}
             }
         ),
-        ...($STATS | zip $foo | enumerate | each { |it| {
+        ...($STATS | zip $positions | enumerate | each { |it| {
             kind: "drawtext",
             options: {
                 text: (ffmpeg-text $"($equipment | get $it.item.0.field)"),
