@@ -100,6 +100,7 @@ const CHART_ATTR_INTERSPACE = 20
 const CHART_RANGE_CELL_WIDTH = 100
 const CHART_RANGE_CELL_HEIGHT = 50
 const CHART_START_X = 20
+const CHART_NAMES_OFFSET_X = 10
 
 def put-weapon-chart [equipment: record, x: int, y: int, column_widths: record, --no-header]: [ path -> path ] {
     let widths = $column_widths | values
@@ -374,7 +375,7 @@ def gen-charts-page [troop: record, output: path] {
         kind: "drawtext",
         options: {
             text: (ffmpeg-text $var.item.name),
-            x: $"($start_x)-10-tw", y: $"50+30+($var.index * 60)+25-th/2",
+            x: $"($start_x)-($CHART_NAMES_OFFSET_X)-tw", y: $"50+30+($var.index * 60)+25-th/2",
             fontfile: $BOLD_FONT, fontcolor: "black", fontsize: $CHART_FONT_SIZE,
         },
     }}
@@ -423,7 +424,7 @@ def gen-charts-page [troop: record, output: path] {
             kind: "drawtext",
             options: {
                 text: (ffmpeg-text $var.item.name),
-                x: $"($start_x)-10-tw", y: $"50+30+60*($equipments | length)+50+($var.index * 50)",
+                x: $"($start_x)-($CHART_NAMES_OFFSET_X)-tw", y: $"50+30+60*($equipments | length)+50+($var.index * 50)",
                 fontfile: $BOLD_FONT, fontcolor: "black", fontsize: $CHART_FONT_SIZE,
             },
         }}
