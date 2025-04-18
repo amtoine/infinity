@@ -20,8 +20,10 @@ const NAME_2_OFFSET_X = 10
 const ICON_BOX = { x: 35, y: 35, w: (155 - 35), h: (155 - 35) }
 
 const CHARACTERISTICS_BOX = { x: 35, y: 175, w: (120 - 35), h: null }
-const CHARACTERISTICS_TEXT_POS = { x: ($CHARACTERISTICS_BOX.x + $CHARACTERISTICS_BOX.w // 2), y: 195 }
+const CHARACTERISTICS_TEXT_POS = { x: ($CHARACTERISTICS_BOX.x + $CHARACTERISTICS_BOX.w // 2), y: ($CHARACTERISTICS_BOX.y + 20) }
 const CHARACTERISTICS_TEXT_FONT_SIZE = 30
+const CHARACTERISTICS_V_SPACE = 10
+const CHARACTERISTICS_IMAGE_SIZE = 75
 
 const BASE_POS = { x: 325, y: 950 }
 
@@ -63,6 +65,8 @@ const SPECIAL_SKILLS_BOX = { x: 1240, y: 350, w: (1560 - 1240), h: null }
 const SPECIAL_SKILLS_TITLE_FONT_SIZE = 30 + 2
 const SPECIAL_SKILLS_FONT_SIZE = 18
 const SPECIAL_SKILLS_OFFSET_X = 10
+const SPECIAL_SKILLS_V_BASE = 100
+const SPECIAL_SKILLS_V_SPACE = 30
 
 def "ffmpeg-text" [text: string] {
     $text
@@ -196,8 +200,12 @@ def gen-stat-page [troop: record, color: string, output: path] {
         | each { if ($in | is-empty) { "_" } else { $in | str join "\\, " } }
         | $"($in.0) | ($in.1) || ($in.2)"
 
-    let characteristics_box_h = $CHARACTERISTICS_BOX.w // 2 + (if ($troop.characteristics | is-empty) { 0 } else { 10 }) + 75 * ($troop.characteristics | length)
-    let special_skills_box_h = 100 + 30 * (($troop.special_skills | length) - 1)
+    let characteristics_box_h = (
+        $CHARACTERISTICS_BOX.w // 2 +  # because text is twice larger
+        (if ($troop.characteristics | is-empty) { 0 } else { $CHARACTERISTICS_V_SPACE }) +
+        $CHARACTERISTICS_IMAGE_SIZE * ($troop.characteristics | length)
+    )
+    let special_skills_box_h = $SPECIAL_SKILLS_V_BASE + $SPECIAL_SKILLS_V_SPACE * (($troop.special_skills | length) - 1)
 
     let transforms = [
         { kind: "drawtext", options: { text: (ffmpeg-text $"ISC: ($troop.isc)"), fontfile: $REGULAR_FONT, fontcolor: "black", fontsize: $ISC_FONT_SIZE, x: $ISC_POS.x, y: $ISC_POS.y } },
