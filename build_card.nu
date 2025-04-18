@@ -486,7 +486,7 @@ def gen-charts-page [troop: record, output: path] {
         | where not ($it.stats.TRAITS | is-empty)
         | enumerate
         | each { |var|
-            let x_space = ($CANVAS.w - $offset.x - $CHART_START.x - 10) / $CHART_FONT_CHAR_SIZE | into int
+            let x_space = ($CANVAS.w - $offset.x - $CHART_START.x - 20) / $CHART_FONT_CHAR_SIZE | into int
             let traits = $var.item.stats.TRAITS | split row ", "
             let res = generate { |var|
                 let res = $var
