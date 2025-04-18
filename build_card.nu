@@ -323,7 +323,10 @@ def gen-stat-page [troop: record, color: string, output: path] {
                 let skills = $troop.special_skills | enumerate | each { |it|
                     let text = match ($it.item | describe --detailed).type {
                         "string" => $it.item,
-                        "record" => $"($it.item.name) \(($it.item.mod)\)"
+                        "record" => {
+                            log warning $"skipping modifier '($it.item.mod)' of '($it.item.name)'"
+                            $"($it.item.name) \(($it.item.mod)\)"
+                        }
                     }
                     let pos = {
                         x: $"($SPECIAL_SKILLS_BOX.x)+($SPECIAL_SKILLS_OFFSET.x)",
