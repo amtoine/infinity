@@ -1,0 +1,41 @@
+{
+    isc: "Zerat Special Missions Regiment",
+    name: "ZERAT Special Missions Regiment",
+    short_name: "ZERAT (Hacker, Hacking Device)",
+    faction: "combined-army",
+    allowed_factions: ["morat-aggression-forces"],
+    asset: "combined-army-morat-zerat",
+    classification: "Spec. Trained Troops",
+    reference: "https://infinityuniverse.com/army/infinity/morat/zerat-special-missions-regiment",
+    type: "SK",
+    characteristics: [
+        "cube",
+        "regular",
+    ],
+    stats: {
+        MOV:  "4-4",
+        CC:   16,
+        BS:   11,
+        PH:   12,
+        WIP:  13,
+        ARM:   1,
+        BTS:   3,
+        VITA:  1,
+        S:     2,
+        AVA:   3,
+    }
+    special_skills: [
+        "Infiltration",
+        { name: "Mimetism", mod: "-6" },
+        "Religious Troop",
+        "Stealth",
+        { name: "Terrain", mod: "Total" },
+        "Warhorse",
+    ]
+    weaponry: ["Combi Rifle", "Light Flamethrower", "D-Charges"],
+    equipment: [],
+    peripheral: [],
+    melee_weapons: ["Heavy Pistol", "CC Weapon"],
+    SWC: 0.5,
+    C: 29,
+}

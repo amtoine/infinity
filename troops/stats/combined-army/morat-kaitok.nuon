@@ -1,0 +1,42 @@
+{
+    isc: "Kaitok Shock Regiment",
+    name: "KAITOK Shock Regiment",
+    short_name: "KAITOK",
+    faction: "combined-army",
+    allowed_factions: ["morat-aggression-forces"],
+    asset: "combined-army-morat-kaitok",
+    classification: "Veteran Troops",
+    reference: "https://infinityuniverse.com/army/infinity/morat/kaitok-shock-regiment",
+    type: "HI",
+    characteristics: [
+        "cube",
+        "regular",
+        "hackable",
+    ],
+    stats: {
+        MOV:  "6-2",
+        CC:   16,
+        BS:   12,
+        PH:   14,
+        WIP:  13,
+        ARM:   5,
+        BTS:   3,
+        VITA:  2,
+        S:     5,
+        AVA:   3,
+    }
+    special_skills: [
+        { name: "BS Attack", mod: "SR-1" },
+        { name: "Dodge", mod: '+2"' },
+        "Frenzy",
+        { name: "Immunity", mod: "Shock" },
+        "Religious Troop",
+        "Warhorse",
+    ]
+    weaponry: [{ name: "Chain Rifle", mod: "+2B" }, "Flammenspeer"],
+    equipment: [],
+    peripheral: [],
+    melee_weapons: [{ name: "Heavy Pistol", mod: "+1B" }, { name: "CC Weapon", mod: "PS=6" }],
+    SWC: 0,
+    C: 19,
+}

@@ -1,0 +1,42 @@
+{
+    isc: "Raktorak, Morat Sergeant Major",
+    name: "RAKTORAK, Morat Sergeant Major",
+    short_name: "RAKTORAK (Chain of Command)",
+    faction: "combined-army",
+    allowed_factions: ["morat-aggression-forces"],
+    asset: "combined-army-morat-raktorak",
+    classification: "Veteran Troops",
+    reference: "https://infinityuniverse.com/army/infinity/morat/raktorak-morat-sergeant-major",
+    type: "MI",
+    characteristics: [
+        "cube",
+        "regular",
+    ],
+    stats: {
+        MOV:  "4-4",
+        CC:   17,
+        BS:   12,
+        PH:   12,
+        WIP:  13,
+        ARM:   2,
+        BTS:   6,
+        VITA:  1,
+        S:     2,
+        AVA:   2,
+    }
+    special_skills: [
+        "Combat Instinct",
+        "NCO",
+        "Number 2",
+        "Religious Troop",
+        "Specialist Operative",
+        { name: "Terrain", mod: "Total" },
+        "Warhorse",
+    ]
+    weaponry: ["Vulkan Shotgun"],
+    equipment: [],
+    peripheral: [],
+    melee_weapons: ["Heavy Pistol", "CC Weapon"],
+    SWC: 0,
+    C: 25,
+}

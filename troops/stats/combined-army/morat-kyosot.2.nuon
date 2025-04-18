@@ -1,0 +1,42 @@
+{
+    isc: "Kyosot Killing Platoon",
+    name: "KYOSOT Killing Platoon",
+    short_name: "KYOSOT (Multispectral Visor L2)",
+    faction: "combined-army",
+    allowed_factions: ["morat-aggression-forces"],
+    asset: "combined-army-morat-kyosot",
+    classification: "Elite Troops",
+    reference: "https://infinityuniverse.com/army/infinity/morat/kyosot-killing-platoon",
+    type: "MI",
+    characteristics: [
+        "cube",
+        "regular",
+    ],
+    stats: {
+        MOV:  "4-4",
+        CC:   19,
+        BS:   13,
+        PH:   12,
+        WIP:  13,
+        ARM:   3,
+        BTS:   6,
+        VITA:  1,
+        S:     2,
+        AVA:   2,
+    }
+    special_skills: [
+        { name: "BS Attack", mod: "T2" },
+        { name: "BS Attack", mod: "+1SD" },
+        { name: "CC Attack", mod: "-3" },
+        { name: "Immunity", mod: "Shock" },
+        { name: "Mimetism", mod: "-3" },
+        "Religious Troop",
+        "Warhorse",
+    ]
+    weaponry: ["AP Submachine Gun", "Chain Colt"],
+    equipment: [],
+    peripheral: [],
+    melee_weapons: ["AP Heavy Pistol", { name: "Shock CC Weapon", mod: "PS=7" }],
+    SWC: 0,
+    C: 28,
+}

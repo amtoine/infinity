@@ -1,0 +1,37 @@
+{
+    isc: "Morat Vanguard Infantry",
+    name: "MORAT VANGUARD INFANTRY",
+    short_name: "ZERAT (Hacker, Killer Hacking Device)",
+    faction: "combined-army",
+    allowed_factions: ["combined-army", "morat-aggression-forces"],
+    asset: "combined-army-morat-vanguard.3",
+    classification: "Line Troops",
+    reference: "https://infinityuniverse.com/army/infinity/morat/morat-vanguard-infantry",
+    type: "LI",
+    characteristics: [
+        "cube",
+        "regular",
+    ],
+    stats: {
+        MOV:  "4-4",
+        CC:   15,
+        BS:   11,
+        PH:   12,
+        WIP:  13,
+        ARM:   1,
+        BTS:   3,
+        VITA:  1,
+        S:     2,
+        AVA:   "Total",
+    }
+    special_skills: [
+        "Religious Troop",
+        "Warhorse",
+    ]
+    weaponry: ["Combi Rifle"],
+    equipment: [],
+    peripheral: [],
+    melee_weapons: ["Heavy Pistol", "CC Weapon"],
+    SWC: 0,
+    C: 14,
+}
