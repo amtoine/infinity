@@ -14,7 +14,8 @@ use log.nu [ "log debug" ]
 
 export const PADDING = "pad=width=iw:height=ih+64:y=32:color=white"
 export const FLIPPING = "vflip,hflip"
-export const STACKING = "[0][1]hstack=inputs=2"
+export const HSTACKING = "[0][1]hstack=inputs=2"
+export const VSTACKING = "[0][1]vstack=inputs=2"
 
 export const FFMPEG_OPTS = [ -y -hide_banner -loglevel quiet ]
 
