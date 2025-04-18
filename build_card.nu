@@ -308,10 +308,7 @@ def gen-stat-page [troop: record, color: string, output: path] {
                 let skills = $troop.special_skills | enumerate | each { |it|
                     let text = match ($it.item | describe --detailed).type {
                         "string" => $it.item,
-                        "record" => {
-                            log warning $"skipping modifier '($it.item.mod)' of '($it.item.name)'"
-                            $"($it.item.name) \(($it.item.mod)\)"
-                        }
+                        "record" => $"($it.item.name) \(($it.item.mod)\)",
                     }
                     let pos = {
                         x: $"($SPECIAL_SKILLS_BOX.x)+($SPECIAL_SKILLS_OFFSET.x)",
@@ -447,6 +444,13 @@ def gen-charts-page [troop: record, output: path] {
         }
         | where not ($it.stats | is-empty)
         | flatten stats
+
+    # TODO: include modifier from special skills ?
+    for skill in $troop.special_skills {
+        if ($skill | describe --detailed).type == "record" {
+            log warning $"skipping modifier '($skill.mod)' of '($skill.name)'"
+        }
+    }
 
     if ($equipments | is-empty) {
         log warning "\tno equipment"
