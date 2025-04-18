@@ -73,4 +73,20 @@ def "main troops" [name: string = "", --stats, --charts] {
     run ($TROOPS | where name =~ $name) --stats=$stats --charts=$charts
 }
 
+def "main viz" [] {
+    use ffmpeg.nu [ "ffmpeg combine", VSTACKING ]
+
+    let res = ls out/
+        | get name
+        | group-by --to-table { path parse | get stem | split row '.' | reverse | skip 1 | reverse | str join "." }
+        | each {
+            let output = mktemp --tmpdir "XXXXXXX.png"
+            $in.items | ffmpeg combine $VSTACKING --output $output
+            print $in.closure_0
+            $output
+        }
+
+    feh --image-bg '#aaaaaa' --draw-tinted --draw-exif --draw-filename --fullscreen ...$res
+}
+
 def "main" [] {}
