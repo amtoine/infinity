@@ -105,6 +105,20 @@ def "main viz" [] {
     feh --image-bg '#aaaaaa' --draw-tinted --draw-exif --draw-filename --fullscreen ...$res
 }
 
+def "main archive" [] {
+    let assets = $TROOPS.name
+        | each { str replace '/' '-' | $"out/($in)" | [ $"($in).1.png", $"($in).2.png" ] }
+        | flatten
+
+    ^tar czf $"infinity-trooper-assets-(git describe).tar.gz" ...$assets
+    ^zip $"infinity-trooper-assets-(git describe).zip" ...$assets
+}
+
+def "main release" [] {
+    main troops
+    main archive
+}
+
 def "main" [] {
     main showcase
     main troops
