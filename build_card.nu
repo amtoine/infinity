@@ -64,7 +64,7 @@ const EQUIPMENT_OFFSET_X = 10
 const EQUIPMENT_TITLE_POS = { x: $"($EQUIPMENT_BOX.x)+($EQUIPMENT_OFFSET_X)", y: $"($BOTTOM_FIRST_ROW_Y)-th/2" }
 const EQUIPMENT_POS = { x: $"($EQUIPMENT_BOX.x)+($EQUIPMENT_OFFSET_X)", y: $"($BOTTOM_SECOND_ROW_Y)-th/2" }
 const EQUIPMENT_FONT_SIZE = 30
-const EQUIPMENT_TITLE_FONT = { fontfile: $BOLD_FONT, fontcolor: "white", fontsize: ($EQUIPMENT_FONT_SIZE + 2) }
+const EQUIPMENT_TITLE_FONT = { fontfile: $BOLD_FONT, fontcolor: "white", fontsize: ($EQUIPMENT_FONT_SIZE - 2) }
 const EQUIPMENT_FONT = { fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: ($EQUIPMENT_FONT_SIZE - 5) }
 
 const MELEE_BOX = { x: 710, y: 850, w: (1335 - 710), h: (960 - 850) }
@@ -232,8 +232,17 @@ def gen-stat-page [troop: record, color: string, output: path] {
                 }
             }
         }
-        | each { if ($in | is-empty) { "_" } else { $in | str join "\\, " } }
-        | $"($in.0) | ($in.1) || ($in.2)"
+        | each { str join "\\, " }
+        | match ($in | each { is-empty }) {
+            [false, false, false] => { $"($in.0) | ($in.1) || ($in.2)" },
+            [false, false,  true] => { $"($in.0) | ($in.1)" },
+            [false,  true, false] => { $"($in.0) || ($in.2)" },
+            [false,  true,  true] => { $"($in.0)" },
+            [ true, false, false] => { $"_ | ($in.1) || ($in.2)" },
+            [ true, false,  true] => { $"_ | ($in.1)" },
+            [ true,  true, false] => { $"_ | _ || ($in.2)" },
+            [ true,  true,  true] => { "" },
+        }
 
     let characteristics_box = $CHARACTERISTICS_BOX | update h (
         $CHARACTERISTICS_BOX.w // 2 +  # because text is twice larger
