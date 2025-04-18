@@ -3,13 +3,22 @@ use log.nu [ "log info", "log warning" ]
 
 const CANVAS_W = 1600
 
+const ASSETS_DIR = "./troops/assets/"
+const DIRS = {
+    minis:            ($ASSETS_DIR | path join "minis"),
+    factions:         ($ASSETS_DIR | path join "factions" "940"),
+    allowed_factions: ($ASSETS_DIR | path join "factions" "70")
+    characteristics:  ($ASSETS_DIR | path join "characteristics"),
+    icons:            ($ASSETS_DIR | path join "icons"),
+}
+
 const BOLD_FONT = "./adwaita-fonts-48.2/mono/AdwaitaMono-Bold.ttf"
 const REGULAR_FONT = "./adwaita-fonts-48.2/mono/AdwaitaMono-Regular.ttf"
 
 const NAME_BOX = { x: 480, y: 80, w: (1560 - 480), h: (160 - 80) }
 const NAME_FONT_SIZE = 60
 const NAME_OFFSET_X = 28
-const NAME_TEXT_POS = { x: $"($NAME_BOX.x)+($NAME_OFFSET_X)", y: $"($NAME_BOX.y)+($NAME_BOX.h / 2)-th/2" }
+const NAME_POS = { x: $"($NAME_BOX.x)+($NAME_OFFSET_X)", y: $"($NAME_BOX.y)+($NAME_BOX.h / 2)-th/2" }
 
 const ISC_POS = { x: ($NAME_BOX.x + $NAME_OFFSET_X), y: ($NAME_BOX.y - $NAME_OFFSET_X) }
 const ISC_FONT_SIZE = 30
@@ -18,14 +27,15 @@ const CLASSIFICATION_POS = { x: $"($NAME_BOX.x + $NAME_BOX.w - $NAME_OFFSET_X)-t
 const NAME_2_BOX = { x: 35, y: 780, w: (1560 - 35), h: (830 - 780) }
 const NAME_2_FONT_SIZE = 30
 const NAME_2_OFFSET_X = 10
-const NAME_2_TEXT_POS = { x: $"($NAME_2_BOX.x)+($NAME_2_OFFSET_X)", y: $"($NAME_2_BOX.y)+($NAME_2_BOX.h / 2)-th/2" }
+const NAME_2_POS = { x: $"($NAME_2_BOX.x)+($NAME_2_OFFSET_X)", y: $"($NAME_2_BOX.y)+($NAME_2_BOX.h / 2)-th/2" }
 
 const ICON_BOX = { x: 35, y: 35, w: (155 - 35), h: (155 - 35) }
 
 const CHARACTERISTICS_BOX = { x: 35, y: 175, w: (120 - 35), h: null }
-const CHARACTERISTICS_TEXT_POS = { x: $"($CHARACTERISTICS_BOX.x + $CHARACTERISTICS_BOX.w // 2)-tw/2", y: $"($CHARACTERISTICS_BOX.y + 20)-th/2" }
+const CHARACTERISTICS_TYPE_POS = { x: $"($CHARACTERISTICS_BOX.x + $CHARACTERISTICS_BOX.w // 2)-tw/2", y: $"($CHARACTERISTICS_BOX.y + 20)-th/2" }
 const CHARACTERISTICS_TEXT_FONT_SIZE = 30
 const CHARACTERISTICS_V_SPACE = 10
+const CHARACTERISTICS_OFFSET_Y = 70 + 5
 const CHARACTERISTICS_IMAGE_SIZE = 70 + 5
 
 const BASE_POS = { x: 325, y: 950 }
@@ -40,7 +50,7 @@ const STAT_VALS_BOX = {
     h: $STAT_KEYS_BOX.h,
 }
 const STAT_FONT_SIZE = 30
-const STAT_DX = 108
+const STAT_H_SPACE = 108
 const STAT_OFFSET_X = 60
 
 const START = { kind: "color",    options: { c: "0xDDDDDD", s: "1600x1000", d: 1 } }
@@ -80,19 +90,18 @@ const C_POS = { x: $"($C_BOX.x)+($C_BOX.w // 2)-tw/2", y: $"($BOTTOM_SECOND_ROW_
 const SPECIAL_SKILLS_BOX = { x: 1240, y: 350, w: (1560 - 1240), h: null }
 const SPECIAL_SKILLS_TITLE_FONT_SIZE = 30 + 2
 const SPECIAL_SKILLS_FONT_SIZE = 18
-const SPECIAL_SKILLS_OFFSET_X = 10
+const SPECIAL_SKILLS_OFFSET = { x: 10, y: 80 }
 const SPECIAL_SKILLS_V_BASE = 100
-const SPECIAL_SKILLS_OFFSET_Y = 80
 const SPECIAL_SKILLS_V_SPACE = 30
-const SPECIAL_SKILLS_TEXT_POS = { x: $"($SPECIAL_SKILLS_BOX.x)+($SPECIAL_SKILLS_OFFSET_X)", y: $"($SPECIAL_SKILLS_BOX.y)+30-th/2" }
+const SPECIAL_SKILLS_TITLE_POS = { x: $"($SPECIAL_SKILLS_BOX.x)+($SPECIAL_SKILLS_OFFSET.x)", y: $"($SPECIAL_SKILLS_BOX.y)+30-th/2" }
 
 const ISC_FONT                  = { fontfile: $REGULAR_FONT, fontcolor: "black", fontsize: $ISC_FONT_SIZE                  }
-const TROOP_FONT                = { fontfile: $BOLD_FONT,    fontcolor: "white", fontsize: $NAME_FONT_SIZE                 }
-const TROOP_2_FONT              = { fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: $NAME_2_FONT_SIZE               }
-const TYPE_FONT                 = { fontfile: $BOLD_FONT,    fontcolor: "white", fontsize: $CHARACTERISTICS_TEXT_FONT_SIZE }
+const NAME_FONT                 = { fontfile: $BOLD_FONT,    fontcolor: "white", fontsize: $NAME_FONT_SIZE                 }
+const NAME_2_FONT               = { fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: $NAME_2_FONT_SIZE               }
+const CHARACTERISTICS_TYPE_FONT = { fontfile: $BOLD_FONT,    fontcolor: "white", fontsize: $CHARACTERISTICS_TEXT_FONT_SIZE }
 const STAT_FONT                 = { fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: $STAT_FONT_SIZE                 }
-const SPECIAL_SKILLS_FONT       = { fontfile: $BOLD_FONT,    fontcolor: "white", fontsize: $SPECIAL_SKILLS_TITLE_FONT_SIZE }
-const SPECIAL_SKILLS_TITLE_FONT = { fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: $SPECIAL_SKILLS_FONT_SIZE       }
+const SPECIAL_SKILLS_TITLE_FONT = { fontfile: $BOLD_FONT,    fontcolor: "white", fontsize: $SPECIAL_SKILLS_TITLE_FONT_SIZE }
+const SPECIAL_SKILLS_FONT       = { fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: $SPECIAL_SKILLS_FONT_SIZE       }
 const EQUIPMENT_TITLE_FONT      = { fontfile: $BOLD_FONT,    fontcolor: "white", fontsize: ($EQUIPMENT_FONT_SIZE + 2)      }
 const EQUIPMENT_FONT            = { fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: ($EQUIPMENT_FONT_SIZE - 5)      }
 const MELEE_WEAPONS_TITLE_FONT  = { fontfile: $BOLD_FONT,    fontcolor: "white", fontsize: ($MELEE_FONT_SIZE + 2)          }
@@ -135,7 +144,7 @@ const CORVUS_BELLI_COLORS = {
 
 const CHART_FONT_SIZE = 30
 const CHART_FONT_CHAR_SIZE = 18
-const CHART_VERT_SPACE = 30
+const CHART_OFFSET_Y = 30
 const CHART_ATTR_INTERSPACE = 20
 const CHART_RANGE_CELL_WIDTH = 100
 const CHART_RANGE_CELL_HEIGHT = 50
@@ -143,7 +152,7 @@ const CHART_START = { x: 20, y: 50 }
 const CHART_NAMES_OFFSET_X = 10
 const CHART_FONT_R = { fontfile: $BOLD_FONT,    fontcolor: "black", fontsize: $CHART_FONT_SIZE }
 const CHART_FONT_B = { fontfile: $REGULAR_FONT, fontcolor: "black", fontsize: $CHART_FONT_SIZE }
-const CHART_ROW_V_SPACE = 60
+const CHART_V_SPACE = 60
 const CHART_TRAITS_V_SPACE = 50
 const CHART_TRAITS_H_SPACE = 20
 
@@ -185,7 +194,7 @@ def put-weapon-chart [equipment: record, x: int, y: int, column_widths: record, 
                 kind: "drawbox",
                 options: {
                     x: ($x + $it.index * $CHART_RANGE_CELL_WIDTH),
-                    y: (if $no_header { $y } else { $y + $CHART_VERT_SPACE }),
+                    y: (if $no_header { $y } else { $y + $CHART_OFFSET_Y }),
                     w: $CHART_RANGE_CELL_WIDTH, h: $CHART_RANGE_CELL_HEIGHT,
                     color: $color, t: "fill",
                 },
@@ -209,7 +218,7 @@ def put-weapon-chart [equipment: record, x: int, y: int, column_widths: record, 
         ...($STATS | zip $positions | enumerate | each { |it|
             let pos = {
                 x: $"($x + ($RANGES | length) * $CHART_RANGE_CELL_WIDTH + $it.item.1)-tw/2",
-                y: $"(if $no_header { $y } else { $y + $CHART_VERT_SPACE })+($CHART_RANGE_CELL_HEIGHT / 2)-th/2"
+                y: $"(if $no_header { $y } else { $y + $CHART_OFFSET_Y })+($CHART_RANGE_CELL_HEIGHT / 2)-th/2"
             }
             let text = if $it.item.0.field == "TRAITS" {
                 if ($equipment | get $it.item.0.field | is-empty) {
@@ -256,29 +265,28 @@ def gen-stat-page [troop: record, color: string, output: path] {
 
         { kind: "drawbox",  options: { ...$NAME_BOX, color: $"($color)@1.0", t: "fill" } },
         { kind: "drawbox",  options: { ...$NAME_BOX, color: "black@0.4",     t: "5" } },
-        (ffmpeg-text $troop.name $NAME_TEXT_POS $TROOP_FONT),
+        (ffmpeg-text $troop.name $NAME_POS $NAME_FONT),
 
         { kind: "drawbox",  options: { ...$NAME_2_BOX, color: $"($color)@1.0", t: "fill" } },
         { kind: "drawbox",  options: { ...$NAME_2_BOX, color: "black@0.4",     t: "5" } },
-        (ffmpeg-text $troop.short_name $NAME_2_TEXT_POS $TROOP_2_FONT),
+        (ffmpeg-text $troop.short_name $NAME_2_POS $NAME_2_FONT),
 
         { kind: "drawbox",  options: { ...$ICON_BOX, color: "black@0.5", t: "fill" } },
         { kind: "drawbox",  options: { ...$ICON_BOX, color: "black@0.5", t: "5" } },
 
         { kind: "drawbox",  options: { ...$characteristics_box, color: "black@0.5", t: "fill" } },
         { kind: "drawbox",  options: { ...$characteristics_box, color: "black@0.5", t: "5" } },
-        (ffmpeg-text $troop.type $CHARACTERISTICS_TEXT_POS $TYPE_FONT),
+        (ffmpeg-text $troop.type $CHARACTERISTICS_TYPE_POS $CHARACTERISTICS_TYPE_FONT),
 
         { kind: "drawbox",  options: { ...$STAT_KEYS_BOX, color: $"($color)@1.0", t: "fill" } },
         { kind: "drawbox",  options: { ...$STAT_KEYS_BOX, color: "black@0.4",     t: "5" } },
 
         { kind: "drawbox",  options: { ...$STAT_VALS_BOX, color: "black@0.5",     t: "fill" } },
         { kind: "drawbox",  options: { ...$STAT_VALS_BOX, color: "black@0.5",     t: "5" } },
-
         ...(
             $troop.stats | transpose k v | enumerate | each { |it| [
-                (ffmpeg-text $"($it.item.k)" { x: $"($STAT_KEYS_BOX.x)+($STAT_OFFSET_X)+($it.index)*($STAT_DX)-tw/2", y: $"($STAT_KEYS_BOX.y)+($STAT_KEYS_BOX.h / 2)-th/2" } $STAT_FONT),
-                (ffmpeg-text $"($it.item.v)" { x: $"($STAT_VALS_BOX.x)+($STAT_OFFSET_X)+($it.index)*($STAT_DX)-tw/2", y: $"($STAT_VALS_BOX.y)+($STAT_VALS_BOX.h / 2)-th/2" } $STAT_FONT),
+                (ffmpeg-text $"($it.item.k)" { x: $"($STAT_KEYS_BOX.x)+($STAT_OFFSET_X)+($it.index)*($STAT_H_SPACE)-tw/2", y: $"($STAT_KEYS_BOX.y)+($STAT_KEYS_BOX.h / 2)-th/2" } $STAT_FONT),
+                (ffmpeg-text $"($it.item.v)" { x: $"($STAT_VALS_BOX.x)+($STAT_OFFSET_X)+($it.index)*($STAT_H_SPACE)-tw/2", y: $"($STAT_VALS_BOX.y)+($STAT_VALS_BOX.h / 2)-th/2" } $STAT_FONT),
             ] } | flatten
         ),
 
@@ -289,7 +297,7 @@ def gen-stat-page [troop: record, color: string, output: path] {
                 let box = [
                     { kind: "drawbox",  options: { ...$special_skills_box, color: "black@0.5", t: "fill" } },
                     { kind: "drawbox",  options: { ...$special_skills_box, color: "black@0.5", t: "5" } },
-                    (ffmpeg-text "Special skills" $SPECIAL_SKILLS_TEXT_POS $SPECIAL_SKILLS_FONT),
+                    (ffmpeg-text "Special skills" $SPECIAL_SKILLS_TITLE_POS $SPECIAL_SKILLS_TITLE_FONT),
                 ]
                 let skills = $troop.special_skills | enumerate | each { |it|
                     let text = match ($it.item | describe --detailed).type {
@@ -297,11 +305,11 @@ def gen-stat-page [troop: record, color: string, output: path] {
                         "record" => $"($it.item.name) \(($it.item.mod)\)"
                     }
                     let pos = {
-                        x: $"($SPECIAL_SKILLS_BOX.x)+($SPECIAL_SKILLS_OFFSET_X)",
-                        y: $"($SPECIAL_SKILLS_BOX.y)+($SPECIAL_SKILLS_OFFSET_Y)+($SPECIAL_SKILLS_V_SPACE)*($it.index)-th/2",
+                        x: $"($SPECIAL_SKILLS_BOX.x)+($SPECIAL_SKILLS_OFFSET.x)",
+                        y: $"($SPECIAL_SKILLS_BOX.y)+($SPECIAL_SKILLS_OFFSET.y)+($SPECIAL_SKILLS_V_SPACE)*($it.index)-th/2",
                     }
 
-                    [(ffmpeg-text $text $pos $SPECIAL_SKILLS_TITLE_FONT)]
+                    [(ffmpeg-text $text $pos $SPECIAL_SKILLS_FONT)]
                 }
                 $box | append ($skills | flatten)
             }
@@ -337,10 +345,10 @@ def gen-stat-page [troop: record, color: string, output: path] {
     ]
 
     let tmp = ffmpeg create ($START | ffmpeg options) --output (mktemp --tmpdir XXXXXXX.png)
-        | [$in, ({ parent: "./troops/assets/minis/", stem: $troop.asset, extension: "png" } | path join)]
+        | [$in, ({ parent: $DIRS.minis, stem: $troop.asset, extension: "png" } | path join)]
             | ffmpeg combine ($IMAGE | ffmpeg options) --output (mktemp --tmpdir XXXXXXX.png)
         | if $troop.faction != null {
-            [$in, ({ parent: "./troops/assets/factions/940/", stem: $troop.faction, extension: "png" } | path join)]
+            [$in, ({ parent: $DIRS.factions, stem: $troop.faction, extension: "png" } | path join)]
                 | ffmpeg combine $"[1:v]format=rgba,colorchannelmixer=aa=0.5[ol];[0:v][ol]overlay=x=($FACTION_POS.x)-w/2:y=($FACTION_POS.y)h/2" --output (mktemp --tmpdir XXXXXXX.png)
         } else {
             $in
@@ -350,15 +358,15 @@ def gen-stat-page [troop: record, color: string, output: path] {
     let tmp = $troop.characteristics
         | enumerate
         | reduce --fold $tmp { |it, acc|
-            [$acc, ({ parent: "./troops/assets/characteristics/", stem: $it.item, extension: "png" } | path join)] | ffmpeg combine ({
+            [$acc, ({ parent: $DIRS.characteristics, stem: $it.item, extension: "png" } | path join)] | ffmpeg combine ({
                 kind: "overlay",
                 options: {
                     x: $"($characteristics_box.x + $characteristics_box.w // 2)-w/2",
-                    y: $"($characteristics_box.y + $CHARACTERISTICS_IMAGE_SIZE)+($it.index * $CHARACTERISTICS_IMAGE_SIZE)-h/2",
+                    y: $"($characteristics_box.y + $CHARACTERISTICS_OFFSET_Y)+($it.index * $CHARACTERISTICS_IMAGE_SIZE)-h/2",
                 },
             } | ffmpeg options) --output (mktemp --tmpdir XXXXXXX.png)
         }
-        | [$in, ({ parent: "./troops/assets/icons/", stem: ($troop.asset | str replace --regex '\..*$' ''), extension: "png" } | path join) ] | ffmpeg combine ({
+        | [$in, ({ parent: $DIRS.icons, stem: ($troop.asset | str replace --regex '\..*$' ''), extension: "png" } | path join) ] | ffmpeg combine ({
             kind: "overlay",
             options: { x: $"($ICON_BOX.x + $ICON_BOX.w // 2)-w/2", y: $"($ICON_BOX.y + $ICON_BOX.h // 2)-h/2" },
         } | ffmpeg options) --output (mktemp --tmpdir XXXXXXX.png)
@@ -366,7 +374,7 @@ def gen-stat-page [troop: record, color: string, output: path] {
     let tmp = $troop.allowed_factions
         | enumerate
         | reduce --fold $tmp { |it, acc|
-            [$acc, ({ parent: "./troops/assets/factions/70/", stem: $it.item, extension: "png" } | path join)] | ffmpeg combine ({
+            [$acc, ({ parent: $DIRS.allowed_factions, stem: $it.item, extension: "png" } | path join)] | ffmpeg combine ({
                 kind: "overlay",
                 options: {
                     x: $"($STAT_VALS_BOX.x)+($ALLOWED_FACTIONS_OFFSET.x)+($it.index * $ALLOWED_FACTIONS_IMAGE_SIZE)-w/2",
@@ -381,9 +389,6 @@ def gen-stat-page [troop: record, color: string, output: path] {
 }
 
 def gen-charts-page [troop: record, output: path] {
-    const CHART_FONT_B = { fontfile: $BOLD_FONT,    fontcolor: "black", fontsize: $CHART_FONT_SIZE }
-    const CHART_FONT_R = { fontfile: $REGULAR_FONT, fontcolor: "black", fontsize: $CHART_FONT_SIZE }
-
     let charts = [
         [name,             type];
 
@@ -434,7 +439,7 @@ def gen-charts-page [troop: record, output: path] {
 
     let names_transforms = $equipments | enumerate | each {(
         ffmpeg-text $in.item.name
-            { x: $"($offset.x)-($CHART_NAMES_OFFSET_X)-tw", y: $"($offset.y)+($CHART_VERT_SPACE)+($in.index * $CHART_ROW_V_SPACE)+25-th/2" }
+            { x: $"($offset.x)-($CHART_NAMES_OFFSET_X)-tw", y: $"($offset.y)+($CHART_OFFSET_Y)+($in.index * $CHART_V_SPACE)+25-th/2" }
             $CHART_FONT_B
     )}
 
@@ -482,7 +487,7 @@ def gen-charts-page [troop: record, output: path] {
             ffmpeg-text $in.item.name
                 {
                     x: $"($offset.x)-($CHART_NAMES_OFFSET_X)-tw",
-                    y: $"($offset.y)+($CHART_VERT_SPACE)+($CHART_ROW_V_SPACE)*($equipments | length)+($CHART_TRAITS_V_SPACE)+($in.index * $CHART_TRAITS_V_SPACE)",
+                    y: $"($offset.y)+($CHART_OFFSET_Y)+($CHART_V_SPACE)*($equipments | length)+($CHART_TRAITS_V_SPACE)+($in.index * $CHART_TRAITS_V_SPACE)",
                 }
                 $CHART_FONT_B
         )}
@@ -492,7 +497,7 @@ def gen-charts-page [troop: record, output: path] {
             ffmpeg-text $in.item.traits
                 {
                     x: ($offset.x + $CHART_TRAITS_H_SPACE),
-                    y: $"($offset.y)+($CHART_VERT_SPACE)+($CHART_ROW_V_SPACE)*($equipments | length)+($CHART_TRAITS_V_SPACE)+($in.index * $CHART_TRAITS_V_SPACE)",
+                    y: $"($offset.y)+($CHART_OFFSET_Y)+($CHART_V_SPACE)*($equipments | length)+($CHART_TRAITS_V_SPACE)+($in.index * $CHART_TRAITS_V_SPACE)",
                 }
                 $CHART_FONT_R
         )}
@@ -512,7 +517,7 @@ def gen-charts-page [troop: record, output: path] {
     let weapon_bars = $equipments | enumerate | each { |var| {
         equipment: $var.item.stats,
         x: $offset.x,
-        y: ($offset.y + (if $var.index == 0 { 0 } else { $CHART_FONT_SIZE }) + ($var.index * $CHART_ROW_V_SPACE)),
+        y: ($offset.y + (if $var.index == 0 { 0 } else { $CHART_FONT_SIZE }) + ($var.index * $CHART_V_SPACE)),
     }}
 
     let res = ffmpeg create ($START | ffmpeg options) --output (mktemp --tmpdir XXXXXXX.png)
