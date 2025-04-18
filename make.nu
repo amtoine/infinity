@@ -67,6 +67,9 @@ def run [troops: table<name: string, color: string>, --stats, --charts] {
 
 def "main showcase" [--stats, --charts] {
     run $SHOWCASE --stats=$stats --charts=$charts
+    for s in $SHOWCASE {
+        cp --verbose ($"out/($s.name | str replace '/' '-').*" | into glob) assets/
+    }
 }
 
 def "main troops" [name: string = "", --stats, --charts] {
