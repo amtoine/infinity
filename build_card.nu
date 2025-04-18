@@ -19,7 +19,7 @@ const REGULAR_FONT = "./adwaita-fonts-48.2/mono/AdwaitaMono-Regular.ttf"
 const NAME_BOX = { x: 480, y: 80, w: (1560 - 480), h: (160 - 80) }
 const NAME_OFFSET_X = 28
 const NAME_POS = { x: $"($NAME_BOX.x)+($NAME_OFFSET_X)", y: $"($NAME_BOX.y)+($NAME_BOX.h / 2)-th/2" }
-const NAME_FONT = { fontfile: $BOLD_FONT, fontcolor: "white", fontsize: 60 }
+const NAME_FONT = { fontfile: $BOLD_FONT, fontcolor: "white", fontsize: 50 }
 
 const ISC_POS = { x: ($NAME_BOX.x + $NAME_OFFSET_X), y: ($NAME_BOX.y - $NAME_OFFSET_X) }
 const CLASSIFICATION_POS = { x: $"($NAME_BOX.x + $NAME_BOX.w - $NAME_OFFSET_X)-tw", y: $ISC_POS.y }
@@ -65,7 +65,7 @@ const EQUIPMENT_TITLE_POS = { x: $"($EQUIPMENT_BOX.x)+($EQUIPMENT_OFFSET_X)", y:
 const EQUIPMENT_POS = { x: $"($EQUIPMENT_BOX.x)+($EQUIPMENT_OFFSET_X)", y: $"($BOTTOM_SECOND_ROW_Y)-th/2" }
 const EQUIPMENT_FONT_SIZE = 30
 const EQUIPMENT_TITLE_FONT = { fontfile: $BOLD_FONT, fontcolor: "white", fontsize: ($EQUIPMENT_FONT_SIZE - 2) }
-const EQUIPMENT_FONT = { fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: ($EQUIPMENT_FONT_SIZE - 5) }
+const EQUIPMENT_FONT = { fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: ($EQUIPMENT_FONT_SIZE - 6) }
 
 const MELEE_BOX = { x: 710, y: 850, w: (1335 - 710), h: (960 - 850) }
 const MELEE_OFFSET_X = 10
