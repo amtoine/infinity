@@ -92,4 +92,8 @@ def "main viz" [] {
     feh --image-bg '#aaaaaa' --draw-tinted --draw-exif --draw-filename --fullscreen ...$res
 }
 
-def "main" [] {}
+def "main" [] {
+    main showcase
+    main troops
+    main viz
+}
