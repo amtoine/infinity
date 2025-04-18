@@ -80,6 +80,22 @@ const SPECIAL_SKILLS_V_BASE = 100
 const SPECIAL_SKILLS_V_SPACE = 30
 const SPECIAL_SKILLS_TEXT_POS = { x: $"($SPECIAL_SKILLS_BOX.x)+($SPECIAL_SKILLS_OFFSET_X)", y: $"($SPECIAL_SKILLS_BOX.y)+30-th/2" }
 
+const ISC_FONT                  = { fontfile: $REGULAR_FONT, fontcolor: "black", fontsize: $ISC_FONT_SIZE                  }
+const TROOP_FONT                = { fontfile: $BOLD_FONT,    fontcolor: "white", fontsize: $NAME_FONT_SIZE                 }
+const TROOP_2_FONT              = { fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: $NAME_2_FONT_SIZE               }
+const TYPE_FONT                 = { fontfile: $BOLD_FONT,    fontcolor: "white", fontsize: $CHARACTERISTICS_TEXT_FONT_SIZE }
+const STAT_FONT                 = { fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: $STAT_FONT_SIZE                 }
+const SPECIAL_SKILLS_FONT       = { fontfile: $BOLD_FONT,    fontcolor: "white", fontsize: $SPECIAL_SKILLS_TITLE_FONT_SIZE }
+const SPECIAL_SKILLS_TITLE_FONT = { fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: $SPECIAL_SKILLS_FONT_SIZE       }
+const EQUIPMENT_TITLE_FONT      = { fontfile: $BOLD_FONT,    fontcolor: "white", fontsize: ($EQUIPMENT_FONT_SIZE + 2)      }
+const EQUIPMENT_FONT            = { fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: ($EQUIPMENT_FONT_SIZE - 5)      }
+const MELEE_WEAPONS_TITLE_FONT  = { fontfile: $BOLD_FONT,    fontcolor: "white", fontsize: ($MELEE_FONT_SIZE + 2)          }
+const MELEE_WEAPONS_FONT        = { fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: ($MELEE_FONT_SIZE - 5)          }
+const SWC_TITLE_FONT            = { fontfile: $BOLD_FONT,    fontcolor: "white", fontsize: ($SWC_FONT_SIZE + 2)            }
+const SWC_FONT                  = { fontfile: $BOLD_FONT,    fontcolor: "white", fontsize: ($C_FONT_SIZE + 2)              }
+const C_TITLE_FONT              = { fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: $SWC_FONT_SIZE                  }
+const C_FONT                    = { fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: $C_FONT_SIZE                    }
+
 def "ffmpeg-text" [text: string, position: record<x, y>, options: record] {
     let text = $text
         | str replace --all ":" "\\:"
@@ -119,6 +135,8 @@ const CHART_RANGE_CELL_WIDTH = 100
 const CHART_RANGE_CELL_HEIGHT = 50
 const CHART_START_X = 20
 const CHART_NAMES_OFFSET_X = 10
+const CHART_FONT_R = { fontfile: $BOLD_FONT,    fontcolor: "black", fontsize: $CHART_FONT_SIZE }
+const CHART_FONT_B = { fontfile: $REGULAR_FONT, fontcolor: "black", fontsize: $CHART_FONT_SIZE }
 
 def put-weapon-chart [equipment: record, x: int, y: int, column_widths: record, --no-header]: [ path -> path ] {
     let widths = $column_widths | values
@@ -128,20 +146,22 @@ def put-weapon-chart [equipment: record, x: int, y: int, column_widths: record, 
             $acc | append (($acc | last) + $CHART_ATTR_INTERSPACE + $CHART_FONT_CHAR_SIZE * ($it.0 + $it.1) / 2)
         }
 
-    let base_font = { fontcolor: "black", fontsize: $CHART_FONT_SIZE }
-
     let transforms = [
+        # range headers
         ...(
             if $no_header {
                 []
             } else {
-                $RANGES | enumerate | each {(
-                    ffmpeg-text $in.item
-                        { x: $"($x + $CHART_RANGE_CELL_WIDTH / 2 + $in.index * $CHART_RANGE_CELL_WIDTH)-tw/2", y: $y }
-                        { ...$base_font, fontfile: $BOLD_FONT }
-                )}
+                $RANGES | enumerate | each {
+                    let pos = {
+                        x: $"($x + $CHART_RANGE_CELL_WIDTH / 2 + $in.index * $CHART_RANGE_CELL_WIDTH)-tw/2",
+                        y: $y
+                    }
+                    ffmpeg-text $in.item $pos $CHART_FONT_B
+                }
             }
         ),
+        # range values
         ...($RANGES | enumerate | each { |it|
             let color = match ($equipment | get $it.item) {
                 "+3" | 3 | "3" => $CORVUS_BELLI_COLORS.green,
@@ -155,35 +175,43 @@ def put-weapon-chart [equipment: record, x: int, y: int, column_widths: record, 
             {
                 kind: "drawbox",
                 options: {
-                    x: ($x + $it.index * $CHART_RANGE_CELL_WIDTH), y: (if $no_header { $y } else { $y + $CHART_VERT_SPACE }),
+                    x: ($x + $it.index * $CHART_RANGE_CELL_WIDTH),
+                    y: (if $no_header { $y } else { $y + $CHART_VERT_SPACE }),
                     w: $CHART_RANGE_CELL_WIDTH, h: $CHART_RANGE_CELL_HEIGHT,
                     color: $color, t: "fill",
                 },
             }
         }),
+        # stats headers
         ...(
             if $no_header {
                 []
             } else {
-                $STATS | zip $positions | enumerate | each {(
-                    ffmpeg-text $in.item.0.short
-                        { x: $"($x + ($RANGES | length) * $CHART_RANGE_CELL_WIDTH + $in.item.1)-tw/2", y: $y }
-                        { ...$base_font, fontfile: $BOLD_FONT }
-                )}
+                $STATS | zip $positions | enumerate | each {
+                    let pos = {
+                        x: $"($x + ($RANGES | length) * $CHART_RANGE_CELL_WIDTH + $in.item.1)-tw/2",
+                        y: $y
+                    }
+                    ffmpeg-text $in.item.0.short $pos $CHART_FONT_B
+                }
             }
         ),
+        # stats values
         ...($STATS | zip $positions | enumerate | each { |it|
             let pos = {
                 x: $"($x + ($RANGES | length) * $CHART_RANGE_CELL_WIDTH + $it.item.1)-tw/2",
                 y: $"(if $no_header { $y } else { $y + $CHART_VERT_SPACE })+($CHART_RANGE_CELL_HEIGHT / 2)-th/2"
             }
-            let font = { ...$base_font, fontfile: $REGULAR_FONT }
-            let text = if $it.item.0.field == "TRAITS" {(
-                if ($equipment | get $it.item.0.field | is-empty) { "" } else { "*" }
-            )} else {(
+            let text = if $it.item.0.field == "TRAITS" {
+                if ($equipment | get $it.item.0.field | is-empty) {
+                    ""
+                } else {
+                    "*"
+                }
+            } else {
                 $"($equipment | get $it.item.0.field)"
-            )}
-            ffmpeg-text $text $pos $font
+            }
+            ffmpeg-text $text $pos $CHART_FONT_R
         }),
     ]
 
@@ -212,22 +240,6 @@ def gen-stat-page [troop: record, color: string, output: path] {
     let special_skills_box = $SPECIAL_SKILLS_BOX | update h (
         $SPECIAL_SKILLS_V_BASE + $SPECIAL_SKILLS_V_SPACE * (($troop.special_skills | length) - 1)
     )
-
-    const ISC_FONT                  = { fontfile: $REGULAR_FONT, fontcolor: "black", fontsize: $ISC_FONT_SIZE                  }
-    const TROOP_FONT                = { fontfile: $BOLD_FONT,    fontcolor: "white", fontsize: $NAME_FONT_SIZE                 }
-    const TROOP_2_FONT              = { fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: $NAME_2_FONT_SIZE               }
-    const TYPE_FONT                 = { fontfile: $BOLD_FONT,    fontcolor: "white", fontsize: $CHARACTERISTICS_TEXT_FONT_SIZE }
-    const STAT_FONT                 = { fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: $STAT_FONT_SIZE                 }
-    const SPECIAL_SKILLS_FONT       = { fontfile: $BOLD_FONT,    fontcolor: "white", fontsize: $SPECIAL_SKILLS_TITLE_FONT_SIZE }
-    const SPECIAL_SKILLS_TITLE_FONT = { fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: $SPECIAL_SKILLS_FONT_SIZE       }
-    const EQUIPMENT_TITLE_FONT      = { fontfile: $BOLD_FONT,    fontcolor: "white", fontsize: ($EQUIPMENT_FONT_SIZE + 2)      }
-    const EQUIPMENT_FONT            = { fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: ($EQUIPMENT_FONT_SIZE - 5)      }
-    const MELEE_WEAPONS_TITLE_FONT  = { fontfile: $BOLD_FONT,    fontcolor: "white", fontsize: ($MELEE_FONT_SIZE + 2)          }
-    const MELEE_WEAPONS_FONT        = { fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: ($MELEE_FONT_SIZE - 5)          }
-    const SWC_TITLE_FONT            = { fontfile: $BOLD_FONT,    fontcolor: "white", fontsize: ($SWC_FONT_SIZE + 2)            }
-    const SWC_FONT                  = { fontfile: $BOLD_FONT,    fontcolor: "white", fontsize: ($C_FONT_SIZE + 2)              }
-    const C_TITLE_FONT              = { fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: $SWC_FONT_SIZE                  }
-    const C_FONT                    = { fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: $C_FONT_SIZE                    }
 
     let transforms = [
         (ffmpeg-text $"ISC: ($troop.isc)"  $ISC_POS            $ISC_FONT),
