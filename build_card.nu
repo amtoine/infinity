@@ -215,24 +215,9 @@ def put-weapon-chart [equipment: record, x: int, y: int, column_widths: record, 
             } else {
                 let stat = $equipment.stats | get $it.item.0.field
 
-                let res = $equipment.mod? | default "" | parse "{k}={v}" | into record
-                let mod = if $res != {} {
-                    $res
-                } else {
-                    let res = $equipment.mod? | default "" | parse --regex '(?<x>[+-])(?<v>\d+)(?<k>.*)' | into record
-                    if $res != {} {
-                        $res
-                    } else {
-                        if $equipment.mod? != null {
-                            log warning $"could not parse modifier '($equipment.mod)' of '($equipment.name)'"
-                        }
-                        null
-                    }
-                }
-
-                if $mod != null and $it.item.0.field == $mod.k {
-                    let v = $mod.v | into int
-                    let res = match $mod.x? {
+                if $equipment.mod != null and $it.item.0.field == $equipment.mod.k {
+                    let v = $equipment.mod.v | into int
+                    let res = match $equipment.mod.x? {
                          "-" => { text: $"($stat - $v)", color: $CORVUS_BELLI_COLORS.red },
                          "+" => { text: $"($stat + $v)", color: $CORVUS_BELLI_COLORS.green },
                         null => { text: $"($v)",         color: $CORVUS_BELLI_COLORS.yellow },
@@ -443,6 +428,22 @@ def gen-charts-page [troop: record, output: path] {
                 log warning $"(ansi cyan)($var.name)(ansi reset) not found in charts"
             }
             $equipment | each { into record }
+        }
+        | upsert mod { |it|
+            let res = $it.mod? | default "" | parse "{k}={v}" | into record
+            if $res != {} {
+                $res
+            } else {
+                let res = $it.mod? | default "" | parse --regex '(?<x>[+-])(?<v>\d+)(?<k>.+)' | into record
+                if $res != {} {
+                    $res
+                } else {
+                    if $it.mod? != null {
+                        log warning $"could not parse modifier '($it.mod)' of '($it.name)'"
+                    }
+                    null
+                }
+            }
         }
         | where not ($it.stats | is-empty)
         | flatten stats
