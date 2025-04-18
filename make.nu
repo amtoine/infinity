@@ -89,6 +89,11 @@ def "main troops" [name: string = "", --stats, --charts] {
     run ($TROOPS | where name =~ $name) --stats=$stats --charts=$charts
 }
 
+def "main clean" [] {
+    log info $"cleaning ((try { ls /tmp/infinity-*.png } catch {[]} | length) + (try { ls /tmp/ffmpeg-*.png } catch {[]} | length)) file\(s\)"
+    rm --force /tmp/infinity-*.png  /tmp/ffmpeg-*.png
+}
+
 def "main viz" [] {
     use ffmpeg.nu [ "ffmpeg combine", VSTACKING ]
 
@@ -96,7 +101,7 @@ def "main viz" [] {
         | get name
         | group-by --to-table { path parse | get stem | split row '.' | reverse | skip 1 | reverse | str join "." }
         | each {
-            let output = mktemp --tmpdir "XXXXXXX.png"
+            let output = mktemp --tmpdir "infinity-XXXXXXX.png"
             $in.items | ffmpeg combine $VSTACKING --output $output
             print $in.closure_0
             $output
@@ -115,11 +120,13 @@ def "main archive" [] {
 }
 
 def "main release" [] {
+    main clean
     main troops
     main archive
 }
 
 def "main" [] {
+    main clean
     main showcase
     main troops
     main viz

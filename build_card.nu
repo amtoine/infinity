@@ -233,7 +233,7 @@ def put-weapon-chart [equipment: record, x: int, y: int, column_widths: record, 
         }),
     ]
 
-    $in | ffmpeg mapply ($transforms | each { ffmpeg options }) --output (mktemp --tmpdir XXXXXXX.png)
+    $in | ffmpeg mapply ($transforms | each { ffmpeg options }) --output (mktemp --tmpdir infinity-XXXXXXX.png)
 }
 
 def gen-stat-page [troop: record, color: string, output: path] {
@@ -353,12 +353,12 @@ def gen-stat-page [troop: record, color: string, output: path] {
         (ffmpeg-text $"($troop.C)" $C_POS        $C_FONT),
     ]
 
-    let tmp = ffmpeg create ($BASE_IMAGE | ffmpeg options) --output (mktemp --tmpdir XXXXXXX.png)
+    let tmp = ffmpeg create ($BASE_IMAGE | ffmpeg options) --output (mktemp --tmpdir infinity-XXXXXXX.png)
         | [$in, ({ parent: $DIRS.minis, stem: $troop.asset, extension: "png" } | path join)]
-            | ffmpeg combine ($MINI_OVERLAY | ffmpeg options) --output (mktemp --tmpdir XXXXXXX.png)
+            | ffmpeg combine ($MINI_OVERLAY | ffmpeg options) --output (mktemp --tmpdir infinity-XXXXXXX.png)
         | if $troop.faction != null {
             [$in, ({ parent: $DIRS.factions, stem: $troop.faction, extension: "png" } | path join)]
-                | ffmpeg combine $"[1:v]format=rgba,colorchannelmixer=aa=0.5[ol];[0:v][ol]overlay=x=($FACTION_POS.x)-w/2:y=($FACTION_POS.y)-h/2" --output (mktemp --tmpdir XXXXXXX.png)
+                | ffmpeg combine $"[1:v]format=rgba,colorchannelmixer=aa=0.5[ol];[0:v][ol]overlay=x=($FACTION_POS.x)-w/2:y=($FACTION_POS.y)-h/2" --output (mktemp --tmpdir infinity-XXXXXXX.png)
         } else {
             $in
         }
@@ -373,12 +373,12 @@ def gen-stat-page [troop: record, color: string, output: path] {
                     x: $"($characteristics_box.x + $characteristics_box.w // 2)-w/2",
                     y: $"($characteristics_box.y + $CHARACTERISTICS_IMAGE_SIZE)+($it.index * $CHARACTERISTICS_IMAGE_SIZE)-h/2",
                 },
-            } | ffmpeg options) --output (mktemp --tmpdir XXXXXXX.png)
+            } | ffmpeg options) --output (mktemp --tmpdir infinity-XXXXXXX.png)
         }
         | [$in, ({ parent: $DIRS.icons, stem: ($troop.asset | str replace --regex '\..*$' ''), extension: "png" } | path join) ] | ffmpeg combine ({
             kind: "overlay",
             options: { x: $"($ICON_BOX.x + $ICON_BOX.w // 2)-w/2", y: $"($ICON_BOX.y + $ICON_BOX.h // 2)-h/2" },
-        } | ffmpeg options) --output (mktemp --tmpdir XXXXXXX.png)
+        } | ffmpeg options) --output (mktemp --tmpdir infinity-XXXXXXX.png)
 
     let tmp = $troop.allowed_factions
         | enumerate
@@ -389,12 +389,12 @@ def gen-stat-page [troop: record, color: string, output: path] {
                     x: $"($STAT_VALS_BOX.x)+($ALLOWED_FACTIONS_OFFSET.x)+($it.index * $ALLOWED_FACTIONS_IMAGE_SIZE)-w/2",
                     y: $"($STAT_VALS_BOX.y)+($STAT_VALS_BOX.h)+($ALLOWED_FACTIONS_OFFSET.y)-h/2",
                 },
-            } | ffmpeg options) --output (mktemp --tmpdir XXXXXXX.png)
+            } | ffmpeg options) --output (mktemp --tmpdir infinity-XXXXXXX.png)
         }
 
     let versions = open versions.json
     let version_text = $"[Army: ($versions.army), Rules: ($versions.rules)]"
-    let tmp = $tmp | ffmpeg apply ((ffmpeg-text $version_text $VERSION_POS $VERSION_FONT) | ffmpeg options) --output (mktemp --tmpdir XXXXXXX.png)
+    let tmp = $tmp | ffmpeg apply ((ffmpeg-text $version_text $VERSION_POS $VERSION_FONT) | ffmpeg options) --output (mktemp --tmpdir infinity-XXXXXXX.png)
 
     let out = $output | path parse | update stem { $in ++ ".1" } | path join
     cp $tmp $out
@@ -463,8 +463,8 @@ def gen-charts-page [troop: record, output: path] {
         log warning "\tno equipment"
         let versions = open versions.json
         let version_text = $"[Army: ($versions.army), Rules: ($versions.rules)]"
-        let res = ffmpeg create ($BASE_IMAGE | ffmpeg options) --output (mktemp --tmpdir XXXXXXX.png)
-            | ffmpeg apply ((ffmpeg-text $version_text $VERSION_POS $VERSION_FONT) | ffmpeg options) --output (mktemp --tmpdir XXXXXXX.png)
+        let res = ffmpeg create ($BASE_IMAGE | ffmpeg options) --output (mktemp --tmpdir infinity-XXXXXXX.png)
+            | ffmpeg apply ((ffmpeg-text $version_text $VERSION_POS $VERSION_FONT) | ffmpeg options) --output (mktemp --tmpdir infinity-XXXXXXX.png)
         let out = $output | path parse | update stem { $in ++ ".2" } | path join
         cp $res $out
         log info $"\t(ansi purple)($out)(ansi reset)"
@@ -559,10 +559,10 @@ def gen-charts-page [troop: record, output: path] {
         y: ($offset.y + (if $var.index == 0 { 0 } else { $CHART_FONT_SIZE }) + ($var.index * $CHART_V_SPACE)),
     }}
 
-    let res = ffmpeg create ($BASE_IMAGE | ffmpeg options) --output (mktemp --tmpdir XXXXXXX.png)
-        | ffmpeg mapply ($names_transforms | each { ffmpeg options }) --output (mktemp --tmpdir XXXXXXX.png)
-        | ffmpeg mapply ($traits_names_transforms | each { ffmpeg options }) --output (mktemp --tmpdir XXXXXXX.png)
-        | ffmpeg mapply ($traits_values_transforms | each { ffmpeg options }) --output (mktemp --tmpdir XXXXXXX.png)
+    let res = ffmpeg create ($BASE_IMAGE | ffmpeg options) --output (mktemp --tmpdir infinity-XXXXXXX.png)
+        | ffmpeg mapply ($names_transforms | each { ffmpeg options }) --output (mktemp --tmpdir infinity-XXXXXXX.png)
+        | ffmpeg mapply ($traits_names_transforms | each { ffmpeg options }) --output (mktemp --tmpdir infinity-XXXXXXX.png)
+        | ffmpeg mapply ($traits_values_transforms | each { ffmpeg options }) --output (mktemp --tmpdir infinity-XXXXXXX.png)
 
     let res = $weapon_bars
         | enumerate
@@ -574,7 +574,7 @@ def gen-charts-page [troop: record, output: path] {
 
     let versions = open versions.json
     let version_text = $"[Army: ($versions.army), Rules: ($versions.rules)]"
-    let res = $res | ffmpeg apply ((ffmpeg-text $version_text $VERSION_POS $VERSION_FONT) | ffmpeg options) --output (mktemp --tmpdir XXXXXXX.png)
+    let res = $res | ffmpeg apply ((ffmpeg-text $version_text $VERSION_POS $VERSION_FONT) | ffmpeg options) --output (mktemp --tmpdir infinity-XXXXXXX.png)
 
     let out = $output | path parse | update stem { $in ++ ".2" } | path join
     cp $res $out
