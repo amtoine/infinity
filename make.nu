@@ -48,15 +48,15 @@ const TROOPS = [
     ["combined-army/morat-dartok",     $COLORS.combined-army],
     ["combined-army/morat-kaitok",     $COLORS.combined-army],
     ["combined-army/morat-kyosot.2",   $COLORS.combined-army],
-    ["combined-army/morat-kyosot",     $COLORS.combined-army],
+    ["combined-army/morat-kyosot.1",   $COLORS.combined-army],
     ["combined-army/morat-raktorak.2", $COLORS.combined-army],
-    ["combined-army/morat-raktorak",   $COLORS.combined-army],
+    ["combined-army/morat-raktorak.1", $COLORS.combined-army],
     ["combined-army/morat-rasyat",     $COLORS.combined-army],
     ["combined-army/morat-vanguard.1", $COLORS.combined-army],
     ["combined-army/morat-vanguard.2", $COLORS.combined-army],
     ["combined-army/morat-vanguard.3", $COLORS.combined-army],
     ["combined-army/morat-zerat.2",    $COLORS.combined-army],
-    ["combined-army/morat-zerat",      $COLORS.combined-army],
+    ["combined-army/morat-zerat.1",    $COLORS.combined-army],
 ]
 
 def run [troops: table<name: string, color: string>, --stats, --charts] {
