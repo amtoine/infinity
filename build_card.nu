@@ -166,7 +166,7 @@ def put-weapon-chart [equipment: record, x: int, y: int, column_widths: record, 
         ),
         # range values
         ...($RANGES | enumerate | each { |it|
-            let color = match ($equipment | get $it.item) {
+            let color = match ($equipment.stats | get $it.item) {
                 "+3" | 3 | "3" => $CORVUS_BELLI_COLORS.green,
                 "0" | 0 => $CORVUS_BELLI_COLORS.blue,
                 "-3" | -3 => $CORVUS_BELLI_COLORS.yellow,
@@ -205,16 +205,43 @@ def put-weapon-chart [equipment: record, x: int, y: int, column_widths: record, 
                 x: $"($x + ($RANGES | length) * $CHART_RANGE_CELL_WIDTH + ($RANGES | length) - 1 + $it.item.1)-tw/2",
                 y: $"(if $no_header { $y } else { $y + $CHART_OFFSET_Y })+($CHART_RANGE_CELL_HEIGHT / 2)-th/2"
             }
-            let text = if $it.item.0.field == "TRAITS" {
-                if ($equipment | get $it.item.0.field | is-empty) {
+            if $it.item.0.field == "TRAITS" {
+                let text = if ($equipment.stats | get $it.item.0.field | is-empty) {
                     ""
                 } else {
                     "*"
                 }
+                ffmpeg-text $text $pos $CHART_FONT_R
             } else {
-                $"($equipment | get $it.item.0.field)"
+                let stat = $equipment.stats | get $it.item.0.field
+
+                let res = $equipment.mod? | default "" | parse "{k}={v}" | into record
+                let mod = if $res != {} {
+                    $res
+                } else {
+                    let res = $equipment.mod? | default "" | parse --regex '(?<x>[+-])(?<v>\d+)(?<k>.*)' | into record
+                    if $res != {} {
+                        $res
+                    } else {
+                        if $equipment.mod? != null {
+                            log warning $"could not parse modifier '($equipment.mod)' of '($equipment.name)'"
+                        }
+                        null
+                    }
+                }
+
+                if $mod != null and $it.item.0.field == $mod.k {
+                    let v = $mod.v | into int
+                    let res = match $mod.x? {
+                         "-" => { text: $"($stat - $v)", color: $CORVUS_BELLI_COLORS.red },
+                         "+" => { text: $"($stat + $v)", color: $CORVUS_BELLI_COLORS.green },
+                        null => { text: $"($v)",         color: $CORVUS_BELLI_COLORS.yellow },
+                    }
+                    ffmpeg-text $"($res.text)" $pos ($CHART_FONT_B | update fontcolor $res.color)
+                } else {
+                    ffmpeg-text $"($stat)" $pos $CHART_FONT_R
+                }
             }
-            ffmpeg-text $text $pos $CHART_FONT_R
         }),
     ]
 
@@ -509,7 +536,7 @@ def gen-charts-page [troop: record, output: path] {
     let column_widths = $column_widths_keys | append $column_widths_values| math max
 
     let weapon_bars = $equipments | enumerate | each { |var| {
-        equipment: $var.item.stats,
+        equipment: $var.item,
         x: $offset.x,
         y: ($offset.y + (if $var.index == 0 { 0 } else { $CHART_FONT_SIZE }) + ($var.index * $CHART_V_SPACE)),
     }}
