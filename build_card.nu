@@ -1,7 +1,8 @@
 use ffmpeg.nu *
 use log.nu [ "log info", "log warning" ]
 
-const CANVAS_W = 1600
+const CANVAS = { w: 1600, h: 1000 }
+const BASE_IMAGE = { kind: "color", options: { c: "0xDDDDDD", s: $"($CANVAS.w)x($CANVAS.h)", d: 1 } }
 
 const ASSETS_DIR = "./troops/assets/"
 const DIRS = {
@@ -16,29 +17,26 @@ const BOLD_FONT = "./adwaita-fonts-48.2/mono/AdwaitaMono-Bold.ttf"
 const REGULAR_FONT = "./adwaita-fonts-48.2/mono/AdwaitaMono-Regular.ttf"
 
 const NAME_BOX = { x: 480, y: 80, w: (1560 - 480), h: (160 - 80) }
-const NAME_FONT_SIZE = 60
 const NAME_OFFSET_X = 28
 const NAME_POS = { x: $"($NAME_BOX.x)+($NAME_OFFSET_X)", y: $"($NAME_BOX.y)+($NAME_BOX.h / 2)-th/2" }
+const NAME_FONT = { fontfile: $BOLD_FONT, fontcolor: "white", fontsize: 60 }
 
 const ISC_POS = { x: ($NAME_BOX.x + $NAME_OFFSET_X), y: ($NAME_BOX.y - $NAME_OFFSET_X) }
-const ISC_FONT_SIZE = 30
 const CLASSIFICATION_POS = { x: $"($NAME_BOX.x + $NAME_BOX.w - $NAME_OFFSET_X)-tw", y: $ISC_POS.y }
+const ISC_FONT = { fontfile: $REGULAR_FONT, fontcolor: "black", fontsize: 30 }
 
 const NAME_2_BOX = { x: 35, y: 780, w: (1560 - 35), h: (830 - 780) }
-const NAME_2_FONT_SIZE = 30
 const NAME_2_OFFSET_X = 10
 const NAME_2_POS = { x: $"($NAME_2_BOX.x)+($NAME_2_OFFSET_X)", y: $"($NAME_2_BOX.y)+($NAME_2_BOX.h / 2)-th/2" }
+const NAME_2_FONT = { fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: 30 }
 
 const ICON_BOX = { x: 35, y: 35, w: (155 - 35), h: (155 - 35) }
 
 const CHARACTERISTICS_BOX = { x: 35, y: 175, w: (120 - 35), h: null }
-const CHARACTERISTICS_TYPE_POS = { x: $"($CHARACTERISTICS_BOX.x + $CHARACTERISTICS_BOX.w // 2)-tw/2", y: $"($CHARACTERISTICS_BOX.y + 20)-th/2" }
-const CHARACTERISTICS_TEXT_FONT_SIZE = 30
 const CHARACTERISTICS_V_SPACE = 10
-const CHARACTERISTICS_OFFSET_Y = 70 + 5
 const CHARACTERISTICS_IMAGE_SIZE = 70 + 5
-
-const BASE_POS = { x: 325, y: 950 }
+const CHARACTERISTICS_TYPE_POS = { x: $"($CHARACTERISTICS_BOX.x + $CHARACTERISTICS_BOX.w // 2)-tw/2", y: $"($CHARACTERISTICS_BOX.y + 20)-th/2" }
+const CHARACTERISTICS_TYPE_FONT = { fontfile: $BOLD_FONT, fontcolor: "white", fontsize: 30 }
 
 const FACTION_POS = { x: 1455, y: 500 }
 
@@ -49,13 +47,11 @@ const STAT_VALS_BOX = {
     w: $STAT_KEYS_BOX.w,
     h: $STAT_KEYS_BOX.h,
 }
-const STAT_FONT_SIZE = 30
 const STAT_H_SPACE = 108
 const STAT_OFFSET_X = 60
+const STAT_FONT = { fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: 30 }
 
-const START = { kind: "color",    options: { c: "0xDDDDDD", s: "1600x1000", d: 1 } }
-
-const IMAGE = { kind: "overlay",  options: { x: "320-w/2", y: "H-h-50" } }
+const MINI_OVERLAY = { kind: "overlay",  options: { x: "320-w/2", y: "H-h-50" } }
 
 const ALLOWED_FACTIONS_OFFSET = { x: 50, y: 50 }
 const ALLOWED_FACTIONS_IMAGE_SIZE = 70 + 10
@@ -64,52 +60,42 @@ const BOTTOM_FIRST_ROW_Y = 880
 const BOTTOM_SECOND_ROW_Y = 925
 
 const EQUIPMENT_BOX = { x: 35, y: 850, w: (690 - 35), h: (960 - 850) }
-const EQUIPMENT_FONT_SIZE = 30
 const EQUIPMENT_OFFSET_X = 10
 const EQUIPMENT_TITLE_POS = { x: $"($EQUIPMENT_BOX.x)+($EQUIPMENT_OFFSET_X)", y: $"($BOTTOM_FIRST_ROW_Y)-th/2" }
 const EQUIPMENT_POS = { x: $"($EQUIPMENT_BOX.x)+($EQUIPMENT_OFFSET_X)", y: $"($BOTTOM_SECOND_ROW_Y)-th/2" }
+const EQUIPMENT_FONT_SIZE = 30
+const EQUIPMENT_TITLE_FONT = { fontfile: $BOLD_FONT, fontcolor: "white", fontsize: ($EQUIPMENT_FONT_SIZE + 2) }
+const EQUIPMENT_FONT = { fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: ($EQUIPMENT_FONT_SIZE - 5) }
 
 const MELEE_BOX = { x: 710, y: 850, w: (1335 - 710), h: (960 - 850) }
-const MELEE_FONT_SIZE = 30
 const MELEE_OFFSET_X = 10
 const MELEE_WEAPONS_TITLE_POS = { x: $"($MELEE_BOX.x)+($MELEE_OFFSET_X)", y: $"($BOTTOM_FIRST_ROW_Y)-th/2" }
 const MELEE_WEAPONS_POS = { x: $"($MELEE_BOX.x)+($MELEE_OFFSET_X)", y: $"($BOTTOM_SECOND_ROW_Y)-th/2" }
+const MELEE_FONT_SIZE = 30
+const MELEE_WEAPONS_TITLE_FONT  = { fontfile: $BOLD_FONT, fontcolor: "white", fontsize: ($MELEE_FONT_SIZE + 2) }
+const MELEE_WEAPONS_FONT = { fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: ($MELEE_FONT_SIZE - 5) }
 
 const SWC_BOX = { x: 1355, y: 850, w: (1445 - 1355), h: (960 - 850) }
-const SWC_FONT_SIZE = 30
-const SWC_OFFSET_X = 10
 const SWC_TITLE_POS = { x: $"($SWC_BOX.x)+($SWC_BOX.w // 2)-tw/2", y: $"($BOTTOM_FIRST_ROW_Y)-th/2" }
 const SWC_POS = { x: $"($SWC_BOX.x)+($SWC_BOX.w // 2)-tw/2", y: $"($BOTTOM_SECOND_ROW_Y)-th/2" }
+const SWC_FONT_SIZE = 30
+const SWC_TITLE_FONT = { fontfile: $BOLD_FONT, fontcolor: "white", fontsize: $SWC_FONT_SIZE }
+const SWC_FONT = { fontfile: $BOLD_FONT, fontcolor: "white", fontsize: $SWC_FONT_SIZE }
 
 const C_BOX = { x: 1460, y: 850, w: (1560 - 1460), h: (960 - 850) }
-const C_FONT_SIZE = 30
-const C_OFFSET_X = 10
 const C_TITLE_POS = { x: $"($C_BOX.x)+($C_BOX.w // 2)-tw/2", y: $"($BOTTOM_FIRST_ROW_Y)-th/2" }
 const C_POS = { x: $"($C_BOX.x)+($C_BOX.w // 2)-tw/2", y: $"($BOTTOM_SECOND_ROW_Y)-th/2" }
+const C_FONT_SIZE = 30
+const C_TITLE_FONT = { fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: $C_FONT_SIZE }
+const C_FONT = { fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: $C_FONT_SIZE }
 
 const SPECIAL_SKILLS_BOX = { x: 1240, y: 350, w: (1560 - 1240), h: null }
-const SPECIAL_SKILLS_TITLE_FONT_SIZE = 30 + 2
-const SPECIAL_SKILLS_FONT_SIZE = 18
 const SPECIAL_SKILLS_OFFSET = { x: 10, y: 80 }
 const SPECIAL_SKILLS_V_BASE = 100
 const SPECIAL_SKILLS_V_SPACE = 30
 const SPECIAL_SKILLS_TITLE_POS = { x: $"($SPECIAL_SKILLS_BOX.x)+($SPECIAL_SKILLS_OFFSET.x)", y: $"($SPECIAL_SKILLS_BOX.y)+30-th/2" }
-
-const ISC_FONT                  = { fontfile: $REGULAR_FONT, fontcolor: "black", fontsize: $ISC_FONT_SIZE                  }
-const NAME_FONT                 = { fontfile: $BOLD_FONT,    fontcolor: "white", fontsize: $NAME_FONT_SIZE                 }
-const NAME_2_FONT               = { fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: $NAME_2_FONT_SIZE               }
-const CHARACTERISTICS_TYPE_FONT = { fontfile: $BOLD_FONT,    fontcolor: "white", fontsize: $CHARACTERISTICS_TEXT_FONT_SIZE }
-const STAT_FONT                 = { fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: $STAT_FONT_SIZE                 }
-const SPECIAL_SKILLS_TITLE_FONT = { fontfile: $BOLD_FONT,    fontcolor: "white", fontsize: $SPECIAL_SKILLS_TITLE_FONT_SIZE }
-const SPECIAL_SKILLS_FONT       = { fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: $SPECIAL_SKILLS_FONT_SIZE       }
-const EQUIPMENT_TITLE_FONT      = { fontfile: $BOLD_FONT,    fontcolor: "white", fontsize: ($EQUIPMENT_FONT_SIZE + 2)      }
-const EQUIPMENT_FONT            = { fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: ($EQUIPMENT_FONT_SIZE - 5)      }
-const MELEE_WEAPONS_TITLE_FONT  = { fontfile: $BOLD_FONT,    fontcolor: "white", fontsize: ($MELEE_FONT_SIZE + 2)          }
-const MELEE_WEAPONS_FONT        = { fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: ($MELEE_FONT_SIZE - 5)          }
-const SWC_TITLE_FONT            = { fontfile: $BOLD_FONT,    fontcolor: "white", fontsize: ($SWC_FONT_SIZE + 2)            }
-const SWC_FONT                  = { fontfile: $BOLD_FONT,    fontcolor: "white", fontsize: ($C_FONT_SIZE + 2)              }
-const C_TITLE_FONT              = { fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: $SWC_FONT_SIZE                  }
-const C_FONT                    = { fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: $C_FONT_SIZE                    }
+const SPECIAL_SKILLS_TITLE_FONT = { fontfile: $BOLD_FONT,    fontcolor: "white", fontsize: 32 }
+const SPECIAL_SKILLS_FONT       = { fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: 18 }
 
 def "ffmpeg-text" [text: string, position: record<x, y>, options: record] {
     let text = $text
@@ -120,7 +106,6 @@ def "ffmpeg-text" [text: string, position: record<x, y>, options: record] {
         | $"'($in)'"
     { kind: "drawtext", options: { text: $text, ...$position, ...$options } }
 }
-
 
 const RANGES = ['8"', '16"', '24"', '32"', '40"', '48"', '96"']
 const STATS = [
@@ -344,9 +329,9 @@ def gen-stat-page [troop: record, color: string, output: path] {
         (ffmpeg-text $"($troop.C)" $C_POS        $C_FONT),
     ]
 
-    let tmp = ffmpeg create ($START | ffmpeg options) --output (mktemp --tmpdir XXXXXXX.png)
+    let tmp = ffmpeg create ($BASE_IMAGE | ffmpeg options) --output (mktemp --tmpdir XXXXXXX.png)
         | [$in, ({ parent: $DIRS.minis, stem: $troop.asset, extension: "png" } | path join)]
-            | ffmpeg combine ($IMAGE | ffmpeg options) --output (mktemp --tmpdir XXXXXXX.png)
+            | ffmpeg combine ($MINI_OVERLAY | ffmpeg options) --output (mktemp --tmpdir XXXXXXX.png)
         | if $troop.faction != null {
             [$in, ({ parent: $DIRS.factions, stem: $troop.faction, extension: "png" } | path join)]
                 | ffmpeg combine $"[1:v]format=rgba,colorchannelmixer=aa=0.5[ol];[0:v][ol]overlay=x=($FACTION_POS.x)-w/2:y=($FACTION_POS.y)h/2" --output (mktemp --tmpdir XXXXXXX.png)
@@ -362,7 +347,7 @@ def gen-stat-page [troop: record, color: string, output: path] {
                 kind: "overlay",
                 options: {
                     x: $"($characteristics_box.x + $characteristics_box.w // 2)-w/2",
-                    y: $"($characteristics_box.y + $CHARACTERISTICS_OFFSET_Y)+($it.index * $CHARACTERISTICS_IMAGE_SIZE)-h/2",
+                    y: $"($characteristics_box.y + $CHARACTERISTICS_IMAGE_SIZE)+($it.index * $CHARACTERISTICS_IMAGE_SIZE)-h/2",
                 },
             } | ffmpeg options) --output (mktemp --tmpdir XXXXXXX.png)
         }
@@ -425,7 +410,7 @@ def gen-charts-page [troop: record, output: path] {
 
     if ($equipments | is-empty) {
         log warning "\tno equipment"
-        let res = ffmpeg create ($START | ffmpeg options) --output (mktemp --tmpdir XXXXXXX.png)
+        let res = ffmpeg create ($BASE_IMAGE | ffmpeg options) --output (mktemp --tmpdir XXXXXXX.png)
         let out = $output | path parse | update stem { $in ++ ".2" } | path join
         cp $res $out
         log info $"\t(ansi purple)($out)(ansi reset)"
@@ -447,7 +432,7 @@ def gen-charts-page [troop: record, output: path] {
         | where not ($it.stats.TRAITS | is-empty)
         | enumerate
         | each { |var|
-            let x_space = ($CANVAS_W - $offset.x - $CHART_START.x) / $CHART_FONT_CHAR_SIZE | into int
+            let x_space = ($CANVAS.w - $offset.x - $CHART_START.x) / $CHART_FONT_CHAR_SIZE | into int
             let traits = $var.item.stats.TRAITS | split row ", "
             let res = generate { |var|
                 let res = $var
@@ -520,7 +505,7 @@ def gen-charts-page [troop: record, output: path] {
         y: ($offset.y + (if $var.index == 0 { 0 } else { $CHART_FONT_SIZE }) + ($var.index * $CHART_V_SPACE)),
     }}
 
-    let res = ffmpeg create ($START | ffmpeg options) --output (mktemp --tmpdir XXXXXXX.png)
+    let res = ffmpeg create ($BASE_IMAGE | ffmpeg options) --output (mktemp --tmpdir XXXXXXX.png)
         | ffmpeg mapply ($names_transforms | each { ffmpeg options }) --output (mktemp --tmpdir XXXXXXX.png)
         | ffmpeg mapply ($traits_names_transforms | each { ffmpeg options }) --output (mktemp --tmpdir XXXXXXX.png)
         | ffmpeg mapply ($traits_values_transforms | each { ffmpeg options }) --output (mktemp --tmpdir XXXXXXX.png)
