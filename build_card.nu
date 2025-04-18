@@ -16,6 +16,9 @@ const DIRS = {
 const BOLD_FONT = "./adwaita-fonts-48.2/mono/AdwaitaMono-Bold.ttf"
 const REGULAR_FONT = "./adwaita-fonts-48.2/mono/AdwaitaMono-Regular.ttf"
 
+const VERSION_POS = { x: $"($CANVAS.w)-tw-2", y: $"($CANVAS.h)-th-2" }
+const VERSION_FONT = { fontfile: $REGULAR_FONT, fontsize: 15, fontcolor: "black"}
+
 const NAME_BOX = { x: 480, y: 80, w: (1560 - 480), h: (160 - 80) }
 const NAME_OFFSET_X = 28
 const NAME_POS = { x: $"($NAME_BOX.x)+($NAME_OFFSET_X)", y: $"($NAME_BOX.y)+($NAME_BOX.h / 2)-th/2" }
@@ -389,6 +392,10 @@ def gen-stat-page [troop: record, color: string, output: path] {
             } | ffmpeg options) --output (mktemp --tmpdir XXXXXXX.png)
         }
 
+    let versions = open versions.json
+    let version_text = $"[Army: ($versions.army), Rules: ($versions.rules)]"
+    let tmp = $tmp | ffmpeg apply ((ffmpeg-text $version_text $VERSION_POS $VERSION_FONT) | ffmpeg options) --output (mktemp --tmpdir XXXXXXX.png)
+
     let out = $output | path parse | update stem { $in ++ ".1" } | path join
     cp $tmp $out
     log info $"\t(ansi purple)($out)(ansi reset)"
@@ -561,6 +568,10 @@ def gen-charts-page [troop: record, output: path] {
         | reduce --fold $res { |it, acc|
             $acc | put-weapon-chart $it.equipment $it.x $it.y $column_widths --no-header=$it.no_header
         }
+
+    let versions = open versions.json
+    let version_text = $"[Army: ($versions.army), Rules: ($versions.rules)]"
+    let res = $res | ffmpeg apply ((ffmpeg-text $version_text $VERSION_POS $VERSION_FONT) | ffmpeg options) --output (mktemp --tmpdir XXXXXXX.png)
 
     let out = $output | path parse | update stem { $in ++ ".2" } | path join
     cp $res $out
