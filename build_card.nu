@@ -343,7 +343,7 @@ def gen-stat-page [troop: record, color: string, output: path] {
             | ffmpeg combine ($MINI_OVERLAY | ffmpeg options) --output (mktemp --tmpdir XXXXXXX.png)
         | if $troop.faction != null {
             [$in, ({ parent: $DIRS.factions, stem: $troop.faction, extension: "png" } | path join)]
-                | ffmpeg combine $"[1:v]format=rgba,colorchannelmixer=aa=0.5[ol];[0:v][ol]overlay=x=($FACTION_POS.x)-w/2:y=($FACTION_POS.y)h/2" --output (mktemp --tmpdir XXXXXXX.png)
+                | ffmpeg combine $"[1:v]format=rgba,colorchannelmixer=aa=0.5[ol];[0:v][ol]overlay=x=($FACTION_POS.x)-w/2:y=($FACTION_POS.y)-h/2" --output (mktemp --tmpdir XXXXXXX.png)
         } else {
             $in
         }
