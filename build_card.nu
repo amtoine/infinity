@@ -405,7 +405,7 @@ def gen-charts-page [troop: record, output: path] {
             match ($it | describe --detailed).type {
                 "string" => { name: $it },
                 "record" => $it,
-            }
+            } | update name { str replace "CCW" "CC Weapon" }
         }
         | insert stats { |var|
             let equipment = $charts | where NAME == ($var.name | str upcase)
