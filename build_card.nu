@@ -26,9 +26,11 @@ const CHARACTERISTICS_BOX = { x: 35, y: 175, w: (120 - 35), h: null }
 const CHARACTERISTICS_TEXT_POS = { x: $"($CHARACTERISTICS_BOX.x + $CHARACTERISTICS_BOX.w // 2)-tw/2", y: $"($CHARACTERISTICS_BOX.y + 20)-th/2" }
 const CHARACTERISTICS_TEXT_FONT_SIZE = 30
 const CHARACTERISTICS_V_SPACE = 10
-const CHARACTERISTICS_IMAGE_SIZE = 75
+const CHARACTERISTICS_IMAGE_SIZE = 70 + 5
 
 const BASE_POS = { x: 325, y: 950 }
+
+const FACTION_POS = { x: 1455, y: 500 }
 
 const STAT_KEYS_BOX = { x: 480, y: 180, w: (1560 - 480), h: (245 - 180) }
 const STAT_VALS_BOX = {
@@ -44,6 +46,9 @@ const STAT_OFFSET_X = 60
 const START = { kind: "color",    options: { c: "0xDDDDDD", s: "1600x1000", d: 1 } }
 
 const IMAGE = { kind: "overlay",  options: { x: "320-w/2", y: "H-h-50" } }
+
+const ALLOWED_FACTIONS_OFFSET = { x: 50, y: 50 }
+const ALLOWED_FACTIONS_IMAGE_SIZE = 70 + 10
 
 const BOTTOM_FIRST_ROW_Y = 880
 const BOTTOM_SECOND_ROW_Y = 925
@@ -77,6 +82,7 @@ const SPECIAL_SKILLS_TITLE_FONT_SIZE = 30 + 2
 const SPECIAL_SKILLS_FONT_SIZE = 18
 const SPECIAL_SKILLS_OFFSET_X = 10
 const SPECIAL_SKILLS_V_BASE = 100
+const SPECIAL_SKILLS_OFFSET_Y = 80
 const SPECIAL_SKILLS_V_SPACE = 30
 const SPECIAL_SKILLS_TEXT_POS = { x: $"($SPECIAL_SKILLS_BOX.x)+($SPECIAL_SKILLS_OFFSET_X)", y: $"($SPECIAL_SKILLS_BOX.y)+30-th/2" }
 
@@ -133,10 +139,13 @@ const CHART_VERT_SPACE = 30
 const CHART_ATTR_INTERSPACE = 20
 const CHART_RANGE_CELL_WIDTH = 100
 const CHART_RANGE_CELL_HEIGHT = 50
-const CHART_START_X = 20
+const CHART_START = { x: 20, y: 50 }
 const CHART_NAMES_OFFSET_X = 10
 const CHART_FONT_R = { fontfile: $BOLD_FONT,    fontcolor: "black", fontsize: $CHART_FONT_SIZE }
 const CHART_FONT_B = { fontfile: $REGULAR_FONT, fontcolor: "black", fontsize: $CHART_FONT_SIZE }
+const CHART_ROW_V_SPACE = 60
+const CHART_TRAITS_V_SPACE = 50
+const CHART_TRAITS_H_SPACE = 20
 
 def put-weapon-chart [equipment: record, x: int, y: int, column_widths: record, --no-header]: [ path -> path ] {
     let widths = $column_widths | values
@@ -289,7 +298,7 @@ def gen-stat-page [troop: record, color: string, output: path] {
                     }
                     let pos = {
                         x: $"($SPECIAL_SKILLS_BOX.x)+($SPECIAL_SKILLS_OFFSET_X)",
-                        y: $"($SPECIAL_SKILLS_BOX.y)+80+30*($it.index)-th/2",
+                        y: $"($SPECIAL_SKILLS_BOX.y)+($SPECIAL_SKILLS_OFFSET_Y)+($SPECIAL_SKILLS_V_SPACE)*($it.index)-th/2",
                     }
 
                     [(ffmpeg-text $text $pos $SPECIAL_SKILLS_TITLE_FONT)]
@@ -328,9 +337,11 @@ def gen-stat-page [troop: record, color: string, output: path] {
     ]
 
     let tmp = ffmpeg create ($START | ffmpeg options) --output (mktemp --tmpdir XXXXXXX.png)
-        | [$in, ({ parent: "./troops/assets/minis/", stem: $troop.asset, extension: "png" } | path join)] | ffmpeg combine ($IMAGE | ffmpeg options) --output (mktemp --tmpdir XXXXXXX.png)
+        | [$in, ({ parent: "./troops/assets/minis/", stem: $troop.asset, extension: "png" } | path join)]
+            | ffmpeg combine ($IMAGE | ffmpeg options) --output (mktemp --tmpdir XXXXXXX.png)
         | if $troop.faction != null {
-            [$in, ({ parent: "./troops/assets/factions/940/", stem: $troop.faction, extension: "png" } | path join)] | ffmpeg combine "[1:v]format=rgba,colorchannelmixer=aa=0.5[ol];[0:v][ol]overlay=x=1455-w/2:y=500-h/2" --output (mktemp --tmpdir XXXXXXX.png)
+            [$in, ({ parent: "./troops/assets/factions/940/", stem: $troop.faction, extension: "png" } | path join)]
+                | ffmpeg combine $"[1:v]format=rgba,colorchannelmixer=aa=0.5[ol];[0:v][ol]overlay=x=($FACTION_POS.x)-w/2:y=($FACTION_POS.y)h/2" --output (mktemp --tmpdir XXXXXXX.png)
         } else {
             $in
         }
@@ -341,7 +352,10 @@ def gen-stat-page [troop: record, color: string, output: path] {
         | reduce --fold $tmp { |it, acc|
             [$acc, ({ parent: "./troops/assets/characteristics/", stem: $it.item, extension: "png" } | path join)] | ffmpeg combine ({
                 kind: "overlay",
-                options: { x: $"($CHARACTERISTICS_BOX.x + $CHARACTERISTICS_BOX.w // 2)-w/2", y: $"255+($it.index * 75)-h/2" },
+                options: {
+                    x: $"($characteristics_box.x + $characteristics_box.w // 2)-w/2",
+                    y: $"($characteristics_box.y + $CHARACTERISTICS_IMAGE_SIZE)+($it.index * $CHARACTERISTICS_IMAGE_SIZE)-h/2",
+                },
             } | ffmpeg options) --output (mktemp --tmpdir XXXXXXX.png)
         }
         | [$in, ({ parent: "./troops/assets/icons/", stem: ($troop.asset | str replace --regex '\..*$' ''), extension: "png" } | path join) ] | ffmpeg combine ({
@@ -354,7 +368,10 @@ def gen-stat-page [troop: record, color: string, output: path] {
         | reduce --fold $tmp { |it, acc|
             [$acc, ({ parent: "./troops/assets/factions/70/", stem: $it.item, extension: "png" } | path join)] | ffmpeg combine ({
                 kind: "overlay",
-                options: { x: $"($STAT_VALS_BOX.x)+50+($it.index * 80)-w/2", y: $"($STAT_VALS_BOX.y)+($STAT_VALS_BOX.h)+50-h/2" },
+                options: {
+                    x: $"($STAT_VALS_BOX.x)+($ALLOWED_FACTIONS_OFFSET.x)+($it.index * $ALLOWED_FACTIONS_IMAGE_SIZE)-w/2",
+                    y: $"($STAT_VALS_BOX.y)+($STAT_VALS_BOX.h)+($ALLOWED_FACTIONS_OFFSET.y)-h/2",
+                },
             } | ffmpeg options) --output (mktemp --tmpdir XXXXXXX.png)
         }
 
@@ -410,11 +427,14 @@ def gen-charts-page [troop: record, output: path] {
         return
     }
 
-    let start_x = $CHART_START_X + $CHART_FONT_CHAR_SIZE * ($equipments.name | each { str length } | math max)
+    let offset = {
+        x: ($CHART_START.x + $CHART_FONT_CHAR_SIZE * ($equipments.name | each { str length } | math max)),
+        y: $CHART_START.y
+    }
 
     let names_transforms = $equipments | enumerate | each {(
         ffmpeg-text $in.item.name
-            { x: $"($start_x)-($CHART_NAMES_OFFSET_X)-tw", y: $"50+30+($in.index * 60)+25-th/2" }
+            { x: $"($offset.x)-($CHART_NAMES_OFFSET_X)-tw", y: $"($offset.y)+($CHART_VERT_SPACE)+($in.index * $CHART_ROW_V_SPACE)+25-th/2" }
             $CHART_FONT_B
     )}
 
@@ -422,7 +442,7 @@ def gen-charts-page [troop: record, output: path] {
         | where not ($it.stats.TRAITS | is-empty)
         | enumerate
         | each { |var|
-            let x_space = ($CANVAS_W - $start_x - $CHART_START_X) / $CHART_FONT_CHAR_SIZE | into int
+            let x_space = ($CANVAS_W - $offset.x - $CHART_START.x) / $CHART_FONT_CHAR_SIZE | into int
             let traits = $var.item.stats.TRAITS | split row ", "
             let res = generate { |var|
                 let res = $var
@@ -460,14 +480,20 @@ def gen-charts-page [troop: record, output: path] {
         | enumerate
         | each {(
             ffmpeg-text $in.item.name
-                { x: $"($start_x)-($CHART_NAMES_OFFSET_X)-tw", y: $"50+30+60*($equipments | length)+50+($in.index * 50)" }
+                {
+                    x: $"($offset.x)-($CHART_NAMES_OFFSET_X)-tw",
+                    y: $"($offset.y)+($CHART_VERT_SPACE)+($CHART_ROW_V_SPACE)*($equipments | length)+($CHART_TRAITS_V_SPACE)+($in.index * $CHART_TRAITS_V_SPACE)",
+                }
                 $CHART_FONT_B
         )}
     let traits_values_transforms = $traits
         | enumerate
         | each {(
             ffmpeg-text $in.item.traits
-                { x: ($start_x + 20), y: $"50+30+60*($equipments | length)+50+($in.index * 50)" }
+                {
+                    x: ($offset.x + $CHART_TRAITS_H_SPACE),
+                    y: $"($offset.y)+($CHART_VERT_SPACE)+($CHART_ROW_V_SPACE)*($equipments | length)+($CHART_TRAITS_V_SPACE)+($in.index * $CHART_TRAITS_V_SPACE)",
+                }
                 $CHART_FONT_R
         )}
 
@@ -485,8 +511,8 @@ def gen-charts-page [troop: record, output: path] {
 
     let weapon_bars = $equipments | enumerate | each { |var| {
         equipment: $var.item.stats,
-        x: $start_x,
-        y: (50 + (if $var.index == 0 { 0 } else { 30 }) + ($var.index * 60)),
+        x: $offset.x,
+        y: ($offset.y + (if $var.index == 0 { 0 } else { $CHART_FONT_SIZE }) + ($var.index * $CHART_ROW_V_SPACE)),
     }}
 
     let res = ffmpeg create ($START | ffmpeg options) --output (mktemp --tmpdir XXXXXXX.png)
