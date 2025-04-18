@@ -17,12 +17,13 @@ def "main font" [] {
 }
 
 const COLORS = {
-    "panoceania":  "0x66b6d7",
-    "jsa":         "0xe79799",
-    "nomads":      "0xdb6c72",
-    "aleph":       "0xafa7bc",
-    "mercenaries": "0x88a5b7",
-    "o-12":        "0xdece67",
+    "panoceania":    "0x66b6d7",
+    "jsa":           "0xe79799",
+    "nomads":        "0xdb6c72",
+    "aleph":         "0xafa7bc",
+    "mercenaries":   "0x88a5b7",
+    "o-12":          "0xdece67",
+    "combined-army": "0x9c96c9",
 }
 
 const SHOWCASE = [
@@ -32,18 +33,30 @@ const SHOWCASE = [
 ]
 
 const TROOPS = [
-    [name,                            color];
-    ["nomads/tunguska-cheerkiller.1", $COLORS.nomads],
-    ["nomads/tunguska-cheerkiller.2", $COLORS.nomads],
-    ["nomads/tunguska-cheerkiller.3", $COLORS.nomads],
-    ["nomads/tunguska-grenzer",       $COLORS.nomads],
-    ["aleph/danavas",                 $COLORS.aleph],
-    ["aleph/marut-karkata",           $COLORS.aleph],
-    ["mercenaries/digger",            $COLORS.mercenaries],
-    ["o-12/starmada-bronze",          $COLORS.o-12],
-    ["o-12/starmada-nyoka.1",         $COLORS.o-12],
-    ["o-12/starmada-nyoka.2",         $COLORS.o-12],
-    ["o-12/starmada-nyoka.3",         $COLORS.o-12],
+    [name,                             color];
+    ["nomads/tunguska-cheerkiller.1",  $COLORS.nomads],
+    ["nomads/tunguska-cheerkiller.2",  $COLORS.nomads],
+    ["nomads/tunguska-cheerkiller.3",  $COLORS.nomads],
+    ["nomads/tunguska-grenzer",        $COLORS.nomads],
+    ["aleph/danavas",                  $COLORS.aleph],
+    ["aleph/marut-karkata",            $COLORS.aleph],
+    ["mercenaries/digger",             $COLORS.mercenaries],
+    ["o-12/starmada-bronze",           $COLORS.o-12],
+    ["o-12/starmada-nyoka.1",          $COLORS.o-12],
+    ["o-12/starmada-nyoka.2",          $COLORS.o-12],
+    ["o-12/starmada-nyoka.3",          $COLORS.o-12],
+    ["combined-army/morat-dartok",     $COLORS.combined-army],
+    ["combined-army/morat-kaitok",     $COLORS.combined-army],
+    ["combined-army/morat-kyosot.2",   $COLORS.combined-army],
+    ["combined-army/morat-kyosot",     $COLORS.combined-army],
+    ["combined-army/morat-raktorak.2", $COLORS.combined-army],
+    ["combined-army/morat-raktorak",   $COLORS.combined-army],
+    ["combined-army/morat-rasyat",     $COLORS.combined-army],
+    ["combined-army/morat-vanguard.1", $COLORS.combined-army],
+    ["combined-army/morat-vanguard.2", $COLORS.combined-army],
+    ["combined-army/morat-vanguard.3", $COLORS.combined-army],
+    ["combined-army/morat-zerat.2",    $COLORS.combined-army],
+    ["combined-army/morat-zerat",      $COLORS.combined-army],
 ]
 
 def run [troops: table<name: string, color: string>, --stats, --charts] {
