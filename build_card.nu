@@ -157,7 +157,7 @@ def put-weapon-chart [equipment: record, x: int, y: int, column_widths: record, 
             } else {
                 $RANGES | enumerate | each {
                     let pos = {
-                        x: $"($x + $CHART_RANGE_CELL_WIDTH / 2 + $in.index * $CHART_RANGE_CELL_WIDTH)-tw/2",
+                        x: $"($x + $CHART_RANGE_CELL_WIDTH / 2 + $in.index * $CHART_RANGE_CELL_WIDTH + $in.index - 1)-tw/2",
                         y: $y
                     }
                     ffmpeg-text $in.item $pos $CHART_FONT_B
@@ -178,7 +178,7 @@ def put-weapon-chart [equipment: record, x: int, y: int, column_widths: record, 
             {
                 kind: "drawbox",
                 options: {
-                    x: ($x + $it.index * $CHART_RANGE_CELL_WIDTH),
+                    x: ($x + $it.index * $CHART_RANGE_CELL_WIDTH + $in.index - 1),
                     y: (if $no_header { $y } else { $y + $CHART_OFFSET_Y }),
                     w: $CHART_RANGE_CELL_WIDTH, h: $CHART_RANGE_CELL_HEIGHT,
                     color: $color, t: "fill",
@@ -192,7 +192,7 @@ def put-weapon-chart [equipment: record, x: int, y: int, column_widths: record, 
             } else {
                 $STATS | zip $positions | enumerate | each {
                     let pos = {
-                        x: $"($x + ($RANGES | length) * $CHART_RANGE_CELL_WIDTH + $in.item.1)-tw/2",
+                        x: $"($x + ($RANGES | length) * $CHART_RANGE_CELL_WIDTH + ($RANGES | length) - 1 + $in.item.1)-tw/2",
                         y: $y
                     }
                     ffmpeg-text $in.item.0.short $pos $CHART_FONT_B
@@ -202,7 +202,7 @@ def put-weapon-chart [equipment: record, x: int, y: int, column_widths: record, 
         # stats values
         ...($STATS | zip $positions | enumerate | each { |it|
             let pos = {
-                x: $"($x + ($RANGES | length) * $CHART_RANGE_CELL_WIDTH + $it.item.1)-tw/2",
+                x: $"($x + ($RANGES | length) * $CHART_RANGE_CELL_WIDTH + ($RANGES | length) - 1 + $it.item.1)-tw/2",
                 y: $"(if $no_header { $y } else { $y + $CHART_OFFSET_Y })+($CHART_RANGE_CELL_HEIGHT / 2)-th/2"
             }
             let text = if $it.item.0.field == "TRAITS" {
