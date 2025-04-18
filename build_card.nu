@@ -461,7 +461,10 @@ def gen-charts-page [troop: record, output: path] {
 
     if ($equipments | is-empty) {
         log warning "\tno equipment"
+        let versions = open versions.json
+        let version_text = $"[Army: ($versions.army), Rules: ($versions.rules)]"
         let res = ffmpeg create ($BASE_IMAGE | ffmpeg options) --output (mktemp --tmpdir XXXXXXX.png)
+            | ffmpeg apply ((ffmpeg-text $version_text $VERSION_POS $VERSION_FONT) | ffmpeg options) --output (mktemp --tmpdir XXXXXXX.png)
         let out = $output | path parse | update stem { $in ++ ".2" } | path join
         cp $res $out
         log info $"\t(ansi purple)($out)(ansi reset)"
