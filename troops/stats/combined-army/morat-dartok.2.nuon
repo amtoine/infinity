@@ -25,7 +25,7 @@
         AVA:   2,
     }
     special_skills: ["Dogged", "Religious Troop", "Warhorse"],
-    weaponry: ["Combi Rifle", "Pitcher", "Cybermine"],
+    weaponry: ["Combi Rifle", "Pitcher", "Cybermines"],
     equipment: ["Hacking Device (UPGRADE: Trinity (SR-1))"],
     peripheral: [],
     melee_weapons: ["Heavy Pistol", "CC Weapon"],

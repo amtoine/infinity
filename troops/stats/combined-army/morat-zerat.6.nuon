@@ -32,7 +32,7 @@
         { name: "Terrain", mod: "Total" },
         "Warhorse",
     ]
-    weaponry: [{ name: "Boarding Shotgun", mod: "+1B" }, "Flash Pulse", "Shock Mine"],
+    weaponry: [{ name: "Boarding Shotgun", mod: "+1B" }, "Flash Pulse", "Shock Mines"],
     equipment: [],
     peripheral: [],
     melee_weapons: ["Heavy Pistol", "CC Weapon"],

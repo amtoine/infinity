@@ -32,7 +32,7 @@
         { name: "Terrain", mod: "Total" },
         "Warhorse",
     ]
-    weaponry: ["AP Submachine Gun", "Shock Mine", "PARA Mine"],
+    weaponry: ["AP Submachine Gun", "Shock Mines", "PARA Mines"],
     equipment: [],
     peripheral: [],
     melee_weapons: ["Heavy Pistol", "CC Weapon"],

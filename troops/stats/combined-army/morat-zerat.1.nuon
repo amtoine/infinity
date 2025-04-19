@@ -32,7 +32,7 @@
         { name: "Terrain", mod: "Total" },
         "Warhorse",
     ]
-    weaponry: [{ name: "Combi Rifle", mod: "+1B" }, "Shock Mine"],
+    weaponry: [{ name: "Combi Rifle", mod: "+1B" }, "Shock Mines"],
     equipment: [],
     peripheral: [],
     melee_weapons: ["Heavy Pistol", "CC Weapon"],
