@@ -33,7 +33,7 @@
         { name: "Martial Arts", mod: "L1" },
         { name: "Terrain", mod: "Zero-G" },
     ],
-    weaponry: ["Heavy Machine"],
+    weaponry: ["Heavy Machine Gun"],
     equipment: ["360* Visor"],
     peripheral: [],
     melee_weapons: ["Pistol", { name: "E/M CCW", mod: "PS=7" }, { name: "PARA CCW", mod: "-6" }],
