@@ -402,22 +402,8 @@ def gen-stat-page [troop: record, color: string, output: path] {
 }
 
 def gen-charts-page [troop: record, output: path] {
-    let charts = [
-        [name,             type];
-
-        [cc-weapons,       cc],
-        [pistols,          pistol],
-        [rifles,           rifle],
-        [uncategorized,    null],
-        [grenades,         grenade],
-        [submachine-guns,  submachine_gun],
-        [shotguns,         shotgun],
-        [red_furies,       red_fury],
-        [rocket_launchers, rocket_launcher],
-    ] | reduce --fold [] { |it, acc|
-        $acc ++ (
-            { parent: "charts/weapons", stem: $it.name, extension: "csv" } | path join | open $in | insert type $it.type
-        )
+    let charts = ls charts/weapons/*.csv | reduce --fold [] { |it, acc|
+        $acc ++ (open $it.name)
     }
     let equipments = $troop.weaponry ++ $troop.equipment ++ $troop.peripheral ++ $troop.melee_weapons
         | each { |it|
