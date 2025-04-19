@@ -32,32 +32,20 @@ const SHOWCASE = [
     ["jsa/shikami",                   $COLORS.jsa],
 ]
 
-const TROOPS = [
-    [name,                             color];
-    ["nomads/tunguska-cheerkiller.1",  $COLORS.nomads],
-    ["nomads/tunguska-cheerkiller.2",  $COLORS.nomads],
-    ["nomads/tunguska-cheerkiller.3",  $COLORS.nomads],
-    ["nomads/tunguska-grenzer",        $COLORS.nomads],
-    ["aleph/danavas",                  $COLORS.aleph],
-    ["aleph/marut-karkata",            $COLORS.aleph],
-    ["mercenaries/digger",             $COLORS.mercenaries],
-    ["o-12/starmada-bronze",           $COLORS.o-12],
-    ["o-12/starmada-nyoka.1",          $COLORS.o-12],
-    ["o-12/starmada-nyoka.2",          $COLORS.o-12],
-    ["o-12/starmada-nyoka.3",          $COLORS.o-12],
-    ["combined-army/morat-dartok",     $COLORS.combined-army],
-    ["combined-army/morat-kaitok",     $COLORS.combined-army],
-    ["combined-army/morat-kyosot.2",   $COLORS.combined-army],
-    ["combined-army/morat-kyosot.1",   $COLORS.combined-army],
-    ["combined-army/morat-raktorak.2", $COLORS.combined-army],
-    ["combined-army/morat-raktorak.1", $COLORS.combined-army],
-    ["combined-army/morat-rasyat",     $COLORS.combined-army],
-    ["combined-army/morat-vanguard.1", $COLORS.combined-army],
-    ["combined-army/morat-vanguard.2", $COLORS.combined-army],
-    ["combined-army/morat-vanguard.3", $COLORS.combined-army],
-    ["combined-army/morat-zerat.2",    $COLORS.combined-army],
-    ["combined-army/morat-zerat.1",    $COLORS.combined-army],
-]
+def list-troops [] {
+    ls troops/stats/*/*.nuon
+        | select name
+        | update name {
+            path parse
+                | update parent { path split | skip 2 | path join }
+                | reject extension
+                | path join
+        }
+        | insert color {
+            let faction = $in.name | path split | get 0
+            $COLORS | get $faction
+        }
+}
 
 def run [troops: table<name: string, color: string>, --stats, --charts] {
     use build_card.nu
@@ -86,7 +74,7 @@ def "main showcase" [--stats, --charts] {
 }
 
 def "main troops" [name: string = "", --stats, --charts] {
-    run ($TROOPS | where name =~ $name) --stats=$stats --charts=$charts
+    run (list-troops | where name =~ $name) --stats=$stats --charts=$charts
 }
 
 def "main clean" [] {
@@ -111,7 +99,8 @@ def "main viz" [] {
 }
 
 def "main archive" [] {
-    let assets = $TROOPS.name
+    let assets = list-troops
+        | get name
         | each { str replace '/' '-' | $"out/($in)" | [ $"($in).1.png", $"($in).2.png" ] }
         | flatten
 
