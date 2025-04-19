@@ -3,6 +3,9 @@ use log.nu [ "log info", "log warning" ]
 const FONT_UPSTREAM = "https://download.gnome.org/sources/adwaita-fonts/48/adwaita-fonts-48.2.tar.xz"
 const FONT_LOCAL = "/tmp/adwaita-fonts-48.2.tar.xz"
 
+const STATS_DIR = "./troops/stats/"
+const OUT_DIR = "./out/"
+
 def "main git" [] {
     log info "git config diff.exif.textconv exiftool"
     git config diff.exif.textconv exiftool
@@ -33,7 +36,10 @@ const SHOWCASE = [
 ]
 
 def list-troops [] {
-    ls troops/stats/*/*.nuon
+    $STATS_DIR
+        | path join "*/*.nuon"
+        | into glob
+        | ls $in
         | select name
         | update name {
             path parse
@@ -55,11 +61,11 @@ def run [troops: table<name: string, color: string>, --stats, --charts] {
         return
     }
 
-    mkdir out/
+    mkdir $OUT_DIR
 
     for t in $troops {
-        let troop_file = { parent: "troops/stats", stem: $t.name, extension: "nuon" } | path join
-        let output = { parent: "out", stem: ($t.name | str replace '/' '-'), extension: "png" } | path join
+        let troop_file = { parent: $STATS_DIR, stem: $t.name, extension: "nuon" } | path join
+        let output = { parent: $OUT_DIR, stem: ($t.name | str replace '/' '-'), extension: "png" } | path join
 
         log info $t.name
         build_card (open $troop_file) --color $t.color --output $output --stats=$stats --charts=$charts
@@ -69,7 +75,7 @@ def run [troops: table<name: string, color: string>, --stats, --charts] {
 def "main showcase" [--stats, --charts] {
     run $SHOWCASE --stats=$stats --charts=$charts
     for s in $SHOWCASE {
-        cp --verbose ($"out/($s.name | str replace '/' '-').*" | into glob) assets/
+        cp --verbose ($"($OUT_DIR)/($s.name | str replace '/' '-').*" | into glob) assets/
     }
 }
 
@@ -85,7 +91,7 @@ def "main clean" [] {
 def "main viz" [] {
     use ffmpeg.nu [ "ffmpeg combine", VSTACKING ]
 
-    let res = ls out/
+    let res = ls $OUT_DIR
         | get name
         | group-by --to-table { path parse | get stem | split row '.' | reverse | skip 1 | reverse | str join "." }
         | each {
@@ -101,7 +107,7 @@ def "main viz" [] {
 def "main archive" [] {
     let assets = list-troops
         | get name
-        | each { str replace '/' '-' | $"out/($in)" | [ $"($in).1.png", $"($in).2.png" ] }
+        | each { str replace '/' '-' | $"($OUT_DIR)/($in)" | [ $"($in).1.png", $"($in).2.png" ] }
         | flatten
 
     ^tar czf $"infinity-trooper-assets-(git describe).tar.gz" ...$assets
