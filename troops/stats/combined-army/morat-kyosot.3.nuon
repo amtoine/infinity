@@ -33,7 +33,7 @@
         "Religious Troop",
         "Warhorse",
     ]
-    weaponry: ["AP Submachine Gun", "Chain Colt"],
+    weaponry: ["AP Submachine Gun", "Chain-Colt"],
     equipment: [],
     peripheral: [],
     melee_weapons: ["AP Heavy Pistol", { name: "Shock CC Weapon", mod: "PS=7" }],
