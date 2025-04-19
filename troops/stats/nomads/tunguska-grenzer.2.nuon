@@ -1,0 +1,38 @@
+{
+    isc: "Grenzers, Grenz Security Team",
+    name: "GRENZERS, Grenz Security Team",
+    short_name: "GRENZER",
+    faction: "nomads",
+    allowed_factions: ["nomads", "tunguska"],
+    asset: "nomads-tunguska-grenzer.any",
+    classification: "Veteran Troops",
+    reference: "https://infinityuniverse.com/army/infinity/tunguska/grenzers-grenz-security-team",
+    type: "MI",
+    characteristics: [
+        "cube",
+        "regular",
+    ],
+    stats: {
+        MOV:  "4-4",
+        CC:   16,
+        BS:   13,
+        PH:   11,
+        WIP:  13,
+        ARM:   3,
+        BTS:   6,
+        VITA:  1,
+        S:     2,
+        AVA:   5,
+    }
+    special_skills: [
+        "Courage",
+        { name: "Immunity", mod: "Shock" },
+        "Warhorse",
+    ],
+    weaponry: ["Red Fury"],
+    equipment: [{ name: "Multispectral Visor", mod: "L1" }],
+    peripheral: [],
+    melee_weapons: ["Pistol", "Breaker Pistol", "CC Weapon"],
+    SWC: 1,
+    C: 28,
+}
