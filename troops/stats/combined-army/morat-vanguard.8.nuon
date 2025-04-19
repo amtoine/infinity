@@ -1,7 +1,7 @@
 {
     isc: "Morat Vanguard Infantry",
     name: "MORAT VANGUARD INFANTRY",
-    short_name: "MORAT VANGUARD",
+    short_name: "MORAT VANGUARDa (Lieutenant)",
     faction: "combined-army",
     allowed_factions: ["combined-army", "morat-aggression-forces"],
     asset: "combined-army-morat-vanguard.combi-rifle",

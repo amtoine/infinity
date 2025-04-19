@@ -33,10 +33,10 @@
         { name: "Terrain", mod: "Total" },
         "Warhorse",
     ]
-    weaponry: ["Combi Rifle", "Heavy Flamethrower"],
+    weaponry: ["Red Fury"],
     equipment: [],
     peripheral: [],
     melee_weapons: ["Heavy Pistol", "CC Weapon"],
-    SWC: 0,
-    C: 23,
+    SWC: 1,
+    C: 27,
 }

@@ -33,7 +33,7 @@
         { name: "Terrain", mod: "Total" },
         "Warhorse",
     ]
-    weaponry: ["Combi Rifle", "Heavy Flamethrower"],
+    weaponry: ["Vulkan Shotgun"],
     equipment: [],
     peripheral: [],
     melee_weapons: ["Heavy Pistol", "CC Weapon"],

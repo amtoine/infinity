@@ -4,7 +4,7 @@
     short_name: "MORAT VANGUARD",
     faction: "combined-army",
     allowed_factions: ["combined-army", "morat-aggression-forces"],
-    asset: "combined-army-morat-vanguard.combi-rifle",
+    asset: "combined-army-morat-vanguard.any",
     classification: "Line Troops",
     reference: "https://infinityuniverse.com/army/infinity/morat/morat-vanguard-infantry",
     type: "LI",
@@ -28,10 +28,10 @@
         "Religious Troop",
         "Warhorse",
     ]
-    weaponry: ["Combi Rifle"],
+    weaponry: ["Missile Launcher"],
     equipment: [],
     peripheral: [],
     melee_weapons: ["Heavy Pistol", "CC Weapon"],
-    SWC: 0,
-    C: 14,
+    SWC: 1.5,
+    C: 19,
 }

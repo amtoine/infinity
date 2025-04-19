@@ -1,7 +1,7 @@
 {
     isc: "Zerat Special Missions Regiment",
     name: "ZERAT Special Missions Regiment",
-    short_name: "ZERAT (BS Attack [SR-1])",
+    short_name: "ZERAT (Minelayer)",
     faction: "combined-army",
     allowed_factions: ["morat-aggression-forces"],
     asset: "combined-army-morat-zerat.any",
@@ -32,10 +32,10 @@
         { name: "Terrain", mod: "Total" },
         "Warhorse",
     ]
-    weaponry: ["MULTI Marksman Rifle"],
+    weaponry: ["AP Submachine Gun", "Shock Mine", "PARA Mine"],
     equipment: [],
     peripheral: [],
     melee_weapons: ["Heavy Pistol", "CC Weapon"],
-    SWC: 1,
-    C: 29,
+    SWC: 0,
+    C: 22,
 }

@@ -1,10 +1,10 @@
 {
     isc: "Zerat Special Missions Regiment",
     name: "ZERAT Special Missions Regiment",
-    short_name: "ZERAT (BS Attack [SR-1])",
+    short_name: "ZERAT (Hacker, Hacking Device)",
     faction: "combined-army",
     allowed_factions: ["morat-aggression-forces"],
-    asset: "combined-army-morat-zerat.any",
+    asset: "combined-army-morat-zerat.1",
     classification: "Spec. Trained Troops",
     reference: "https://infinityuniverse.com/army/infinity/morat/zerat-special-missions-regiment",
     type: "SK",
@@ -32,10 +32,10 @@
         { name: "Terrain", mod: "Total" },
         "Warhorse",
     ]
-    weaponry: ["MULTI Marksman Rifle"],
+    weaponry: ["Combi Rifle", "Light Flamethrower", "D-Charges"],
     equipment: [],
     peripheral: [],
     melee_weapons: ["Heavy Pistol", "CC Weapon"],
-    SWC: 1,
+    SWC: 0.5,
     C: 29,
 }

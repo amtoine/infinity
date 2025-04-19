@@ -1,7 +1,7 @@
 {
     isc: "Morat Vanguard Infantry",
     name: "MORAT VANGUARD INFANTRY",
-    short_name: "MORAT VANGUARD",
+    short_name: "MORAT VANGUARD (Forward Observer)",
     faction: "combined-army",
     allowed_factions: ["combined-army", "morat-aggression-forces"],
     asset: "combined-army-morat-vanguard.combi-rifle",
@@ -28,10 +28,10 @@
         "Religious Troop",
         "Warhorse",
     ]
-    weaponry: ["Combi Rifle"],
+    weaponry: ["Combi Rifle", "Flash Pulse"],
     equipment: [],
     peripheral: [],
     melee_weapons: ["Heavy Pistol", "CC Weapon"],
     SWC: 0,
-    C: 14,
+    C: 15,
 }

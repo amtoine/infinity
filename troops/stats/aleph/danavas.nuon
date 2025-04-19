@@ -22,7 +22,7 @@
         BTS:   3,
         VITA:  1,
         S:     2,
-        AVA:   2,
+        AVA:   3,
     }
     special_skills: [
         "Courage",

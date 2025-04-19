@@ -1,7 +1,7 @@
 {
     isc: "Morat Vanguard Infantry",
     name: "MORAT VANGUARD INFANTRY",
-    short_name: "MORAT VANGUARD",
+    short_name: "MORAT VANGUARD (Commlink [+1], Specialist Operative)",
     faction: "combined-army",
     allowed_factions: ["combined-army", "morat-aggression-forces"],
     asset: "combined-army-morat-vanguard.combi-rifle",
@@ -33,5 +33,5 @@
     peripheral: [],
     melee_weapons: ["Heavy Pistol", "CC Weapon"],
     SWC: 0,
-    C: 14,
+    C: 16,
 }
