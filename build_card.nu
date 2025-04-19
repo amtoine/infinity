@@ -419,6 +419,14 @@ def gen-charts-page [troop: record, output: path] {
             }
             $equipment | each { into record }
         }
+        | flatten stats
+        | update name { |it|
+            if $it.stats.MODE == "" {
+                $it.stats.NAME
+            } else {
+                $"($it.stats.NAME) \(($it.stats.MODE)\)"
+            }
+        }
         | upsert mod { |it|
             let res = $it.mod? | default "" | parse "{k}={v}" | into record
             if $res != {} {
@@ -436,7 +444,6 @@ def gen-charts-page [troop: record, output: path] {
             }
         }
         | where not ($it.stats | is-empty)
-        | flatten stats
 
     # TODO: include modifier from special skills ?
     for skill in $troop.special_skills {
