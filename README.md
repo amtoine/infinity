@@ -17,5 +17,12 @@
 nu make.nu
 ```
 
+## Credits
+- statistics have been taken from the official [Infinity ARMY online tool][army]
+- assets have been taken from the official [Infinity ARMY online tool][army]
+- assets of miniatures have been taken from the official [Infinity online store][store]
+
 [video-1]: https://youtu.be/DhcczP8GJhE
 [video-2]: https://youtu.be/fX7fCxJVDd4
+[army]: https://infinityuniverse.com/army/infinity
+[store]: https://store.corvusbelli.com/en/infinity/wargame
