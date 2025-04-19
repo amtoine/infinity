@@ -1,5 +1,5 @@
 use ffmpeg.nu *
-use log.nu [ "log info", "log warning" ]
+use log.nu [ "log info", "log warning", "log error" ]
 
 const CANVAS = { w: 1600, h: 1000 }
 const BASE_IMAGE = { kind: "color", options: { c: "0xDDDDDD", s: $"($CANVAS.w)x($CANVAS.h)", d: 1 } }
@@ -415,7 +415,7 @@ def gen-charts-page [troop: record, output: path] {
         | insert stats { |var|
             let equipment = $charts | where NAME == ($var.name | str upcase)
             if ($equipment | length) == 0 {
-                log warning $"(ansi cyan)($var.name)(ansi reset) not found in charts"
+                log error $"(ansi cyan)($var.name)(ansi reset) not found in charts"
             }
             $equipment | each { into record }
         }
@@ -429,7 +429,7 @@ def gen-charts-page [troop: record, output: path] {
                     $res
                 } else {
                     if $it.mod? != null {
-                        log warning $"could not parse modifier '($it.mod)' of '($it.name)'"
+                        log error $"could not parse modifier '($it.mod)' of '($it.name)'"
                     }
                     null
                 }
