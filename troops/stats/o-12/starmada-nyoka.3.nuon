@@ -1,7 +1,7 @@
 {
     isc: "Nyoka Assault Troops",
     name: "NYOKA Assault Troops",
-    short_name: "NYOKA FTO (Forward Observer, Parachutist)",
+    short_name: "NYOKA FTO",
     faction: "o-12",
     allowed_factions: ["starmada"],
     asset: "o-12-starmada-nyoka.1",
@@ -30,6 +30,8 @@
         "Courage",
         { name: "Immunity", mod: "Shock" },
         { name: "Terrain", mod: "Zero-G" },
+        { name: "Forward Observer", spec: true },
+        { name: "Parachutist", spec: true },
     ],
     weaponry: ["MULTI Rifle", "Chain-colt"],
     equipment: [],

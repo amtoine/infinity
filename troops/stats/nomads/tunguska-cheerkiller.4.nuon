@@ -1,7 +1,7 @@
 {
     isc: "Tunguska Cheerkillers",
     name: "Tunguska CHEERKILLERS",
-    short_name: "CHEERKILLER (Specialist Operative)",
+    short_name: "CHEERKILLER",
     faction: "nomads",
     allowed_factions: ["tunguska"],
     asset: "nomads-tunguska-cheerkiller.1",
@@ -28,6 +28,7 @@
         { name: "Dodge", mod: "+3" },
         { name: "Martial Arts", mod: "L1" },
         "Super-Jump",
+        { name: "Specialist Operative", spec: true },
     ],
     weaponry: ["Submachine Gun", "Nanopulser"],
     equipment: [],

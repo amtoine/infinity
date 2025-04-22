@@ -1,7 +1,7 @@
 {
     isc: "Grenzers, Grenz Security Team",
     name: "GRENZERS, Grenz Security Team",
-    short_name: "GRENZER (Marksmanship)",
+    short_name: "GRENZER",
     faction: "nomads",
     allowed_factions: ["nomads", "tunguska"],
     asset: "nomads-tunguska-grenzer.any",
@@ -28,6 +28,7 @@
         "Courage",
         { name: "Immunity", mod: "Shock" },
         "Warhorse",
+        { name: "Marksmanship", spec: true },
     ],
     weaponry: ["MULTI Sniper Rifle"],
     equipment: [{ name: "Multispectral Visor", mod: "L1" }],

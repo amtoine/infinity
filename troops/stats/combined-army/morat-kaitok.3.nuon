@@ -1,7 +1,7 @@
 {
     isc: "Kaitok Shock Regiment",
     name: "KAITOK Shock Regiment",
-    short_name: "KAITOK (Multispectral Visor L1)",
+    short_name: "KAITOK",
     faction: "combined-army",
     allowed_factions: ["morat-aggression-forces"],
     asset: "combined-army-morat-kaitok",
@@ -34,7 +34,7 @@
         "Warhorse",
     ]
     weaponry: ["Feuerbach"],
-    equipment: [],
+    equipment: [{ name: "Multispectral Visor", mod: "L1", spec: true }],
     peripheral: [],
     melee_weapons: [{ name: "Heavy Pistol", mod: "+1B" }, { name: "CC Weapon", mod: "PS=6" }],
     SWC: 1.5,

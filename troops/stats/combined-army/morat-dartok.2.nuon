@@ -1,7 +1,7 @@
 {
     isc: "Dartok Cybercombat Team",
     name: "DARTOK Cybercombat Team",
-    short_name: "DARTOK (Hacker [UPGRADE: Firewall (-3)])",
+    short_name: "DARTOK",
     faction: "combined-army",
     allowed_factions: ["combined-army", "morat-aggression-forces"],
     asset: "combined-army-morat-dartok",
@@ -24,9 +24,9 @@
         S:     2,
         AVA:   2,
     }
-    special_skills: ["Dogged", "Religious Troop", "Warhorse"],
+    special_skills: ["Dogged", "Religious Troop", "Warhorse", { name: "Hacker", mod: "UPGRADE: Firewall (-3)", spec: true }],
     weaponry: ["Combi Rifle", "Pitcher", "Cybermines"],
-    equipment: ["Hacking Device (UPGRADE: Trinity (SR-1))"],
+    equipment: [{ name: "Hacking Device", mod: "UPGRADE: Trinity (SR-1)" }],
     peripheral: [],
     melee_weapons: ["Heavy Pistol", "CC Weapon"],
     SWC: 0.5,

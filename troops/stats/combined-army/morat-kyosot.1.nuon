@@ -1,7 +1,7 @@
 {
     isc: "Kyosot Killing Platoon",
     name: "KYOSOT Killing Platoon",
-    short_name: "KYOSOT (X Visor)",
+    short_name: "KYOSOT",
     faction: "combined-army",
     allowed_factions: ["morat-aggression-forces"],
     asset: "combined-army-morat-kyosot",
@@ -34,7 +34,7 @@
         "Warhorse",
     ]
     weaponry: ["AP Marksman Rifle"],
-    equipment: [],
+    equipment: [{ name: "X Visor", spec: true }],
     peripheral: [],
     melee_weapons: ["AP Heavy Pistol", { name: "Shock CC Weapon", mod: "PS=7" }],
     SWC: 0,

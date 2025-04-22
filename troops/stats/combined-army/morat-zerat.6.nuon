@@ -1,7 +1,7 @@
 {
     isc: "Zerat Special Missions Regiment",
     name: "ZERAT Special Missions Regiment",
-    short_name: "ZERAT (Forward Observer)",
+    short_name: "ZERAT",
     faction: "combined-army",
     allowed_factions: ["morat-aggression-forces"],
     asset: "combined-army-morat-zerat.2",
@@ -31,6 +31,7 @@
         "Stealth",
         { name: "Terrain", mod: "Total" },
         "Warhorse",
+        { name: "Forward Observer", spec: true },
     ]
     weaponry: [{ name: "Boarding Shotgun", mod: "+1B" }, "Flash Pulse", "Shock Mines"],
     equipment: [],
