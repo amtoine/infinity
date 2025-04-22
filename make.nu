@@ -97,37 +97,41 @@ def "main clean" [] {
     rm --force /tmp/infinity-*.png  /tmp/ffmpeg-*.png
 }
 
+def batch-transform-pairs [name: string, transform: closure, extension: string]: [ nothing -> list<path> ] {
+    let todo = ls $OUT_DIR | where $it.name =~ $name
+    let total = ($todo | length) / 2
+
+    $todo
+        | insert key {
+            $in.name | path parse | get stem | split row '.' | reverse | skip 1 | reverse | str join "."
+        }
+        | group-by --to-table key
+        | enumerate
+        | each {
+            {
+                current: (
+                    $in.index + 1
+                        | fill --alignment "right" --width ($total | into string | str length) --character ' '
+                ),
+                total: $total,
+                content: $in.item.key,
+            } | print --no-newline $"[($in.current) / ($in.total)] ($in.content)\r"
+            let output = { parent: $nu.temp-path, stem: $in.item.key, extension: $extension } | path join
+            do $transform $in.item.items.name $output
+            $output
+        }
+}
+
 def "main viz" [name: string = ""] {
     use ffmpeg.nu [ "ffmpeg combine", VSTACKING ]
 
-    let res = ls $OUT_DIR
-        | where $it.name =~ $name
-        | insert key {
-            $in.name | path parse | get stem | split row '.' | reverse | skip 1 | reverse | str join "."
-        }
-        | group-by --to-table key
-        | each {
-            print $in.key
-            let output = { parent: $nu.temp-path, stem: $in.key, extension: "png"} | path join
-            $in.items.name | ffmpeg combine $VSTACKING --output $output
-            $output
-        }
-
-    feh --image-bg '#aaaaaa' --draw-tinted --draw-exif --draw-filename --fullscreen ...$res
+    feh --image-bg '#aaaaaa' --draw-tinted --draw-exif --draw-filename --fullscreen ...(
+        batch-transform-pairs $name { |x, out| $x | ffmpeg combine $VSTACKING --output $out } "png"
+    )
 }
 
 def "main pdf" [name: string = ""] {
-    let _ = ls $OUT_DIR
-        | where $it.name =~ $name
-        | insert key {
-            $in.name | path parse | get stem | split row '.' | reverse | skip 1 | reverse | str join "."
-        }
-        | group-by --to-table key
-        | each {
-            print $in.key
-            let output = { parent: $nu.temp-path, stem: $in.key, extension: "pdf"} | path join
-            img2pdf ...$in.items.name --output $output
-        }
+    let _ = batch-transform-pairs $name { |x, out| img2pdf ...$x --output $out } "pdf"
 }
 
 def "main archive" [] {
