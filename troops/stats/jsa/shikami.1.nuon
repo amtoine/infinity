@@ -40,7 +40,7 @@
     weaponry: ["MULTI Rifle", "D-Charges", "Eclipse Grenades"],
     equipment: [],
     peripheral: [],
-    melee_weapons: ["Pistol", { name: "AP+DA CC Weapon", mod: "PS=4" } ],
+    melee_weapons: ["Pistol", { name: "AP+DA CCW", mod: "PS=4" } ],
     SWC: 0,
     C: 47,
 }

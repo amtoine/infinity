@@ -32,7 +32,7 @@
     weaponry: ["Shock Marksman Rifle", "Nanopulser"],
     equipment: [{ name: "Multispectral Visor", mod: "L2", spec: true }],
     peripheral: [],
-    melee_weapons: ["Pistol", "Shock CC Weapon"],
+    melee_weapons: ["Pistol", "Shock CCW"],
     SWC: 0,
     C: 24,
 }

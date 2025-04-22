@@ -36,7 +36,7 @@
     weaponry: ["AP Marksman Rifle"],
     equipment: [{ name: "X Visor", spec: true }],
     peripheral: [],
-    melee_weapons: ["AP Heavy Pistol", { name: "Shock CC Weapon", mod: "PS=7" }],
+    melee_weapons: ["AP Heavy Pistol", { name: "Shock CCW", mod: "PS=7" }],
     SWC: 0,
     C: 31,
 }

@@ -31,7 +31,7 @@
     weaponry: ["Combi Rifle", "Pitcher"],
     equipment: [{ name: "Hacking Device Plus", mod: "UPGRADE: Oblivion +1B", spec: true }],
     peripheral: [],
-    melee_weapons: ["Breaker Pistol", "CC Weapon"],
+    melee_weapons: ["Breaker Pistol", "CCW"],
     SWC: 0.5,
     C: 22,
 }

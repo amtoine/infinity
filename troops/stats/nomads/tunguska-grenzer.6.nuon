@@ -34,7 +34,7 @@
     weaponry: ["Combi Rifle", { name: "Light Flamethrower", mod: "+1B" }],
     equipment: [{ name: "Multispectral Visor", mod: "L1" }, { name: "Biometric Visor", spec: true }],
     peripheral: [],
-    melee_weapons: ["Pistol", "Breaker Pistol", "CC Weapon"],
+    melee_weapons: ["Pistol", "Breaker Pistol", "CCW"],
     SWC: 0,
     C: 28,
 }

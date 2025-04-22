@@ -33,7 +33,7 @@
     weaponry: ["Submachine Gun", "Nanopulser"],
     equipment: [],
     peripheral: [],
-    melee_weapons: ["Pistol", "Shock CC Weapon"],
+    melee_weapons: ["Pistol", "Shock CCW"],
     SWC: 0,
     C: 14,
 }

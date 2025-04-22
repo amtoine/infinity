@@ -36,7 +36,7 @@
     weaponry: ["Feuerbach"],
     equipment: [{ name: "Multispectral Visor", mod: "L1", spec: true }],
     peripheral: [],
-    melee_weapons: [{ name: "Heavy Pistol", mod: "+1B" }, { name: "CC Weapon", mod: "PS=6" }],
+    melee_weapons: [{ name: "Heavy Pistol", mod: "+1B" }, { name: "CCW", mod: "PS=6" }],
     SWC: 1.5,
     C: 34,
 }

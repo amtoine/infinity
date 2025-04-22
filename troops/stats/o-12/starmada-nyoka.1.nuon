@@ -34,7 +34,7 @@
     weaponry: ["Heavy Rocket Launcher", "Chain-colt"],
     equipment: [],
     peripheral: [],
-    melee_weapons: ["Shock CC Weapon", { name: "Heavy Pistol", mod: "+1B" }],
+    melee_weapons: ["Shock CCW", { name: "Heavy Pistol", mod: "+1B" }],
     SWC: 1,
     C: 18,
 }

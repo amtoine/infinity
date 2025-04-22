@@ -28,7 +28,7 @@
     weaponry: ["Submachine Gun", "Pitcher", "E/M Grenades"],
     equipment: [{ name: "Hacking Device", mod: "UPGRADE: Trinity (SR-1)" }],
     peripheral: [],
-    melee_weapons: ["Heavy Pistol", "CC Weapon"],
+    melee_weapons: ["Heavy Pistol", "CCW"],
     SWC: 0.5,
     C: 18,
 }

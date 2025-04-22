@@ -32,7 +32,7 @@
     weaponry: ["Red Fury"],
     equipment: [{ name: "Multispectral Visor", mod: "L1" }],
     peripheral: [],
-    melee_weapons: ["Pistol", "Breaker Pistol", "CC Weapon"],
+    melee_weapons: ["Pistol", "Breaker Pistol", "CCW"],
     SWC: 1,
     C: 28,
 }

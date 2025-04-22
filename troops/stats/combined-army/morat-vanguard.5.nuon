@@ -32,7 +32,7 @@
     weaponry: ["Combi Rifle", "Flash Pulse"],
     equipment: [],
     peripheral: [],
-    melee_weapons: ["Heavy Pistol", "CC Weapon"],
+    melee_weapons: ["Heavy Pistol", "CCW"],
     SWC: 0,
     C: 15,
 }

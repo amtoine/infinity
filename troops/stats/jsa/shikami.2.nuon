@@ -40,7 +40,7 @@
     weaponry: ["Contender", { name: "Flash Pulse", mod: "+1B" }, "Eclipse Grenades"],
     equipment: [],
     peripheral: [],
-    melee_weapons: ["Assault Pistol", { name: "AP+DA CC Weapon", mod: "PS=4" } ],
+    melee_weapons: ["Assault Pistol", { name: "AP+DA CCW", mod: "PS=4" } ],
     SWC: 0,
     C: 42,
 }

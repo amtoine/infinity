@@ -36,7 +36,7 @@
     weaponry: [{ name: "Boarding Shotgun", mod: "+1B" }, "Flash Pulse", "Shock Mines"],
     equipment: [],
     peripheral: [],
-    melee_weapons: ["Heavy Pistol", "CC Weapon"],
+    melee_weapons: ["Heavy Pistol", "CCW"],
     SWC: 0,
     C: 25,
 }

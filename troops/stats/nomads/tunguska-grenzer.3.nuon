@@ -37,7 +37,7 @@
         { name: "NCO", spec: true },
     ],
     peripheral: [],
-    melee_weapons: ["Pistol", "Breaker Pistol", "CC Weapon"],
+    melee_weapons: ["Pistol", "Breaker Pistol", "CCW"],
     SWC: 0,
     C: 29,
 }

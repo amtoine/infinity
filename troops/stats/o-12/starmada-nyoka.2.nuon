@@ -35,7 +35,7 @@
     weaponry: ["MULTI Rifle", "Chain-colt"],
     equipment: [],
     peripheral: [],
-    melee_weapons: ["Pistol", "Shock CC Weapon"],
+    melee_weapons: ["Pistol", "Shock CCW"],
     SWC: 0,
     C: 22,
 }

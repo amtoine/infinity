@@ -35,7 +35,7 @@
     weaponry: ["Red Fury", "Chain-colt"],
     equipment: [],
     peripheral: [],
-    melee_weapons: ["Pistol", "Shock CC Weapon"],
+    melee_weapons: ["Pistol", "Shock CCW"],
     SWC: 1,
     C: 29,
 }
