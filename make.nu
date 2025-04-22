@@ -63,12 +63,21 @@ def run [troops: table<name: string, color: string>, --stats, --charts] {
 
     mkdir $OUT_DIR
 
-    for t in $troops {
-        let troop_file = { parent: $STATS_DIR, stem: $t.name, extension: "nuon" } | path join
-        let output = { parent: $OUT_DIR, stem: ($t.name | str replace '/' '-'), extension: "png" } | path join
+    let total = $troops | length
 
-        log info $t.name
-        build_card (open $troop_file) --color $t.color --output $output --stats=$stats --charts=$charts
+    for t in ($troops | enumerate) {
+        let troop_file = { parent: $STATS_DIR, stem: $t.item.name, extension: "nuon" } | path join
+        let output = { parent: $OUT_DIR, stem: ($t.item.name | str replace '/' '-'), extension: "png" } | path join
+
+        {
+            current: (
+                $t.index + 1
+                    | fill --alignment "right" --width ($total | into string | str length) --character ' '
+            ),
+            total: $total,
+            content: $t.item.name,
+        } | log info $"\(($in.current) / ($in.total)\) ($in.content)"
+        build_card (open $troop_file) --color $t.item.color --output $output --stats=$stats --charts=$charts
     }
 }
 
