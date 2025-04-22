@@ -245,7 +245,13 @@ def gen-stat-page [troop: record, color: string, output: path] {
         default [] | each { |it|
             match ($it | describe --detailed).type {
                 "string" => $it,
-                "record" => $"($it.name) \(($it.mod)\)"
+                "record" => {
+                    if $it.mod? == null {
+                        $it.name
+                    } else {
+                        $"($it.name) \(($it.mod)\)"
+                    }
+                },
             }
         }
     }
@@ -336,16 +342,28 @@ def gen-stat-page [troop: record, color: string, output: path] {
                     (ffmpeg-text "Special skills" $SPECIAL_SKILLS_TITLE_POS $SPECIAL_SKILLS_TITLE_FONT),
                 ]
                 let skills = $troop.special_skills | enumerate | each { |it|
-                    let text = match ($it.item | describe --detailed).type {
-                        "string" => $it.item,
-                        "record" => $"($it.item.name) \(($it.item.mod)\)",
+                    let skill = match ($it.item | describe --detailed).type {
+                        "string" => { name: $it.item },
+                        "record" => $it.item,
+                    }
+                    let text = if $skill.mod? == null {
+                        $skill.name
+                    } else {
+                        $"($skill.name) \(($skill.mod)\)"
                     }
                     let pos = {
                         x: $"($SPECIAL_SKILLS_BOX.x)+($SPECIAL_SKILLS_OFFSET.x)",
                         y: $"($SPECIAL_SKILLS_BOX.y)+($SPECIAL_SKILLS_OFFSET.y)+($SPECIAL_SKILLS_V_SPACE)*($it.index)-th/2",
                     }
+                    let font = if $skill.spec? == true {
+                        $SPECIAL_SKILLS_FONT
+                            | update fontfile $BOLD_FONT
+                            | update fontcolor $CORVUS_BELLI_COLORS.yellow
+                    } else {
+                        $SPECIAL_SKILLS_FONT
+                    }
 
-                    [(ffmpeg-text $text $pos $SPECIAL_SKILLS_FONT)]
+                    [(ffmpeg-text $text $pos $font)]
                 }
                 $box | append ($skills | flatten)
             }
