@@ -527,7 +527,7 @@ def gen-charts-page [troop: record, output: path] {
 
     # TODO: include modifier from special skills ?
     for skill in $troop.special_skills {
-        if ($skill | describe --detailed).type == "record" {
+        if ($skill | describe --detailed).type == "record" and $skill.mod? != null {
             log warning $"skipping modifier '($skill.mod)' of '($skill.name)'"
         }
     }
