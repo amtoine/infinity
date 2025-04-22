@@ -88,16 +88,19 @@ def "main clean" [] {
     rm --force /tmp/infinity-*.png  /tmp/ffmpeg-*.png
 }
 
-def "main viz" [] {
+def "main viz" [name: string = ""] {
     use ffmpeg.nu [ "ffmpeg combine", VSTACKING ]
 
     let res = ls $OUT_DIR
-        | get name
-        | group-by --to-table { path parse | get stem | split row '.' | reverse | skip 1 | reverse | str join "." }
+        | where $it.name =~ $name
+        | insert key {
+            $in.name | path parse | get stem | split row '.' | reverse | skip 1 | reverse | str join "."
+        }
+        | group-by --to-table key
         | each {
-            let output = mktemp --tmpdir "infinity-XXXXXXX.png"
-            $in.items | ffmpeg combine $VSTACKING --output $output
-            print $in.closure_0
+            print $in.key
+            let output = { parent: $nu.temp-path, stem: $in.key, extension: "png"} | path join
+            $in.items.name | ffmpeg combine $VSTACKING --output $output
             $output
         }
 
