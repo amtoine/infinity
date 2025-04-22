@@ -401,6 +401,31 @@ def gen-stat-page [troop: record, color: string, output: path] {
     log info $"\t(ansi purple)($out)(ansi reset)"
 }
 
+def fit-items-in-width [
+    items: list<string>, h_space: int, --separator: string = ", "
+]: [
+    nothing -> list<list<string>>
+] {
+    generate { |var|
+        let res = $var
+            | skip 1
+            | reduce --fold [$var.0] { |it, acc|
+                $acc ++ [$"($acc | last)($separator)($it)"]
+            }
+            | where ($it | str length) <= $h_space
+            | last
+            | split row $separator
+
+        let next = $var | skip ($res | length)
+
+        if ($next | is-empty) {
+            { out: $res }
+        } else {
+            { out: $res, next: $next }
+        }
+    } $items
+}
+
 def gen-charts-page [troop: record, output: path] {
     let charts = ls charts/weapons/*.csv | reduce --fold [] { |it, acc|
         $acc ++ (open $it.name)
@@ -479,24 +504,9 @@ def gen-charts-page [troop: record, output: path] {
         | where not ($it.stats.TRAITS | is-empty)
         | enumerate
         | each { |var|
-            let x_space = ($CANVAS.w - $offset.x - $CHART_START.x - 20) / $CHART_FONT_CHAR_SIZE | into int
-            let traits = $var.item.stats.TRAITS | split row ", "
-            let res = generate { |var|
-                let res = $var
-                    | skip 1
-                    | reduce --fold [$var.0] { |it, acc| $acc ++ [$"($acc | last), ($it)"] }
-                    | where ($it | str length) <= $x_space
-                    | last
-                    | split row ", "
-
-                let next = $var | skip ($res | length)
-
-                if ($next | is-empty) {
-                    { out: $res }
-                } else {
-                    { out: $res, next: $next }
-                }
-            } $traits
+            let h_space = ($CANVAS.w - $offset.x - $CHART_START.x - 20) / $CHART_FONT_CHAR_SIZE | into int
+            let items = $var.item.stats.TRAITS | split row ", "
+            let res = fit-items-in-width $items $h_space --separator ", "
             $res | each { str join ", " } | enumerate | each { |it|
                 let name = if $it.index == 0 {
                     $var.item.name
