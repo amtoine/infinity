@@ -96,7 +96,7 @@ const C_FONT_SIZE = 30
 const C_TITLE_FONT = { fontfile: $BOLD_FONT, fontcolor: "white", fontsize: $C_FONT_SIZE }
 const C_FONT = { fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: $C_FONT_SIZE }
 
-const SPECIAL_SKILLS_BOX = { x: 1240, y: 350, w: (1560 - 1240), h: null }
+const SPECIAL_SKILLS_BOX = { x: 1135, y: 350, w: (1560 - 1135), h: null }
 const SPECIAL_SKILLS_OFFSET = { x: 10, y: 80 }
 const SPECIAL_SKILLS_V_BASE = 100
 const SPECIAL_SKILLS_V_SPACE = 30
