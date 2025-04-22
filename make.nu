@@ -6,11 +6,13 @@ const FONT_LOCAL = "/tmp/adwaita-fonts-48.2.tar.xz"
 const STATS_DIR = "./troops/stats/"
 const OUT_DIR = "./out/"
 
+# configure Git
 def "main git" [] {
     log info "git config diff.exif.textconv exiftool"
     git config diff.exif.textconv exiftool
 }
 
+# install required fonts
 def "main font" [] {
     log info $"curl -fLo ($FONT_LOCAL) ($FONT_UPSTREAM)"
     curl -fLo $FONT_LOCAL $FONT_UPSTREAM
@@ -30,12 +32,12 @@ const COLORS = {
 }
 
 const SHOWCASE = [
-    [name,                            color];
-    ["panoceania/orc",                $COLORS.panoceania],
-    ["jsa/shikami",                   $COLORS.jsa],
+    [name,             color];
+    ["panoceania/orc", $COLORS.panoceania],
+    ["jsa/shikami",    $COLORS.jsa],
 ]
 
-def list-troops [] {
+def list-troops []: [ nothing -> table<name: string, color: string> ] {
     $STATS_DIR
         | path join "*/*.nuon"
         | into glob
@@ -81,6 +83,7 @@ def run [troops: table<name: string, color: string>, --stats, --charts] {
     }
 }
 
+# build the "showcase" cards and copy them to the the `assets/` directory
 def "main showcase" [--stats, --charts] {
     run $SHOWCASE --stats=$stats --charts=$charts
     for s in $SHOWCASE {
@@ -88,10 +91,12 @@ def "main showcase" [--stats, --charts] {
     }
 }
 
+# build the "troops" cards from NUON "trooper" files in the `troops/stats/` directory
 def "main troops" [name: string = "", --stats, --charts] {
     run (list-troops | where name =~ $name) --stats=$stats --charts=$charts
 }
 
+# clean all PNG building files
 def "main clean" [] {
     log info $"cleaning ((try { ls /tmp/infinity-*.png } catch {[]} | length) + (try { ls /tmp/ffmpeg-*.png } catch {[]} | length)) file\(s\)"
     rm --force /tmp/infinity-*.png  /tmp/ffmpeg-*.png
@@ -122,6 +127,7 @@ def batch-transform-pairs [name: string, transform: closure, extension: string]:
         }
 }
 
+# combine pairs of cards into single PNGs and view them
 def "main viz" [name: string = ""] {
     use ffmpeg.nu [ "ffmpeg combine", VSTACKING ]
 
@@ -130,10 +136,12 @@ def "main viz" [name: string = ""] {
     )
 }
 
+# combine pairs of cards into single PDFs
 def "main pdf" [name: string = ""] {
     let _ = batch-transform-pairs $name { |x, out| img2pdf ...$x --output $out } "pdf"
 }
 
+# archive the trooper cards
 def "main archive" [] {
     let assets = list-troops
         | get name
@@ -144,12 +152,14 @@ def "main archive" [] {
     ^zip $"infinity-trooper-assets-(git describe).zip" ...$assets
 }
 
+# run all that is required for a release
 def "main release" [] {
     main clean
     main troops
     main archive
 }
 
+# the default target
 def "main" [] {
     main clean
     main showcase
