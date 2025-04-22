@@ -28,7 +28,7 @@ const ISC_POS = { x: ($NAME_BOX.x + $NAME_OFFSET_X), y: ($NAME_BOX.y - $NAME_OFF
 const CLASSIFICATION_POS = { x: $"($NAME_BOX.x + $NAME_BOX.w - $NAME_OFFSET_X)-tw", y: $ISC_POS.y }
 const ISC_FONT = { fontfile: $REGULAR_FONT, fontcolor: "black", fontsize: 30 }
 
-const NAME_2_BOX = { x: 35, y: 780, w: (1560 - 35), h: (830 - 780) }
+const NAME_2_BOX = { x: 710, y: 780, w: (1560 - 710), h: (830 - 780) }
 const NAME_2_OFFSET_X = 10
 const NAME_2_POS = { x: $"($NAME_2_BOX.x)+($NAME_2_OFFSET_X)", y: $"($NAME_2_BOX.y)+($NAME_2_BOX.h / 2)-th/2" }
 const NAME_2_FONT = { fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: 30 }
@@ -62,7 +62,11 @@ const ALLOWED_FACTIONS_IMAGE_SIZE = 70 + 10
 const BOTTOM_FIRST_ROW_Y = 880
 const BOTTOM_SECOND_ROW_Y = 925
 
-const EQUIPMENT_BOX = { x: 35, y: 850, w: (690 - 35), h: (960 - 850) }
+const BOXES_MARGIN = 20
+const EMPTY_BOX_HEIGHT = 60
+const FULL_BOX_HEIGHT = 110
+
+const EQUIPMENT_BOX = { x: 35, y: 850, w: (690 - 35), h: null }
 const EQUIPMENT_OFFSET_X = 10
 const EQUIPMENT_TITLE_POS = { x: $"($EQUIPMENT_BOX.x)+($EQUIPMENT_OFFSET_X)", y: $"($BOTTOM_FIRST_ROW_Y)-th/2" }
 const EQUIPMENT_POS = { x: $"($EQUIPMENT_BOX.x)+($EQUIPMENT_OFFSET_X)", y: $"($BOTTOM_SECOND_ROW_Y)-th/2" }
@@ -237,27 +241,50 @@ def put-weapon-chart [equipment: record, x: int, y: int, column_widths: record, 
 }
 
 def gen-stat-page [troop: record, color: string, output: path] {
-    let equipment_text = [$troop.weaponry, $troop.equipment, $troop.peripheral]
-        | each { default [] }
-        | each {
-            each { |it|
-                match ($it | describe --detailed).type {
-                    "string" => $it,
-                    "record" => $"($it.name) \(($it.mod)\)"
-                }
+    def render-equipment-list []: [ list -> list<string> ] {
+        default [] | each { |it|
+            match ($it | describe --detailed).type {
+                "string" => $it,
+                "record" => $"($it.name) \(($it.mod)\)"
             }
         }
-        | each { str join "\\, " }
-        | match ($in | each { is-empty }) {
-            [false, false, false] => { $"($in.0) | ($in.1) || ($in.2)" },
-            [false, false,  true] => { $"($in.0) | ($in.1)" },
-            [false,  true, false] => { $"($in.0) || ($in.2)" },
-            [false,  true,  true] => { $"($in.0)" },
-            [ true, false, false] => { $"_ | ($in.1) || ($in.2)" },
-            [ true, false,  true] => { $"_ | ($in.1)" },
-            [ true,  true, false] => { $"_ | _ || ($in.2)" },
-            [ true,  true,  true] => { "" },
-        }
+    }
+
+    let peripheral = $troop.peripheral | render-equipment-list | str join ", " | if $in == "" {{
+        text: $in,
+        box: ($EQUIPMENT_BOX | update h $EMPTY_BOX_HEIGHT | update y { $in + $FULL_BOX_HEIGHT - $EMPTY_BOX_HEIGHT }),
+        title_pos: ($EQUIPMENT_TITLE_POS | update y { $"($in)+($FULL_BOX_HEIGHT - $EMPTY_BOX_HEIGHT)" }),
+        text_pos: ($EQUIPMENT_POS | update y { $"($in)+($FULL_BOX_HEIGHT - $EMPTY_BOX_HEIGHT)" }),
+    }} else {{
+        text: $in,
+        box: ($EQUIPMENT_BOX | update h $FULL_BOX_HEIGHT),
+        title_pos: $EQUIPMENT_TITLE_POS,
+        text_pos: $EQUIPMENT_POS,
+    }}
+
+    let equipment = $troop.equipment | render-equipment-list | str join ", " | if $in == "" {{
+        text: $in,
+        box: ($peripheral.box | update y { $in - ($BOXES_MARGIN + $EMPTY_BOX_HEIGHT) } | update h $EMPTY_BOX_HEIGHT),
+        title_pos: ($peripheral.title_pos | update y { $"($in)-($BOXES_MARGIN + $EMPTY_BOX_HEIGHT)" }),
+        text_pos: ($peripheral.text_pos | update y { $"($in)-($BOXES_MARGIN + $EMPTY_BOX_HEIGHT)" }),
+    }} else {{
+        text: $in,
+        box: ($peripheral.box | update y { $in - ($BOXES_MARGIN + $FULL_BOX_HEIGHT) } | update h $FULL_BOX_HEIGHT),
+        title_pos: ($peripheral.title_pos | update y { $"($in)-($BOXES_MARGIN + $FULL_BOX_HEIGHT)" }),
+        text_pos: ($peripheral.text_pos | update y { $"($in)-($BOXES_MARGIN + $FULL_BOX_HEIGHT)" }),
+    }}
+
+    let weaponry = $troop.weaponry | render-equipment-list | str join ", " | if $in == "" {{
+        text: $in,
+        box: ($equipment.box | update y { $in - ($BOXES_MARGIN + $EMPTY_BOX_HEIGHT) } | update h $EMPTY_BOX_HEIGHT),
+        title_pos: ($equipment.title_pos | update y { $"($in)-($BOXES_MARGIN + $EMPTY_BOX_HEIGHT)" }),
+        text_pos: ($equipment.text_pos | update y { $"($in)-($BOXES_MARGIN + $EMPTY_BOX_HEIGHT)" }),
+    }} else {{
+        text: $in,
+        box: ($equipment.box | update y { $in - ($BOXES_MARGIN + $FULL_BOX_HEIGHT) } | update h $FULL_BOX_HEIGHT),
+        title_pos: ($equipment.title_pos | update y { $"($in)-($BOXES_MARGIN + $FULL_BOX_HEIGHT)" }),
+        text_pos: ($equipment.text_pos | update y { $"($in)-($BOXES_MARGIN + $FULL_BOX_HEIGHT)" }),
+    }}
 
     let characteristics_box = $CHARACTERISTICS_BOX | update h (
         $CHARACTERISTICS_BOX.w // 2 +  # because text is twice larger
@@ -324,10 +351,20 @@ def gen-stat-page [troop: record, color: string, output: path] {
             }
         ),
 
-        { kind: "drawbox",  options: { ...$EQUIPMENT_BOX, color: "black@0.5", t: "fill" } },
-        { kind: "drawbox",  options: { ...$EQUIPMENT_BOX, color: "black@0.5", t: "5" } },
-        (ffmpeg-text "WEAPONRY | EQUIPMENT || PERIPHERAL" $EQUIPMENT_TITLE_POS  $EQUIPMENT_TITLE_FONT),
-        (ffmpeg-text $equipment_text                      $EQUIPMENT_POS        $EQUIPMENT_FONT),
+        { kind: "drawbox",  options: { ...$weaponry.box, color: "black@0.5", t: "fill" } },
+        { kind: "drawbox",  options: { ...$weaponry.box, color: "black@0.5", t: "5" } },
+        (ffmpeg-text "WEAPONRY" $weaponry.title_pos $EQUIPMENT_TITLE_FONT),
+        (if $weaponry.text != "" { ffmpeg-text $weaponry.text $weaponry.text_pos $EQUIPMENT_FONT }),
+
+        { kind: "drawbox",  options: { ...$equipment.box, color: "black@0.5", t: "fill" } },
+        { kind: "drawbox",  options: { ...$equipment.box, color: "black@0.5", t: "5" } },
+        (ffmpeg-text "EQUIPMENT" $equipment.title_pos $EQUIPMENT_TITLE_FONT),
+        (if $equipment.text != "" { ffmpeg-text $equipment.text $equipment.text_pos $EQUIPMENT_FONT }),
+
+        { kind: "drawbox",  options: { ...$peripheral.box, color: "black@0.5", t: "fill" } },
+        { kind: "drawbox",  options: { ...$peripheral.box, color: "black@0.5", t: "5" } },
+        (ffmpeg-text "PERIPHERAL" $peripheral.title_pos $EQUIPMENT_TITLE_FONT),
+        (if $peripheral.text != "" { ffmpeg-text $peripheral.text $peripheral.text_pos $EQUIPMENT_FONT }),
 
         { kind: "drawbox",  options: { ...$MELEE_BOX, color: "black@0.5", t: "fill" } },
         { kind: "drawbox",  options: { ...$MELEE_BOX, color: "black@0.5", t: "5" } },
@@ -362,7 +399,7 @@ def gen-stat-page [troop: record, color: string, output: path] {
         } else {
             $in
         }
-        | ffmpeg mapply ($transforms | each { ffmpeg options })
+        | ffmpeg mapply ($transforms | compact | each { ffmpeg options })
 
     let tmp = $troop.characteristics
         | enumerate
