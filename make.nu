@@ -107,6 +107,20 @@ def "main viz" [name: string = ""] {
     feh --image-bg '#aaaaaa' --draw-tinted --draw-exif --draw-filename --fullscreen ...$res
 }
 
+def "main pdf" [name: string = ""] {
+    let _ = ls $OUT_DIR
+        | where $it.name =~ $name
+        | insert key {
+            $in.name | path parse | get stem | split row '.' | reverse | skip 1 | reverse | str join "."
+        }
+        | group-by --to-table key
+        | each {
+            print $in.key
+            let output = { parent: $nu.temp-path, stem: $in.key, extension: "pdf"} | path join
+            img2pdf ...$in.items.name --output $output
+        }
+}
+
 def "main archive" [] {
     let assets = list-troops
         | get name
