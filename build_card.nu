@@ -177,8 +177,7 @@ def "parse modifier-from-skill" []: [ record<name: string, mod: any> -> record ]
     }
 
     if $skill.mod == "T2" {
-        log warning $"skipping modifier '($mod)' of skill '($skill.name)'"
-        return null
+        return { k: "AMMO", v: "T2" }
     }
 
     if $skill.mod != null {
@@ -221,13 +220,22 @@ const CHART_V_SPACE = 60
 const CHART_TRAITS_V_SPACE = 50
 const CHART_TRAITS_H_SPACE = 20
 
-def put-weapon-chart [equipment: record, x: int, y: int, column_widths: record, --no-header]: [ path -> path ] {
+def put-weapon-chart [
+    equipment: record,
+    x: int,
+    y: int,
+    column_widths: record,
+    --no-header,
+    modifiers: table<name: string, mod: record>,
+]: [ path -> path ] {
     let widths = $column_widths | values
     let positions = $widths
         | zip ($widths | skip 1)
         | reduce --fold [($CHART_ATTR_INTERSPACE + $CHART_FONT_CHAR_SIZE * $widths.0)] { |it, acc|
             $acc | append (($acc | last) + $CHART_ATTR_INTERSPACE + $CHART_FONT_CHAR_SIZE * ($it.0 + $it.1) / 2)
         }
+
+    let modifiers = $modifiers | transpose --header-row | into record
 
     let transforms = [
         # range headers
@@ -295,7 +303,16 @@ def put-weapon-chart [equipment: record, x: int, y: int, column_widths: record, 
             } else {
                 let stat = $equipment.stats | get $it.item.0.field
 
-                if $equipment.mod != null and $it.item.0.field == $equipment.mod.k {
+                if $it.item.0.short == "AMMO" {
+                    let skill = $modifiers."BS Attack"?
+                    if $skill != null {
+                        if $skill.k != "AMMO" {
+                            log warning $"invalid key '($skill.k)' for skill '($skill)'"
+                        } else {
+                            ffmpeg-text $"($skill.v)" $pos ($CHART_FONT_B | update fontcolor $CORVUS_BELLI_COLORS.yellow)
+                        }
+                    }
+                } else if $equipment.mod != null and $it.item.0.field == $equipment.mod.k {
                     let v = $equipment.mod.v | into int
                     let res = match $equipment.mod.x? {
                          "-" => { text: $"($stat - $v)", color: $CORVUS_BELLI_COLORS.red },
@@ -652,7 +669,11 @@ def fit-items-in-width [
     } $items
 }
 
-def gen-charts-page [troop: record, output: path] {
+def gen-charts-page [
+    troop: record,
+    output: path,
+    modifiers: table<name: string, mod: record>,
+] {
     let charts = ls charts/weapons/*.csv | reduce --fold [] { |it, acc|
         $acc ++ (open $it.name)
     }
@@ -775,7 +796,7 @@ def gen-charts-page [troop: record, output: path] {
         | insert item.no_header { $in.index > 0 }
         | get item
         | reduce --fold $res { |it, acc|
-            $acc | put-weapon-chart $it.equipment $it.x $it.y $column_widths --no-header=$it.no_header
+            $acc | put-weapon-chart $it.equipment $it.x $it.y $column_widths $modifiers --no-header=$it.no_header
         }
 
     let res = $res | put-version
@@ -823,13 +844,13 @@ export def main [troop: record, --color: string, --output: path = "output.png", 
     match [$stats, $charts] {
         [true, true] | [false, false] => {
             gen-stat-page $troop $color $output $modifiers
-            gen-charts-page $troop $output
+            gen-charts-page $troop $output $modifiers
         },
         [true, false] => {
             gen-stat-page $troop $color $output $modifiers
         },
         [false, true] => {
-            gen-charts-page $troop $output
+            gen-charts-page $troop $output $modifiers
         },
     }
 }
