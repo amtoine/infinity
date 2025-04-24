@@ -505,7 +505,7 @@ def gen-stat-page [
                                     let mov = $it.item.v | parse "{f}-{s}" | into record | into int f s
                                     { v: $"($mov.f + 1)-($mov.s)", color: $CORVUS_BELLI_COLORS.green }
                                 },
-                                _ => null,
+                                _ => { v: $it.item.v, color: $CORVUS_BELLI_COLORS.yellow },
                             }
                         }
                     },
