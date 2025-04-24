@@ -131,6 +131,43 @@ def "put-version" []: [ path -> path ] {
     $in | ffmpeg apply ((ffmpeg-text $version_text $VERSION_POS $VERSION_FONT) | ffmpeg options) --output $out
 }
 
+const KV_MODIFIER_FMT           = '^(?<k>.*)=(?<v>.*)$'
+const ATTR_MODIFIER_FMT         = '^(?<x>[+-])(?<v>\d+)(?<k>.*)$'
+const MARTIAL_ARTS_MODIFIER_FMT = '^L(?<v>\d+)$'
+
+def "parse modifier-from-skill" []: [ record<name: string, mod: string> -> record ] {
+    let skill = $in
+    let mod = $skill.mod? | default ""
+
+    let res = $mod | parse --regex $KV_MODIFIER_FMT | into record
+    if $res != {} {
+        return $res
+    }
+
+    let res = $mod | parse --regex $ATTR_MODIFIER_FMT | into record
+    if $res != {} {
+        # NOTE: see p.68 of the rulebook
+        if $res.k != "" or $res.x == "-" {
+            log warning $"skipping modifier '($mod)' of skill '($skill.name)'"
+            return null
+        } else {
+            return $res
+        }
+    }
+
+    let res = $mod | parse --regex $MARTIAL_ARTS_MODIFIER_FMT | into record
+    if $res != {} {
+        return ($res | into int v)
+    }
+
+    if $skill.name == "Terrain" {
+        { v: $mod }
+    } else {
+        log error $"could not parse modifier '($mod)' of skill '($skill.name)'"
+        null
+    }
+}
+
 const RANGES = ['8"', '16"', '24"', '32"', '40"', '48"', '96"']
 const STATS = [
     [field,                    short];
@@ -622,22 +659,7 @@ def gen-charts-page [troop: record, output: path] {
                 $"($it.stats.NAME) \(($it.stats.MODE)\)"
             }
         }
-        | upsert mod { |it|
-            let res = $it.mod? | default "" | parse "{k}={v}" | into record
-            if $res != {} {
-                $res
-            } else {
-                let res = $it.mod? | default "" | parse --regex '^(?<x>[+-])(?<v>\d+)(?<k>.+)$' | into record
-                if $res != {} {
-                    $res
-                } else {
-                    if $it.mod? != null {
-                        log error $"could not parse modifier '($it.mod)' of '($it.name)'"
-                    }
-                    null
-                }
-            }
-        }
+        | upsert mod { |it| $it | reject stats | default "" mod | parse modifier-from-skill }
         | where not ($it.stats | is-empty)
 
     if ($equipments | is-empty) {
@@ -758,44 +780,6 @@ const UNSUPPORTED_SKILLS = [
 
 # skills that modify the stats directly
 const SUPPORTED_SKILLS = [ "BS Attack", "CC Attack", "Martial Arts", "Terrain" ]
-
-
-const KV_MODIFIER_FMT           = '^(?<k>.*)=(?<v>.*)$'
-const ATTR_MODIFIER_FMT         = '^(?<x>[+-])(?<v>\d+)(?<k>.*)$'
-const MARTIAL_ARTS_MODIFIER_FMT = '^L(?<v>\d+)$'
-
-def "parse modifier-from-skill" []: [ record<name: string, mod: string> -> record ] {
-    let skill = $in
-    let mod = $skill.mod? | default ""
-
-    let res = $mod | parse --regex $KV_MODIFIER_FMT | into record
-    if $res != {} {
-        return $res
-    }
-
-    let res = $mod | parse --regex $ATTR_MODIFIER_FMT | into record
-    if $res != {} {
-        # NOTE: see p.68 of the rulebook
-        if $res.k != "" or $res.x == "-" {
-            log warning $"skipping modifier '($mod)' of skill '($skill.name)'"
-            return null
-        } else {
-            return $res
-        }
-    }
-
-    let res = $mod | parse --regex $MARTIAL_ARTS_MODIFIER_FMT | into record
-    if $res != {} {
-        return ($res | into int v)
-    }
-
-    if $skill.name == "Terrain" {
-        { v: $mod }
-    } else {
-        log error $"could not parse modifier '($mod)' of skill '($skill.name)'"
-        null
-    }
-}
 
 export def main [troop: record, --color: string, --output: path = "output.png", --stats, --charts] {
     let modifiers = $troop.special_skills | each { |skill|
