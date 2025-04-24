@@ -75,6 +75,10 @@ const EQUIPMENT_FONT_SIZE = 30
 const EQUIPMENT_TITLE_FONT = { fontfile: $BOLD_FONT, fontcolor: "white", fontsize: ($EQUIPMENT_FONT_SIZE - 2) }
 const EQUIPMENT_FONT = { fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: ($EQUIPMENT_FONT_SIZE - 8) }
 
+const LIST_SEPARATOR = ", "
+const LIST_SEPARATOR_V_OFFSET = 10
+const EQUIPMENT_CHAR_SIZE = $EQUIPMENT_FONT.fontsize * 0.6
+
 const MELEE_BOX = { x: 810, y: 850, w: (1335 - 810), h: (960 - 850) }
 const MELEE_OFFSET_X = 10
 const MELEE_WEAPONS_TITLE_POS = { x: $"($MELEE_BOX.x)+($MELEE_OFFSET_X)", y: $"($BOTTOM_FIRST_ROW_Y)-th/2" }
@@ -266,8 +270,6 @@ def gen-stat-page [troop: record, color: string, output: path] {
         { transform: (ffmpeg-text $text $pos $font), text: $text }
     }
 
-    const LIST_SEPARATOR = ", "
-
     def equipment-to-text [x: record]: [ nothing -> list<record> ] {
         if $x.equipment == [] {
             return []
@@ -277,13 +279,13 @@ def gen-stat-page [troop: record, color: string, output: path] {
             | iter intersperse $LIST_SEPARATOR
             | reduce --fold { transforms: [], pos: $x.text_pos } { |it, acc|
                 let pos = if $it == $LIST_SEPARATOR {
-                    $acc.pos | update y { $"($in)+10" }
+                    $acc.pos | update y { $"($in)+($LIST_SEPARATOR_V_OFFSET)" }
                 } else {
                     $acc.pos
                 }
                 let res = equipment-or-skill-to-text $it $EQUIPMENT_FONT $pos
                 let next_pos = $acc.pos
-                    | update x { $"($in) + (($res.text | str length) * $EQUIPMENT_FONT.fontsize * 0.6)" }
+                    | update x { $"($in) + (($res.text | str length) * $EQUIPMENT_CHAR_SIZE)" }
 
                 { transforms: ($acc.transforms | append $res.transform), pos: $next_pos }
             }
