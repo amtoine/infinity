@@ -397,36 +397,39 @@ def gen-stat-page [
 
                 let stat = match $it.item.k {
                     "BS" => {
-                        if $modifiers."BS Attack"? != null {
-                            let v = $modifiers."BS Attack".v | into int
-                            match $modifiers."BS Attack".x? {
-                                 "-" => { v: $"($it.item.v - $v)", color: $CORVUS_BELLI_COLORS.red    },
+                        let skill = $modifiers."BS Attack"?
+                        if $skill != null {
+                            let v = $skill.v | into int
+                            match $skill.x? {
+                                # NOTE: no "-" (see p.68 of the rulebook)
                                  "+" => { v: $"($it.item.v + $v)", color: $CORVUS_BELLI_COLORS.green  },
                                 null => { v: $"($v)",              color: $CORVUS_BELLI_COLORS.yellow },
                             }
-                        } else {
-                            { v: $it.item.v, color: $STAT_FONT.fontcolor }
                         }
                     },
                     "CC" => {
-                        let cc_value = if $modifiers."CC Attack"? != null {
-                            let v = $modifiers."CC Attack".v | into int
-                            match $modifiers."CC Attack".x? {
-                                 "-" => { $it.item.v - $v },
+                        let cc_skill = $modifiers."CC Attack"?
+                        let ma_skill = $modifiers."Martial Arts"?
+
+                        let cc_value = if $cc_skill != null {
+                            let v = $cc_skill.v | into int
+                            match $cc_skill.x? {
+                                # NOTE: no "-" (see p.68 of the rulebook)
                                  "+" => { $it.item.v + $v },
                                 null => { $v },
                             }
                         } else {
                             $it.item.v
                         }
-                        let cc_value = if $modifiers."Martial Arts"? != null {
-                            let art = $MARTIAL_ARTS | where level == $modifiers."Martial Arts".v | into record
+
+                        let cc_value = if $ma_skill != null {
+                            let art = $MARTIAL_ARTS | where level == $ma_skill.v | into record
                             $cc_value + $art.attack
                         } else {
                             $cc_value
                         }
 
-                        let color = if $modifiers."CC Attack"? == null and $modifiers."Martial Arts"? == null {
+                        let color = if $cc_skill == null and $ma_skill == null {
                             $STAT_FONT.fontcolor
                         } else if $cc_value - $it.item.v == 0 {
                             $CORVUS_BELLI_COLORS.yellow
@@ -439,20 +442,20 @@ def gen-stat-page [
                         { v: $cc_value, color: $color }
                     },
                     "MOV" => {
-                        if $modifiers."Terrain"? != null {
-                            match $modifiers."Terrain" {
+                        let skill = $modifiers."Terrain"?
+                        if $skill != null {
+                            match $skill {
                                 "Total" => {
                                     let mov = $it.item.v | parse "{f}-{s}" | into record | into int f s
                                     { v: $"($mov.f + 1)-($mov.s)", color: $CORVUS_BELLI_COLORS.green }
                                 },
-                                _ => {  v: $it.item.v, color: $CORVUS_BELLI_COLORS.yellow },
+                                _ => null,
                             }
-                        } else {
-                            { v: $it.item.v, color: $STAT_FONT.fontcolor }
                         }
                     },
-                    _ => { v: $it.item.v, color: $STAT_FONT.fontcolor },
+                    _ => null,
                 }
+                | default { v: $it.item.v, color: $STAT_FONT.fontcolor }
 
                 [
                     (ffmpeg-text $"($it.item.k)" { x: $"($STAT_KEYS_BOX.x)+($STAT_OFFSET_X)+($it.index)*($STAT_H_SPACE)-tw/2", y: $"($STAT_KEYS_BOX.y)+($STAT_KEYS_BOX.h / 2)-th/2" } $STAT_FONT),
@@ -771,7 +774,8 @@ def "parse modifier-from-skill" []: [ record<name: string, mod: string> -> recor
 
     let res = $skill.mod | parse --regex $ATTR_MODIFIER_FMT | into record
     if $res != {} {
-        if $res.k != "" {
+        # NOTE: see p.68 of the rulebook
+        if $res.k != "" or $res.x == "-" {
             log warning $"skipping modifier '($skill.mod)' of skill '($skill.name)'"
             return null
         } else {
