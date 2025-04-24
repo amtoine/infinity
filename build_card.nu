@@ -135,7 +135,7 @@ const KV_MODIFIER_FMT           = '^(?<k>.*)=(?<v>.*)$'
 const ATTR_MODIFIER_FMT         = '^(?<x>[+-])(?<v>\d+)(?<k>.*)$'
 const MARTIAL_ARTS_MODIFIER_FMT = '^L(?<v>\d+)$'
 
-def "parse modifier-from-skill" []: [ record<name: string, mod: string> -> record ] {
+def "parse modifier-from-skill" []: [ record<name: string, mod: any> -> record ] {
     let skill = $in
     let mod = $skill.mod? | default ""
 
@@ -161,11 +161,13 @@ def "parse modifier-from-skill" []: [ record<name: string, mod: string> -> recor
     }
 
     if $skill.name == "Terrain" {
-        { v: $mod }
-    } else {
-        log error $"could not parse modifier '($mod)' of skill '($skill.name)'"
-        null
+        return { v: $mod }
     }
+
+    if $skill.mod != null {
+        log error $"could not parse modifier '($mod)' of skill '($skill.name)'"
+    }
+    return null
 }
 
 const RANGES = ['8"', '16"', '24"', '32"', '40"', '48"', '96"']
@@ -659,7 +661,8 @@ def gen-charts-page [troop: record, output: path] {
                 $"($it.stats.NAME) \(($it.stats.MODE)\)"
             }
         }
-        | upsert mod { |it| $it | reject stats | default "" mod | parse modifier-from-skill }
+        | default null mod
+        | upsert mod { |it| $it | reject stats | parse modifier-from-skill }
         | where not ($it.stats | is-empty)
 
     if ($equipments | is-empty) {
