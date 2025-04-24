@@ -31,7 +31,7 @@ const ISC_FONT = { fontfile: $REGULAR_FONT, fontcolor: "black", fontsize: 30 }
 
 const QR_CODE_SIZE = 4
 const QR_CODE_MARGIN = 1
-const QR_CODE_WIDTH = (33 + ($QR_CODE_MARGIN) * 2) * $QR_CODE_SIZE
+const QR_CODE_WIDTH = 100
 
 const NAME_2_BOX = { x: 810, y: 780, w: (1560 - ($QR_CODE_WIDTH + 10) - 810), h: (830 - 780) }
 const NAME_2_OFFSET_X = 10
@@ -411,6 +411,8 @@ def gen-stat-page [
     let qrcode = mktemp --tmpdir infinity-XXXXXXX.png
     log info $"generating QR code in (ansi purple)($qrcode)(ansi reset)"
     qrencode --margin $QR_CODE_MARGIN --size $QR_CODE_SIZE -o $qrcode $troop.reference
+    let qrcode = $qrcode
+        | ffmpeg apply "scale=100:100" --output (mktemp --tmpdir infinity-XXXXXXX.png)
 
     let transforms = [
         (ffmpeg-text $"ISC: ($troop.isc)"  $ISC_POS            $ISC_FONT),
