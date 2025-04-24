@@ -124,6 +124,13 @@ def "ffmpeg-text" [text: string, position: record<x, y>, options: record] {
     { kind: "drawtext", options: { text: $text, ...$position, ...$options } }
 }
 
+def "put-version" []: [ path -> path ] {
+    let versions = open versions.json
+    let version_text = $"(git describe) [Army: ($versions.army), Rules: ($versions.rules)]"
+    let out = mktemp --tmpdir infinity-XXXXXXX.png
+    $in | ffmpeg apply ((ffmpeg-text $version_text $VERSION_POS $VERSION_FONT) | ffmpeg options) --output $out
+}
+
 const RANGES = ['8"', '16"', '24"', '32"', '40"', '48"', '96"']
 const STATS = [
     [field,                    short];
@@ -477,9 +484,7 @@ def gen-stat-page [troop: record, color: string, output: path] {
             } | ffmpeg options) --output (mktemp --tmpdir infinity-XXXXXXX.png)
         }
 
-    let versions = open versions.json
-    let version_text = $"[Army: ($versions.army), Rules: ($versions.rules)]"
-    let tmp = $tmp | ffmpeg apply ((ffmpeg-text $version_text $VERSION_POS $VERSION_FONT) | ffmpeg options) --output (mktemp --tmpdir infinity-XXXXXXX.png)
+    let tmp = $tmp | put-version
 
     let out = $output | path parse | update stem { $in ++ ".1" } | path join
     cp $tmp $out
@@ -557,10 +562,8 @@ def gen-charts-page [troop: record, output: path] {
 
     if ($equipments | is-empty) {
         log warning "\tno equipment"
-        let versions = open versions.json
-        let version_text = $"[Army: ($versions.army), Rules: ($versions.rules)]"
         let res = ffmpeg create ($BASE_IMAGE | ffmpeg options) --output (mktemp --tmpdir infinity-XXXXXXX.png)
-            | ffmpeg apply ((ffmpeg-text $version_text $VERSION_POS $VERSION_FONT) | ffmpeg options) --output (mktemp --tmpdir infinity-XXXXXXX.png)
+            | put-version
         let out = $output | path parse | update stem { $in ++ ".2" } | path join
         cp $res $out
         log info $"\t(ansi purple)($out)(ansi reset)"
@@ -653,9 +656,7 @@ def gen-charts-page [troop: record, output: path] {
             $acc | put-weapon-chart $it.equipment $it.x $it.y $column_widths --no-header=$it.no_header
         }
 
-    let versions = open versions.json
-    let version_text = $"[Army: ($versions.army), Rules: ($versions.rules)]"
-    let res = $res | ffmpeg apply ((ffmpeg-text $version_text $VERSION_POS $VERSION_FONT) | ffmpeg options) --output (mktemp --tmpdir infinity-XXXXXXX.png)
+    let res = $res | put-version
 
     let out = $output | path parse | update stem { $in ++ ".2" } | path join
     cp $res $out
