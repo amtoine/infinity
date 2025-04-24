@@ -741,8 +741,22 @@ def gen-charts-page [troop: record, output: path] {
 
 }
 
+# skills that do not modify stats directly but rather change the way the game is
+# played
+const UNSUPPORTED_SKILLS = [
+    "NCO", "Booty", "Dodge", "Dogged", "Frenzy", "Hacker", "Sensor", "Courage",
+    "Stealth", "Commlink", "Discover", "Immunity", "Mimetism", "No Cover",
+    "Number 2", "Warhorse", "Impetuous", "Minelayer", "Paramedic", "Lieutenant",
+    "Peripheral", "Super-Jump", "Combat Jump", "Parachutist", "Infiltration",
+    "Marksmanship", "Climbing Plus", "Transmutation", "Combat Instinct",
+    "Religious Troop", "Chain of Command", "Forward Observer",
+    "Forward Deployment", "Natural Born Warrior", "Specialist Operative",
+]
+
+# skills that modify the stats directly
+const SUPPORTED_SKILLS = [ "BS Attack", "CC Attack", "Martial Arts", "Terrain" ]
+
 export def main [troop: record, --color: string, --output: path = "output.png", --stats, --charts] {
-    # TODO: include modifier from special skills ?
     let modifiers = $troop.special_skills | each { |skill|
         let skill = if ($skill | describe --detailed).type == "record" {
             $skill | default null mod | reject spec?
@@ -750,65 +764,12 @@ export def main [troop: record, --color: string, --output: path = "output.png", 
             { name: $skill, mod: null }
         }
 
-        if $skill in [
-            { name:                  "NCO", mod:             null },
-            { name:                "Booty", mod:             null },
-            { name:                "Dodge", mod:             '+3' },
-            { name:                "Dodge", mod:            '+1"' },
-            { name:                "Dodge", mod:            '+2"' },
-            { name:               "Dogged", mod:             null },
-            { name:               "Frenzy", mod:             null },
-            { name:               "Hacker", mod:             null },
-            { name:               "Sensor", mod:             null },
-            { name:              "Courage", mod:             null },
-            { name:              "Stealth", mod:             null },
-            { name:             "Commlink", mod:             '+1' },
-            { name:             "Discover", mod:             '+3' },
-            { name:             "Immunity", mod:          'Shock' },
-            { name:             "Immunity", mod:       'Enhanced' },
-            { name:             "Mimetism", mod:             '-3' },
-            { name:             "Mimetism", mod:             '-6' },
-            { name:             "No Cover", mod:             null },
-            { name:             "Number 2", mod:             null },
-            { name:             "Warhorse", mod:             null },
-            { name:            "Impetuous", mod:             null },
-            { name:            "Minelayer", mod:             null },
-            { name:            "Paramedic", mod:             null },
-            { name:           "Lieutenant", mod:             null },
-            { name:           "Peripheral", mod:      'Ancillary' },
-            { name:           "Super-Jump", mod:             '3"' },
-            { name:           "Super-Jump", mod:             null },
-            { name:           "Super-Jump", mod: 'Jet Propulsion' },
-            { name:          "Combat Jump", mod:             null },
-            { name:          "Parachutist", mod:             null },
-            { name:          "Parachutist", mod:      'Dep. Zone' },
-            { name:         "Infiltration", mod:             null },
-            { name:         "Marksmanship", mod:             null },
-            { name:        "Climbing Plus", mod:             null },
-            { name:        "Transmutation", mod:              '1' },
-            { name:      "Combat Instinct", mod:             null },
-            { name:      "Religious Troop", mod:             null },
-            { name:     "Chain of Command", mod:             null },
-            { name:     "Forward Observer", mod:             null },
-            { name:   "Forward Deployment", mod:            '+4"' },
-            { name: "Natural Born Warrior", mod:             null },
-            { name: "Specialist Operative", mod:             null },
-        ] {
-            if $skill.mod != null {
-                log debug $"skipping modifier '($skill.mod)' of '($skill.name)'"
-            } else {
-                log debug $"skipping skill '($skill.name)'"
-            }
+        if $skill.name in $SUPPORTED_SKILLS {
+            $skill
+        } else if $skill.name in $UNSUPPORTED_SKILLS {
+            log debug $"skipping skill '($skill)'"
         } else {
-            if $skill.mod != null {
-                if $skill.name in [ "BS Attack", "CC Attack", "Martial Arts", "Terrain" ] {
-                    $skill
-                } else {
-                    log debug $"skipping modifier '($skill.mod)' of '($skill.name)'"
-                }
-            } else {
-                log warning $"skipping skill '($skill.name)'"
-            }
+            log warning $"skipping skill '($skill)'"
         }
     }
     | upsert mod { |it|
