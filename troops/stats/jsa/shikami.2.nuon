@@ -31,7 +31,7 @@
         { name: "Dodge", mod: '+2"' },
         { name: "Forward Deployment", mod: '+4"' },
         { name: "Immunity", mod: "Shock" },
-        { name: "Marial Arts", mod: "L3" },
+        { name: "Martial Arts", mod: "L3" },
         { name: "Mimetism", mod: "-6" },
         "Specialist Operative",
         "Stealth",
