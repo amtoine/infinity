@@ -1,5 +1,6 @@
 use ffmpeg.nu *
 use log.nu [ "log info", "log warning", "log error" ]
+use std iter
 
 const CANVAS = { w: 1600, h: 1000 }
 const BASE_IMAGE = { kind: "color", options: { c: "0xDDDDDD", s: $"($CANVAS.w)x($CANVAS.h)", d: 1 } }
@@ -241,52 +242,85 @@ def put-weapon-chart [equipment: record, x: int, y: int, column_widths: record, 
 }
 
 def gen-stat-page [troop: record, color: string, output: path] {
-    def render-equipment-list []: [ list -> list<string> ] {
-        default [] | each { |it|
-            match ($it | describe --detailed).type {
-                "string" => $it,
-                "record" => {
-                    if $it.mod? == null {
-                        $it.name
-                    } else {
-                        $"($it.name) \(($it.mod)\)"
-                    }
-                },
-            }
+    def equipment-or-skill-to-text [
+        equipment_or_skill,
+        base_font: record<fontfile: path, fontcolor: string, fontsize: int>,
+        pos: record<x: any, y: any>,
+    ]: [ nothing -> record<transform: record, text: string> ] {
+        let equipment_or_skill = match ($equipment_or_skill | describe --detailed).type {
+            "string" => { name: $equipment_or_skill },
+            "record" => $equipment_or_skill,
         }
+
+        let text = if $equipment_or_skill.mod? == null {
+            $equipment_or_skill.name
+        } else {
+            $"($equipment_or_skill.name) \(($equipment_or_skill.mod)\)"
+        }
+        let font = $base_font | if $equipment_or_skill.spec? == true {
+            update fontfile $BOLD_FONT | update fontcolor $CORVUS_BELLI_COLORS.yellow
+        } else {
+            $in
+        }
+
+        { transform: (ffmpeg-text $text $pos $font), text: $text }
     }
 
-    let peripheral = $troop.peripheral | render-equipment-list | str join ", " | if $in == "" {{
-        text: $in,
+    const LIST_SEPARATOR = ", "
+
+    def equipment-to-text [x: record]: [ nothing -> list<record> ] {
+        if $x.equipment == [] {
+            return []
+        }
+
+        $x.equipment
+            | iter intersperse $LIST_SEPARATOR
+            | reduce --fold { transforms: [], pos: $x.text_pos } { |it, acc|
+                let pos = if $it == $LIST_SEPARATOR {
+                    $acc.pos | update y { $"($in)+10" }
+                } else {
+                    $acc.pos
+                }
+                let res = equipment-or-skill-to-text $it $EQUIPMENT_FONT $pos
+                let next_pos = $acc.pos
+                    | update x { $"($in) + (($res.text | str length) * $EQUIPMENT_FONT.fontsize * 0.6)" }
+
+                { transforms: ($acc.transforms | append $res.transform), pos: $next_pos }
+            }
+            | get transforms
+    }
+
+    let peripheral = $troop.peripheral | if $in == [] {{
+        equipment: $in,
         box: ($EQUIPMENT_BOX | update h $EMPTY_BOX_HEIGHT | update y { $in + $FULL_BOX_HEIGHT - $EMPTY_BOX_HEIGHT }),
         title_pos: ($EQUIPMENT_TITLE_POS | update y { $"($in)+($FULL_BOX_HEIGHT - $EMPTY_BOX_HEIGHT)" }),
         text_pos: ($EQUIPMENT_POS | update y { $"($in)+($FULL_BOX_HEIGHT - $EMPTY_BOX_HEIGHT)" }),
     }} else {{
-        text: $in,
+        equipment: $in,
         box: ($EQUIPMENT_BOX | update h $FULL_BOX_HEIGHT),
         title_pos: $EQUIPMENT_TITLE_POS,
         text_pos: $EQUIPMENT_POS,
     }}
 
-    let equipment = $troop.equipment | render-equipment-list | str join ", " | if $in == "" {{
-        text: $in,
+    let equipment = $troop.equipment | if $in == [] {{
+        equipment: $in,
         box: ($peripheral.box | update y { $in - ($BOXES_MARGIN + $EMPTY_BOX_HEIGHT) } | update h $EMPTY_BOX_HEIGHT),
         title_pos: ($peripheral.title_pos | update y { $"($in)-($BOXES_MARGIN + $EMPTY_BOX_HEIGHT)" }),
         text_pos: ($peripheral.text_pos | update y { $"($in)-($BOXES_MARGIN + $EMPTY_BOX_HEIGHT)" }),
     }} else {{
-        text: $in,
+        equipment: $in,
         box: ($peripheral.box | update y { $in - ($BOXES_MARGIN + $FULL_BOX_HEIGHT) } | update h $FULL_BOX_HEIGHT),
         title_pos: ($peripheral.title_pos | update y { $"($in)-($BOXES_MARGIN + $FULL_BOX_HEIGHT)" }),
         text_pos: ($peripheral.text_pos | update y { $"($in)-($BOXES_MARGIN + $FULL_BOX_HEIGHT)" }),
     }}
 
-    let weaponry = $troop.weaponry | render-equipment-list | str join ", " | if $in == "" {{
-        text: $in,
+    let weaponry = $troop.weaponry | if $in == [] {{
+        equipment: $in,
         box: ($equipment.box | update y { $in - ($BOXES_MARGIN + $EMPTY_BOX_HEIGHT) } | update h $EMPTY_BOX_HEIGHT),
         title_pos: ($equipment.title_pos | update y { $"($in)-($BOXES_MARGIN + $EMPTY_BOX_HEIGHT)" }),
         text_pos: ($equipment.text_pos | update y { $"($in)-($BOXES_MARGIN + $EMPTY_BOX_HEIGHT)" }),
     }} else {{
-        text: $in,
+        equipment: $in,
         box: ($equipment.box | update y { $in - ($BOXES_MARGIN + $FULL_BOX_HEIGHT) } | update h $FULL_BOX_HEIGHT),
         title_pos: ($equipment.title_pos | update y { $"($in)-($BOXES_MARGIN + $FULL_BOX_HEIGHT)" }),
         text_pos: ($equipment.text_pos | update y { $"($in)-($BOXES_MARGIN + $FULL_BOX_HEIGHT)" }),
@@ -342,28 +376,12 @@ def gen-stat-page [troop: record, color: string, output: path] {
                     (ffmpeg-text "Special skills" $SPECIAL_SKILLS_TITLE_POS $SPECIAL_SKILLS_TITLE_FONT),
                 ]
                 let skills = $troop.special_skills | enumerate | each { |it|
-                    let skill = match ($it.item | describe --detailed).type {
-                        "string" => { name: $it.item },
-                        "record" => $it.item,
-                    }
-                    let text = if $skill.mod? == null {
-                        $skill.name
-                    } else {
-                        $"($skill.name) \(($skill.mod)\)"
-                    }
                     let pos = {
                         x: $"($SPECIAL_SKILLS_BOX.x)+($SPECIAL_SKILLS_OFFSET.x)",
                         y: $"($SPECIAL_SKILLS_BOX.y)+($SPECIAL_SKILLS_OFFSET.y)+($SPECIAL_SKILLS_V_SPACE)*($it.index)-th/2",
                     }
-                    let font = if $skill.spec? == true {
-                        $SPECIAL_SKILLS_FONT
-                            | update fontfile $BOLD_FONT
-                            | update fontcolor $CORVUS_BELLI_COLORS.yellow
-                    } else {
-                        $SPECIAL_SKILLS_FONT
-                    }
 
-                    [(ffmpeg-text $text $pos $font)]
+                    [(equipment-or-skill-to-text $it.item $SPECIAL_SKILLS_FONT $pos).transform]
                 }
                 $box | append ($skills | flatten)
             }
@@ -372,17 +390,17 @@ def gen-stat-page [troop: record, color: string, output: path] {
         { kind: "drawbox",  options: { ...$weaponry.box, color: "black@0.5", t: "fill" } },
         { kind: "drawbox",  options: { ...$weaponry.box, color: "black@0.5", t: "5" } },
         (ffmpeg-text "WEAPONRY" $weaponry.title_pos $EQUIPMENT_TITLE_FONT),
-        (if $weaponry.text != "" { ffmpeg-text $weaponry.text $weaponry.text_pos $EQUIPMENT_FONT }),
+        ...(equipment-to-text $weaponry),
 
         { kind: "drawbox",  options: { ...$equipment.box, color: "black@0.5", t: "fill" } },
         { kind: "drawbox",  options: { ...$equipment.box, color: "black@0.5", t: "5" } },
         (ffmpeg-text "EQUIPMENT" $equipment.title_pos $EQUIPMENT_TITLE_FONT),
-        (if $equipment.text != "" { ffmpeg-text $equipment.text $equipment.text_pos $EQUIPMENT_FONT }),
+        ...(equipment-to-text $equipment),
 
         { kind: "drawbox",  options: { ...$peripheral.box, color: "black@0.5", t: "fill" } },
         { kind: "drawbox",  options: { ...$peripheral.box, color: "black@0.5", t: "5" } },
         (ffmpeg-text "PERIPHERAL" $peripheral.title_pos $EQUIPMENT_TITLE_FONT),
-        (if $peripheral.text != "" { ffmpeg-text $peripheral.text $peripheral.text_pos $EQUIPMENT_FONT }),
+        ...(equipment-to-text $peripheral),
 
         { kind: "drawbox",  options: { ...$MELEE_BOX, color: "black@0.5", t: "fill" } },
         { kind: "drawbox",  options: { ...$MELEE_BOX, color: "black@0.5", t: "5" } },
