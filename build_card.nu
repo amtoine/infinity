@@ -471,7 +471,7 @@ def gen-stat-page [
                 let stat = match $it.item.k {
                     "BS" => {
                         let skill = $modifiers."BS Attack"?
-                        if $skill != null {
+                        if $skill != null and $skill.k != "AMMO" {
                             let v = $skill.v | into int
                             match $skill.x? {
                                 # NOTE: no "-" (see p.68 of the rulebook)
