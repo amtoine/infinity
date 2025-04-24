@@ -133,6 +133,7 @@ def "put-version" []: [ path -> path ] {
 
 const KV_MODIFIER_FMT           = '^(?<k>.*)=(?<v>.*)$'
 const ATTR_MODIFIER_FMT         = '^(?<x>[+-])(?<v>\d+)(?<k>.*)$'
+const ATTR_MODIFIER_INV_FMT     = '^(?<k>.*)(?<x>[+-])(?<v>\d+)$'
 const MARTIAL_ARTS_MODIFIER_FMT = '^L(?<v>\d+)$'
 
 def "parse modifier-from-skill" []: [ record<name: string, mod: any> -> record ] {
@@ -155,6 +156,17 @@ def "parse modifier-from-skill" []: [ record<name: string, mod: any> -> record ]
         }
     }
 
+    let res = $mod | parse --regex $ATTR_MODIFIER_INV_FMT | into record
+    if $res != {} {
+        # NOTE: see p.68 of the rulebook
+        if $res.k != "B" or $res.x == "-" {
+            log warning $"skipping modifier '($mod)' of skill '($skill.name)'"
+            return null
+        } else {
+            return $res
+        }
+    }
+
     let res = $mod | parse --regex $MARTIAL_ARTS_MODIFIER_FMT | into record
     if $res != {} {
         return ($res | into int v)
@@ -162,6 +174,11 @@ def "parse modifier-from-skill" []: [ record<name: string, mod: any> -> record ]
 
     if $skill.name == "Terrain" {
         return { v: $mod }
+    }
+
+    if $skill.mod == "T2" {
+        log warning $"skipping modifier '($mod)' of skill '($skill.name)'"
+        return null
     }
 
     if $skill.mod != null {
