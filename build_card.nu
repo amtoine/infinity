@@ -308,14 +308,42 @@ def put-weapon-chart [
                     if $skill != null {
                         if $skill.k != "AMMO" {
                             log warning $"invalid key '($skill.k)' for skill '($skill)'"
+                        } else if "CC" in $equipment.stats.TRAITS {
+                            ffmpeg-text $"($stat)" $pos $CHART_FONT_R
                         } else {
                             ffmpeg-text $"($skill.v)" $pos ($CHART_FONT_B | update fontcolor $CORVUS_BELLI_COLORS.yellow)
                         }
                     }
+                } else if $it.item.0.short == "B" {
+                    let skill = if "CC" in $equipment.stats.TRAITS {
+                        $modifiers."CC Attack"?
+                    } else {
+                        $modifiers."BS Attack"?
+                    }
+
+                    if $skill != null and $skill.k != "AMMO" {
+                        let v = $skill.v | into int
+                        let res = match $skill.x? {
+                            # NOTE: no "-" (see p.68 of the rulebook)
+                             "+" => { text: $"($stat + $v)", color: $CORVUS_BELLI_COLORS.green },
+                            null => { text: $"($v)",         color: $CORVUS_BELLI_COLORS.yellow },
+                        }
+                        ffmpeg-text $"($res.text)" $pos ($CHART_FONT_B | update fontcolor $res.color)
+                    } else if $equipment.mod != null and $it.item.0.field == $equipment.mod.k {
+                        let v = $equipment.mod.v | into int
+                        let res = match $equipment.mod.x? {
+                            # NOTE: no "-" (see p.68 of the rulebook)
+                             "+" => { text: $"($stat + $v)", color: $CORVUS_BELLI_COLORS.green },
+                            null => { text: $"($v)",         color: $CORVUS_BELLI_COLORS.yellow },
+                        }
+                        ffmpeg-text $"($res.text)" $pos ($CHART_FONT_B | update fontcolor $res.color)
+                    } else {
+                        ffmpeg-text $"($stat)" $pos $CHART_FONT_R
+                    }
                 } else if $equipment.mod != null and $it.item.0.field == $equipment.mod.k {
                     let v = $equipment.mod.v | into int
                     let res = match $equipment.mod.x? {
-                         "-" => { text: $"($stat - $v)", color: $CORVUS_BELLI_COLORS.red },
+                            # NOTE: no "-" (see p.68 of the rulebook)
                          "+" => { text: $"($stat + $v)", color: $CORVUS_BELLI_COLORS.green },
                         null => { text: $"($v)",         color: $CORVUS_BELLI_COLORS.yellow },
                     }
