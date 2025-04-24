@@ -1,7 +1,7 @@
 {
     isc: "Raktorak, Morat Sergeant Major",
     name: "RAKTORAK, Morat Sergeant Major",
-    short_name: "RAKTORAK (Chain of Command)",
+    short_name: "RAKTORAK",
     faction: "combined-army",
     allowed_factions: ["morat-aggression-forces"],
     asset: "combined-army-morat-raktorak",
@@ -32,11 +32,12 @@
         "Specialist Operative",
         { name: "Terrain", mod: "Total" },
         "Warhorse",
+        { name: "Chain of Command", spec: true },
     ]
     weaponry: ["Vulkan Shotgun"],
     equipment: [],
     peripheral: [],
-    melee_weapons: ["Heavy Pistol", "CC Weapon"],
+    melee_weapons: ["Heavy Pistol", "CCW"],
     SWC: 0,
     C: 25,
 }

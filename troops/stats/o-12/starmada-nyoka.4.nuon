@@ -1,7 +1,7 @@
 {
     isc: "Nyoka Assault Troops",
     name: "NYOKA Assault Troops",
-    short_name: "NYOKA (Parachutist)",
+    short_name: "NYOKA",
     faction: "o-12",
     allowed_factions: ["starmada"],
     asset: "o-12-starmada-nyoka.3",
@@ -30,11 +30,12 @@
         "Courage",
         { name: "Immunity", mod: "Shock" },
         { name: "Terrain", mod: "Zero-G" },
+        { name: "Parachutist", spec: true },
     ],
     weaponry: ["Red Fury", "Chain-colt"],
     equipment: [],
     peripheral: [],
-    melee_weapons: ["Pistol", "Shock CC Weapon"],
+    melee_weapons: ["Pistol", "Shock CCW"],
     SWC: 1,
     C: 29,
 }

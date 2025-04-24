@@ -1,7 +1,7 @@
 {
     isc: "Zerat Special Missions Regiment",
     name: "ZERAT Special Missions Regiment",
-    short_name: "ZERAT (BS Attack [SR-1])",
+    short_name: "ZERAT",
     faction: "combined-army",
     allowed_factions: ["morat-aggression-forces"],
     asset: "combined-army-morat-zerat.any",
@@ -31,11 +31,12 @@
         "Stealth",
         { name: "Terrain", mod: "Total" },
         "Warhorse",
+        { name: "BS Attack", mod: "SR-1", spec: true },
     ]
     weaponry: ["MULTI Marksman Rifle"],
     equipment: [],
     peripheral: [],
-    melee_weapons: ["Heavy Pistol", "CC Weapon"],
+    melee_weapons: ["Heavy Pistol", "CCW"],
     SWC: 1,
     C: 29,
 }

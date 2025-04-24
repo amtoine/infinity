@@ -26,12 +26,12 @@
         AVA:   2,
     }
     special_skills: [
-        "Climbing plus",
+        "Climbing Plus",
         "Courage",
         { name: "Dodge", mod: '+2"' },
         { name: "Forward Deployment", mod: '+4"' },
         { name: "Immunity", mod: "Shock" },
-        { name: "Marial Arts", mod: "L3" },
+        { name: "Martial Arts", mod: "L3" },
         { name: "Mimetism", mod: "-6" },
         "Specialist Operative",
         "Stealth",
@@ -40,7 +40,7 @@
     weaponry: ["MULTI Rifle", "D-Charges", "Eclipse Grenades"],
     equipment: [],
     peripheral: [],
-    melee_weapons: ["Pistol", { name: "AP+DA CC Weapon", mod: "PS=4" } ],
+    melee_weapons: ["Pistol", { name: "AP+DA CCW", mod: "PS=4" } ],
     SWC: 0,
     C: 47,
 }

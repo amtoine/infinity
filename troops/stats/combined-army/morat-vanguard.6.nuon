@@ -1,7 +1,7 @@
 {
     isc: "Morat Vanguard Infantry",
     name: "MORAT VANGUARD INFANTRY",
-    short_name: "MORAT VANGUARD (Paramedic)",
+    short_name: "MORAT VANGUARD",
     faction: "combined-army",
     allowed_factions: ["combined-army", "morat-aggression-forces"],
     asset: "combined-army-morat-vanguard.combi-rifle",
@@ -27,11 +27,12 @@
     special_skills: [
         "Religious Troop",
         "Warhorse",
+        { name: "Paramedic", spec: true },
     ]
     weaponry: ["Combi Rifle"],
     equipment: ["MediKit"],
     peripheral: [],
-    melee_weapons: ["Heavy Pistol", "CC Weapon"],
+    melee_weapons: ["Heavy Pistol", "CCW"],
     SWC: 0,
     C: 16,
 }

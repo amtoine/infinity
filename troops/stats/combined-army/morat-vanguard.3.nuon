@@ -31,7 +31,7 @@
     weaponry: ["K1 Sniper Rifle"],
     equipment: [],
     peripheral: [],
-    melee_weapons: ["Heavy Pistol", "CC Weapon"],
+    melee_weapons: ["Heavy Pistol", "CCW"],
     SWC: 1,
     C: 18,
 }

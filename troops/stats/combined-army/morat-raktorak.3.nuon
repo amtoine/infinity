@@ -36,7 +36,7 @@
     weaponry: ["Red Fury"],
     equipment: [],
     peripheral: [],
-    melee_weapons: ["Heavy Pistol", "CC Weapon"],
+    melee_weapons: ["Heavy Pistol", "CCW"],
     SWC: 1,
     C: 27,
 }

@@ -38,7 +38,7 @@
     weaponry: ["Combi Rifle", "E/M Carbine", "D-Charges", "Eclipse Grenades"],
     equipment: [],
     peripheral: [],
-    melee_weapons: ["Heavy Pistol", { name: "DA CC Weapon", mod: "PS=5" }],
+    melee_weapons: ["Heavy Pistol", { name: "DA CCW", mod: "PS=5" }],
     SWC: 0,
     C: 31,
 }

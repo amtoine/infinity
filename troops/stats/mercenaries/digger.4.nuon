@@ -38,7 +38,7 @@
     weaponry: ["Rifle", "Light Shotgun", "Grenades"],
     equipment: [],
     peripheral: [],
-    melee_weapons: ["Pistol", { name: "AP CC Weapon", mod: "PS=6" }],
+    melee_weapons: ["Pistol", { name: "AP CCW", mod: "PS=6" }],
     SWC: 0,
     C: 18,
 }

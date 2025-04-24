@@ -1,5 +1,6 @@
 use ffmpeg.nu *
-use log.nu [ "log info", "log warning" ]
+use log.nu [ "log info", "log warning", "log error", "log debug" ]
+use std iter
 
 const CANVAS = { w: 1600, h: 1000 }
 const BASE_IMAGE = { kind: "color", options: { c: "0xDDDDDD", s: $"($CANVAS.w)x($CANVAS.h)", d: 1 } }
@@ -28,7 +29,11 @@ const ISC_POS = { x: ($NAME_BOX.x + $NAME_OFFSET_X), y: ($NAME_BOX.y - $NAME_OFF
 const CLASSIFICATION_POS = { x: $"($NAME_BOX.x + $NAME_BOX.w - $NAME_OFFSET_X)-tw", y: $ISC_POS.y }
 const ISC_FONT = { fontfile: $REGULAR_FONT, fontcolor: "black", fontsize: 30 }
 
-const NAME_2_BOX = { x: 35, y: 780, w: (1560 - 35), h: (830 - 780) }
+const QR_CODE_SIZE = 4
+const QR_CODE_MARGIN = 1
+const QR_CODE_WIDTH = 105
+
+const NAME_2_BOX = { x: 810, y: 785, w: (1560 - ($QR_CODE_WIDTH + 10) - 810), h: (840 - 785) }
 const NAME_2_OFFSET_X = 10
 const NAME_2_POS = { x: $"($NAME_2_BOX.x)+($NAME_2_OFFSET_X)", y: $"($NAME_2_BOX.y)+($NAME_2_BOX.h / 2)-th/2" }
 const NAME_2_FONT = { fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: 30 }
@@ -38,7 +43,10 @@ const ICON_BOX = { x: 35, y: 35, w: (155 - 35), h: (155 - 35) }
 const CHARACTERISTICS_BOX = { x: 35, y: 175, w: (120 - 35), h: null }
 const CHARACTERISTICS_V_SPACE = 10
 const CHARACTERISTICS_IMAGE_SIZE = 70 + 5
-const CHARACTERISTICS_TYPE_POS = { x: $"($CHARACTERISTICS_BOX.x + $CHARACTERISTICS_BOX.w // 2)-tw/2", y: $"($CHARACTERISTICS_BOX.y + 20)-th/2" }
+const CHARACTERISTICS_TYPE_POS = {
+    x: $"($CHARACTERISTICS_BOX.x + $CHARACTERISTICS_BOX.w // 2)-tw/2",
+    y: $"($CHARACTERISTICS_BOX.y + 25)-th/2",
+}
 const CHARACTERISTICS_TYPE_FONT = { fontfile: $BOLD_FONT, fontcolor: "white", fontsize: 30 }
 
 const FACTION_POS = { x: 1455, y: 500 }
@@ -55,44 +63,53 @@ const STAT_OFFSET_X = 60
 const STAT_FONT = { fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: 30 }
 
 const MINI_OVERLAY = { kind: "overlay",  options: { x: "320-w/2", y: "H-h-50" } }
+const QR_CODE_OVERLAY = { kind: "overlay",  options: { x: "1560-w", y: $"($NAME_2_BOX.y + $NAME_2_BOX.h)-h" } }
 
 const ALLOWED_FACTIONS_OFFSET = { x: 50, y: 50 }
 const ALLOWED_FACTIONS_IMAGE_SIZE = 70 + 10
 
-const BOTTOM_FIRST_ROW_Y = 880
-const BOTTOM_SECOND_ROW_Y = 925
+const BOTTOM_FIRST_ROW_Y = 885
+const BOTTOM_SECOND_ROW_Y = 930
 
-const EQUIPMENT_BOX = { x: 35, y: 850, w: (690 - 35), h: (960 - 850) }
+const BOXES_MARGIN = 20
+const EMPTY_BOX_HEIGHT = 60
+const FULL_BOX_HEIGHT = 105
+
+const EQUIPMENT_BOX = { x: 35, y: 855, w: (790 - 35), h: null }
 const EQUIPMENT_OFFSET_X = 10
 const EQUIPMENT_TITLE_POS = { x: $"($EQUIPMENT_BOX.x)+($EQUIPMENT_OFFSET_X)", y: $"($BOTTOM_FIRST_ROW_Y)-th/2" }
 const EQUIPMENT_POS = { x: $"($EQUIPMENT_BOX.x)+($EQUIPMENT_OFFSET_X)", y: $"($BOTTOM_SECOND_ROW_Y)-th/2" }
 const EQUIPMENT_FONT_SIZE = 30
 const EQUIPMENT_TITLE_FONT = { fontfile: $BOLD_FONT, fontcolor: "white", fontsize: ($EQUIPMENT_FONT_SIZE - 2) }
-const EQUIPMENT_FONT = { fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: ($EQUIPMENT_FONT_SIZE - 6) }
+const EQUIPMENT_FONT = { fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: ($EQUIPMENT_FONT_SIZE - 8) }
 
-const MELEE_BOX = { x: 710, y: 850, w: (1335 - 710), h: (960 - 850) }
+const LIST_SEPARATOR = ", "
+const LIST_SEPARATOR_V_OFFSET = 10
+const EQUIPMENT_CHAR_SIZE = $EQUIPMENT_FONT.fontsize * 0.6
+
+const MELEE_BOX = { x: 810, y: 855, w: (1335 - 810), h: (960 - 855) }
 const MELEE_OFFSET_X = 10
 const MELEE_WEAPONS_TITLE_POS = { x: $"($MELEE_BOX.x)+($MELEE_OFFSET_X)", y: $"($BOTTOM_FIRST_ROW_Y)-th/2" }
 const MELEE_WEAPONS_POS = { x: $"($MELEE_BOX.x)+($MELEE_OFFSET_X)", y: $"($BOTTOM_SECOND_ROW_Y)-th/2" }
 const MELEE_FONT_SIZE = 30
 const MELEE_WEAPONS_TITLE_FONT  = { fontfile: $BOLD_FONT, fontcolor: "white", fontsize: ($MELEE_FONT_SIZE - 2) }
-const MELEE_WEAPONS_FONT = { fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: ($MELEE_FONT_SIZE - 6) }
+const MELEE_WEAPONS_FONT = { fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: ($MELEE_FONT_SIZE - 8) }
 
-const SWC_BOX = { x: 1355, y: 850, w: (1445 - 1355), h: (960 - 850) }
+const SWC_BOX = { x: 1355, y: 855, w: (1445 - 1355), h: (960 - 855) }
 const SWC_TITLE_POS = { x: $"($SWC_BOX.x)+($SWC_BOX.w // 2)-tw/2", y: $"($BOTTOM_FIRST_ROW_Y)-th/2" }
 const SWC_POS = { x: $"($SWC_BOX.x)+($SWC_BOX.w // 2)-tw/2", y: $"($BOTTOM_SECOND_ROW_Y)-th/2" }
 const SWC_FONT_SIZE = 30
 const SWC_TITLE_FONT = { fontfile: $BOLD_FONT, fontcolor: "white", fontsize: $SWC_FONT_SIZE }
 const SWC_FONT = { fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: $SWC_FONT_SIZE }
 
-const C_BOX = { x: 1460, y: 850, w: (1560 - 1460), h: (960 - 850) }
+const C_BOX = { x: 1460, y: 855, w: (1560 - 1460), h: (960 - 855) }
 const C_TITLE_POS = { x: $"($C_BOX.x)+($C_BOX.w // 2)-tw/2", y: $"($BOTTOM_FIRST_ROW_Y)-th/2" }
 const C_POS = { x: $"($C_BOX.x)+($C_BOX.w // 2)-tw/2", y: $"($BOTTOM_SECOND_ROW_Y)-th/2" }
 const C_FONT_SIZE = 30
 const C_TITLE_FONT = { fontfile: $BOLD_FONT, fontcolor: "white", fontsize: $C_FONT_SIZE }
 const C_FONT = { fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: $C_FONT_SIZE }
 
-const SPECIAL_SKILLS_BOX = { x: 1240, y: 350, w: (1560 - 1240), h: null }
+const SPECIAL_SKILLS_BOX = { x: 1135, y: 350, w: (1560 - 1135), h: null }
 const SPECIAL_SKILLS_OFFSET = { x: 10, y: 80 }
 const SPECIAL_SKILLS_V_BASE = 100
 const SPECIAL_SKILLS_V_SPACE = 30
@@ -108,6 +125,68 @@ def "ffmpeg-text" [text: string, position: record<x, y>, options: record] {
         | str replace --all "]" "\\]"
         | $"'($in)'"
     { kind: "drawtext", options: { text: $text, ...$position, ...$options } }
+}
+
+def "put-version" []: [ path -> path ] {
+    let versions = open versions.json
+    let version_text = $"(git describe) [Army: ($versions.army), Rules: ($versions.rules)]"
+    let out = mktemp --tmpdir infinity-XXXXXXX.png
+    $in | ffmpeg apply ((ffmpeg-text $version_text $VERSION_POS $VERSION_FONT) | ffmpeg options) --output $out
+}
+
+const KV_MODIFIER_FMT           = '^(?<k>.*)=(?<v>.*)$'
+const ATTR_MODIFIER_FMT         = '^(?<x>[+-])(?<v>\d+)(?<k>.*)$'
+const ATTR_MODIFIER_INV_FMT     = '^(?<k>.*)(?<x>[+-])(?<v>\d+)$'
+const MARTIAL_ARTS_MODIFIER_FMT = '^L(?<v>\d+)$'
+
+def "parse modifier-from-skill" []: [ record<name: string, mod: any> -> record ] {
+    let skill = $in
+    let mod = $skill.mod? | default ""
+
+    let res = $mod | parse --regex $KV_MODIFIER_FMT | into record
+    if $res != {} {
+        return $res
+    }
+
+    let res = $mod | parse --regex $ATTR_MODIFIER_FMT | into record
+    if $res != {} {
+        # NOTE: see p.68 of the rulebook
+        if $res.k != "B" or $res.x == "-" {
+            log warning $"skipping modifier '($mod)' of skill '($skill.name)'"
+            return null
+        } else {
+            return $res
+        }
+    }
+
+    let res = $mod | parse --regex $ATTR_MODIFIER_INV_FMT | into record
+    if $res != {} {
+        # NOTE: see p.68 of the rulebook
+        if $res.k != "B" or $res.x == "-" {
+            log warning $"skipping modifier '($mod)' of skill '($skill.name)'"
+            return null
+        } else {
+            return $res
+        }
+    }
+
+    let res = $mod | parse --regex $MARTIAL_ARTS_MODIFIER_FMT | into record
+    if $res != {} {
+        return ($res | into int v)
+    }
+
+    if $skill.name == "Terrain" {
+        return { v: $mod }
+    }
+
+    if $skill.mod == "T2" {
+        return { k: "AMMO", v: "T2" }
+    }
+
+    if $skill.mod != null {
+        log error $"could not parse modifier '($mod)' of skill '($skill.name)'"
+    }
+    return null
 }
 
 const RANGES = ['8"', '16"', '24"', '32"', '40"', '48"', '96"']
@@ -130,13 +209,13 @@ const CORVUS_BELLI_COLORS = {
     gray:   "0xcdd5de",
 }
 
-const CHART_FONT_SIZE = 30
-const CHART_FONT_CHAR_SIZE = 18
+const CHART_FONT_SIZE = 25
+const CHART_FONT_CHAR_SIZE = 15
 const CHART_OFFSET_Y = 30
-const CHART_ATTR_INTERSPACE = 20
-const CHART_RANGE_CELL_WIDTH = 98
-const CHART_RANGE_CELL_HEIGHT = 50
-const CHART_START = { x: 20, y: 50 }
+const CHART_ATTR_INTERSPACE = 15
+const CHART_RANGE_CELL_WIDTH = 70
+const CHART_RANGE_CELL_HEIGHT = 45
+const CHART_START = { x: 560, y: 50 }
 const CHART_NAMES_OFFSET_X = 10
 const CHART_FONT_B = { fontfile: $BOLD_FONT,    fontcolor: "black", fontsize: $CHART_FONT_SIZE }
 const CHART_FONT_R = { fontfile: $REGULAR_FONT, fontcolor: "black", fontsize: $CHART_FONT_SIZE }
@@ -144,13 +223,22 @@ const CHART_V_SPACE = 60
 const CHART_TRAITS_V_SPACE = 50
 const CHART_TRAITS_H_SPACE = 20
 
-def put-weapon-chart [equipment: record, x: int, y: int, column_widths: record, --no-header]: [ path -> path ] {
+def put-weapon-chart [
+    equipment: record,
+    x: int,
+    y: int,
+    column_widths: record,
+    --no-header,
+    modifiers: table<name: string, mod: record>,
+]: [ path -> path ] {
     let widths = $column_widths | values
     let positions = $widths
         | zip ($widths | skip 1)
-        | reduce --fold [($CHART_ATTR_INTERSPACE + $CHART_FONT_CHAR_SIZE * $widths.0)] { |it, acc|
+        | reduce --fold [($CHART_ATTR_INTERSPACE / 2 + $CHART_FONT_CHAR_SIZE * $widths.0)] { |it, acc|
             $acc | append (($acc | last) + $CHART_ATTR_INTERSPACE + $CHART_FONT_CHAR_SIZE * ($it.0 + $it.1) / 2)
         }
+
+    let modifiers = $modifiers | transpose --header-row | into record
 
     let transforms = [
         # range headers
@@ -195,7 +283,7 @@ def put-weapon-chart [equipment: record, x: int, y: int, column_widths: record, 
             } else {
                 $STATS | zip $positions | enumerate | each {
                     let pos = {
-                        x: $"($x + ($RANGES | length) * $CHART_RANGE_CELL_WIDTH + ($RANGES | length) - 1 + $in.item.1)-tw/2",
+                        x: $"($x + ($RANGES | length) * $CHART_RANGE_CELL_WIDTH + $in.item.1)-tw/2",
                         y: $y
                     }
                     ffmpeg-text $in.item.0.short $pos $CHART_FONT_B
@@ -205,59 +293,114 @@ def put-weapon-chart [equipment: record, x: int, y: int, column_widths: record, 
         # stats values
         ...($STATS | zip $positions | enumerate | each { |it|
             let pos = {
-                x: $"($x + ($RANGES | length) * $CHART_RANGE_CELL_WIDTH + ($RANGES | length) - 1 + $it.item.1)-tw/2",
+                x: $"($x + ($RANGES | length) * $CHART_RANGE_CELL_WIDTH + $it.item.1)-tw/2",
                 y: $"(if $no_header { $y } else { $y + $CHART_OFFSET_Y })+($CHART_RANGE_CELL_HEIGHT / 2)-th/2"
             }
-            if $it.item.0.field == "TRAITS" {
-                let text = if ($equipment.stats | get $it.item.0.field | is-empty) {
+            let text = if $it.item.0.field == "TRAITS" {
+                if ($equipment.stats | get $it.item.0.field | is-empty) {
                     ""
                 } else {
                     "*"
                 }
-                ffmpeg-text $text $pos $CHART_FONT_R
             } else {
-                let stat = $equipment.stats | get $it.item.0.field
-
-                if $equipment.mod != null and $it.item.0.field == $equipment.mod.k {
-                    let v = $equipment.mod.v | into int
-                    let res = match $equipment.mod.x? {
-                         "-" => { text: $"($stat - $v)", color: $CORVUS_BELLI_COLORS.red },
-                         "+" => { text: $"($stat + $v)", color: $CORVUS_BELLI_COLORS.green },
-                        null => { text: $"($v)",         color: $CORVUS_BELLI_COLORS.yellow },
-                    }
-                    ffmpeg-text $"($res.text)" $pos ($CHART_FONT_B | update fontcolor $res.color)
-                } else {
-                    ffmpeg-text $"($stat)" $pos $CHART_FONT_R
-                }
+                $"($equipment.stats | get $it.item.0.field)"
             }
+            ffmpeg-text $text $pos $CHART_FONT_R
         }),
     ]
 
     $in | ffmpeg mapply ($transforms | each { ffmpeg options }) --output (mktemp --tmpdir infinity-XXXXXXX.png)
 }
 
-def gen-stat-page [troop: record, color: string, output: path] {
-    let equipment_text = [$troop.weaponry, $troop.equipment, $troop.peripheral]
-        | each { default [] }
-        | each {
-            each { |it|
-                match ($it | describe --detailed).type {
-                    "string" => $it,
-                    "record" => $"($it.name) \(($it.mod)\)"
+def gen-stat-page [
+    troop: record,
+    color: string,
+    output: path,
+    modifiers: table<name: string, mod: record>,
+] {
+    def equipment-or-skill-to-text [
+        equipment_or_skill,
+        base_font: record<fontfile: path, fontcolor: string, fontsize: int>,
+        pos: record<x: any, y: any>,
+    ]: [ nothing -> record<transform: record, text: string> ] {
+        let equipment_or_skill = match ($equipment_or_skill | describe --detailed).type {
+            "string" => { name: $equipment_or_skill },
+            "record" => $equipment_or_skill,
+        }
+
+        let text = if $equipment_or_skill.mod? == null {
+            $equipment_or_skill.name
+        } else {
+            $"($equipment_or_skill.name) \(($equipment_or_skill.mod)\)"
+        }
+        let font = $base_font | if $equipment_or_skill.spec? == true {
+            update fontfile $BOLD_FONT
+        } else {
+            $in
+        }
+
+        { transform: (ffmpeg-text $text $pos $base_font), text: $text }
+    }
+
+    def equipment-to-text [x: record]: [ nothing -> list<record> ] {
+        if $x.equipment == [] {
+            return []
+        }
+
+        $x.equipment
+            | iter intersperse $LIST_SEPARATOR
+            | reduce --fold { transforms: [], pos: $x.text_pos } { |it, acc|
+                let pos = if $it == $LIST_SEPARATOR {
+                    $acc.pos | update y { $"($in)+($LIST_SEPARATOR_V_OFFSET)" }
+                } else {
+                    $acc.pos
                 }
+                let res = equipment-or-skill-to-text $it $EQUIPMENT_FONT $pos
+                let next_pos = $acc.pos
+                    | update x { $"($in) + (($res.text | str length) * $EQUIPMENT_CHAR_SIZE)" }
+
+                { transforms: ($acc.transforms | append $res.transform), pos: $next_pos }
             }
-        }
-        | each { str join "\\, " }
-        | match ($in | each { is-empty }) {
-            [false, false, false] => { $"($in.0) | ($in.1) || ($in.2)" },
-            [false, false,  true] => { $"($in.0) | ($in.1)" },
-            [false,  true, false] => { $"($in.0) || ($in.2)" },
-            [false,  true,  true] => { $"($in.0)" },
-            [ true, false, false] => { $"_ | ($in.1) || ($in.2)" },
-            [ true, false,  true] => { $"_ | ($in.1)" },
-            [ true,  true, false] => { $"_ | _ || ($in.2)" },
-            [ true,  true,  true] => { "" },
-        }
+            | get transforms
+    }
+
+    let modifiers = $modifiers | transpose --header-row | into record
+
+    let peripheral = $troop.peripheral | if $in == [] {{
+        equipment: $in,
+        box: ($EQUIPMENT_BOX | update h $EMPTY_BOX_HEIGHT | update y { $in + $FULL_BOX_HEIGHT - $EMPTY_BOX_HEIGHT }),
+        title_pos: ($EQUIPMENT_TITLE_POS | update y { $"($in)+($FULL_BOX_HEIGHT - $EMPTY_BOX_HEIGHT)" }),
+        text_pos: ($EQUIPMENT_POS | update y { $"($in)+($FULL_BOX_HEIGHT - $EMPTY_BOX_HEIGHT)" }),
+    }} else {{
+        equipment: $in,
+        box: ($EQUIPMENT_BOX | update h $FULL_BOX_HEIGHT),
+        title_pos: $EQUIPMENT_TITLE_POS,
+        text_pos: $EQUIPMENT_POS,
+    }}
+
+    let equipment = $troop.equipment | if $in == [] {{
+        equipment: $in,
+        box: ($peripheral.box | update y { $in - ($BOXES_MARGIN + $EMPTY_BOX_HEIGHT) } | update h $EMPTY_BOX_HEIGHT),
+        title_pos: ($peripheral.title_pos | update y { $"($in)-($BOXES_MARGIN + $EMPTY_BOX_HEIGHT)" }),
+        text_pos: ($peripheral.text_pos | update y { $"($in)-($BOXES_MARGIN + $EMPTY_BOX_HEIGHT)" }),
+    }} else {{
+        equipment: $in,
+        box: ($peripheral.box | update y { $in - ($BOXES_MARGIN + $FULL_BOX_HEIGHT) } | update h $FULL_BOX_HEIGHT),
+        title_pos: ($peripheral.title_pos | update y { $"($in)-($BOXES_MARGIN + $FULL_BOX_HEIGHT)" }),
+        text_pos: ($peripheral.text_pos | update y { $"($in)-($BOXES_MARGIN + $FULL_BOX_HEIGHT)" }),
+    }}
+
+    let weaponry = $troop.weaponry | if $in == [] {{
+        equipment: $in,
+        box: ($equipment.box | update y { $in - ($BOXES_MARGIN + $EMPTY_BOX_HEIGHT) } | update h $EMPTY_BOX_HEIGHT),
+        title_pos: ($equipment.title_pos | update y { $"($in)-($BOXES_MARGIN + $EMPTY_BOX_HEIGHT)" }),
+        text_pos: ($equipment.text_pos | update y { $"($in)-($BOXES_MARGIN + $EMPTY_BOX_HEIGHT)" }),
+    }} else {{
+        equipment: $in,
+        box: ($equipment.box | update y { $in - ($BOXES_MARGIN + $FULL_BOX_HEIGHT) } | update h $FULL_BOX_HEIGHT),
+        title_pos: ($equipment.title_pos | update y { $"($in)-($BOXES_MARGIN + $FULL_BOX_HEIGHT)" }),
+        text_pos: ($equipment.text_pos | update y { $"($in)-($BOXES_MARGIN + $FULL_BOX_HEIGHT)" }),
+    }}
 
     let characteristics_box = $CHARACTERISTICS_BOX | update h (
         $CHARACTERISTICS_BOX.w // 2 +  # because text is twice larger
@@ -267,6 +410,12 @@ def gen-stat-page [troop: record, color: string, output: path] {
     let special_skills_box = $SPECIAL_SKILLS_BOX | update h (
         $SPECIAL_SKILLS_V_BASE + $SPECIAL_SKILLS_V_SPACE * (($troop.special_skills | length) - 1)
     )
+
+    let qrcode = mktemp --tmpdir infinity-XXXXXXX.png
+    log info $"generating QR code in (ansi purple)($qrcode)(ansi reset)"
+    qrencode --margin $QR_CODE_MARGIN --size $QR_CODE_SIZE -o $qrcode $troop.reference
+    let qrcode = $qrcode
+        | ffmpeg apply $"scale=($QR_CODE_WIDTH):($QR_CODE_WIDTH)" --output (mktemp --tmpdir infinity-XXXXXXX.png)
 
     let transforms = [
         (ffmpeg-text $"ISC: ($troop.isc)"  $ISC_POS            $ISC_FONT),
@@ -293,10 +442,72 @@ def gen-stat-page [troop: record, color: string, output: path] {
         { kind: "drawbox",  options: { ...$STAT_VALS_BOX, color: "black@0.5",     t: "fill" } },
         { kind: "drawbox",  options: { ...$STAT_VALS_BOX, color: "black@0.5",     t: "5" } },
         ...(
-            $troop.stats | transpose k v | enumerate | each { |it| [
-                (ffmpeg-text $"($it.item.k)" { x: $"($STAT_KEYS_BOX.x)+($STAT_OFFSET_X)+($it.index)*($STAT_H_SPACE)-tw/2", y: $"($STAT_KEYS_BOX.y)+($STAT_KEYS_BOX.h / 2)-th/2" } $STAT_FONT),
-                (ffmpeg-text $"($it.item.v)" { x: $"($STAT_VALS_BOX.x)+($STAT_OFFSET_X)+($it.index)*($STAT_H_SPACE)-tw/2", y: $"($STAT_VALS_BOX.y)+($STAT_VALS_BOX.h / 2)-th/2" } $STAT_FONT),
-            ] } | flatten
+            $troop.stats | transpose k v | enumerate | each { |it|
+                const MARTIAL_ARTS = [
+                    [level, attack, opponent, burst      ];
+                    [    1,      0,       -3, [0]        ],
+                    [    2,     +3,       -3, [0]        ],
+                    [    3,     +3,       -3, [+1SD]     ],
+                    [    4,     +3,       -3, [+1B]      ],
+                    [    5,     +3,       -3, [+1B, +1SD]],
+                ]
+
+                let stat = match $it.item.k {
+                    "BS" => {
+                        let skill = $modifiers."BS Attack"?
+                        if $skill != null and $skill.k != "AMMO" {
+                            let v = $skill.v | into int
+                            match $skill.x? {
+                                # NOTE: no "-" (see p.68 of the rulebook)
+                                 "+" => $"($it.item.v)+($v)",
+                                null => $"($it.item.v)->($v)",
+                            }
+                        }
+                    },
+                    "CC" => {
+                        let cc_skill = $modifiers."CC Attack"?
+                        let ma_skill = $modifiers."Martial Arts"?
+
+                        let cc_value = if $cc_skill != null and $cc_skill.k == "" {
+                            let v = $cc_skill.v | into int
+                            match $cc_skill.x? {
+                                # NOTE: no "-" (see p.68 of the rulebook)
+                                 "+" => { $"($it.item.v)+($v)" },
+                                null => { $"($it.item.v)->($v)" },
+                            }
+                        } else {
+                            $it.item.v
+                        }
+
+                        if $ma_skill != null {
+                            let art = $MARTIAL_ARTS | where level == $ma_skill.v | into record
+                            $cc_value + $art.attack
+                        } else {
+                            $cc_value
+                        }
+                    },
+                    "MOV" => {
+                        let skill = $modifiers."Terrain"?
+                        let mov = $it.item.v | parse "{f}-{s}" | into record | into int f s
+
+                        if $skill != null {
+                            match $skill.v {
+                                "Total" => $"($mov.f)+1/($mov.s)",
+                                _ => $"($mov.f)~1/($mov.s)",
+                            }
+                        } else {
+                            $"($mov.f)/($mov.s)"
+                        }
+                    },
+                    _ => null,
+                }
+                | default $it.item.v
+
+                [
+                    (ffmpeg-text $"($it.item.k)" { x: $"($STAT_KEYS_BOX.x)+($STAT_OFFSET_X)+($it.index)*($STAT_H_SPACE)-tw/2", y: $"($STAT_KEYS_BOX.y)+($STAT_KEYS_BOX.h / 2)-th/2" } $STAT_FONT),
+                    (ffmpeg-text $"($stat)" { x: $"($STAT_VALS_BOX.x)+($STAT_OFFSET_X)+($it.index)*($STAT_H_SPACE)-tw/2", y: $"($STAT_VALS_BOX.y)+($STAT_VALS_BOX.h / 2)-th/2" } $STAT_FONT),
+                ]
+            } | flatten
         ),
 
         ...(
@@ -309,25 +520,31 @@ def gen-stat-page [troop: record, color: string, output: path] {
                     (ffmpeg-text "Special skills" $SPECIAL_SKILLS_TITLE_POS $SPECIAL_SKILLS_TITLE_FONT),
                 ]
                 let skills = $troop.special_skills | enumerate | each { |it|
-                    let text = match ($it.item | describe --detailed).type {
-                        "string" => $it.item,
-                        "record" => $"($it.item.name) \(($it.item.mod)\)",
-                    }
                     let pos = {
                         x: $"($SPECIAL_SKILLS_BOX.x)+($SPECIAL_SKILLS_OFFSET.x)",
                         y: $"($SPECIAL_SKILLS_BOX.y)+($SPECIAL_SKILLS_OFFSET.y)+($SPECIAL_SKILLS_V_SPACE)*($it.index)-th/2",
                     }
 
-                    [(ffmpeg-text $text $pos $SPECIAL_SKILLS_FONT)]
+                    [(equipment-or-skill-to-text $it.item $SPECIAL_SKILLS_FONT $pos).transform]
                 }
                 $box | append ($skills | flatten)
             }
         ),
 
-        { kind: "drawbox",  options: { ...$EQUIPMENT_BOX, color: "black@0.5", t: "fill" } },
-        { kind: "drawbox",  options: { ...$EQUIPMENT_BOX, color: "black@0.5", t: "5" } },
-        (ffmpeg-text "WEAPONRY | EQUIPMENT || PERIPHERAL" $EQUIPMENT_TITLE_POS  $EQUIPMENT_TITLE_FONT),
-        (ffmpeg-text $equipment_text                      $EQUIPMENT_POS        $EQUIPMENT_FONT),
+        { kind: "drawbox",  options: { ...$weaponry.box, color: "black@0.5", t: "fill" } },
+        { kind: "drawbox",  options: { ...$weaponry.box, color: "black@0.5", t: "5" } },
+        (ffmpeg-text "WEAPONRY" $weaponry.title_pos $EQUIPMENT_TITLE_FONT),
+        ...(equipment-to-text $weaponry),
+
+        { kind: "drawbox",  options: { ...$equipment.box, color: "black@0.5", t: "fill" } },
+        { kind: "drawbox",  options: { ...$equipment.box, color: "black@0.5", t: "5" } },
+        (ffmpeg-text "EQUIPMENT" $equipment.title_pos $EQUIPMENT_TITLE_FONT),
+        ...(equipment-to-text $equipment),
+
+        { kind: "drawbox",  options: { ...$peripheral.box, color: "black@0.5", t: "fill" } },
+        { kind: "drawbox",  options: { ...$peripheral.box, color: "black@0.5", t: "5" } },
+        (ffmpeg-text "PERIPHERAL" $peripheral.title_pos $EQUIPMENT_TITLE_FONT),
+        ...(equipment-to-text $peripheral),
 
         { kind: "drawbox",  options: { ...$MELEE_BOX, color: "black@0.5", t: "fill" } },
         { kind: "drawbox",  options: { ...$MELEE_BOX, color: "black@0.5", t: "5" } },
@@ -362,7 +579,8 @@ def gen-stat-page [troop: record, color: string, output: path] {
         } else {
             $in
         }
-        | ffmpeg mapply ($transforms | each { ffmpeg options })
+        | [$in, $qrcode] | ffmpeg combine ($QR_CODE_OVERLAY | ffmpeg options) --output (mktemp --tmpdir infinity-XXXXXXX.png)
+        | ffmpeg mapply ($transforms | compact | each { ffmpeg options })
 
     let tmp = $troop.characteristics
         | enumerate
@@ -371,7 +589,7 @@ def gen-stat-page [troop: record, color: string, output: path] {
                 kind: "overlay",
                 options: {
                     x: $"($characteristics_box.x + $characteristics_box.w // 2)-w/2",
-                    y: $"($characteristics_box.y + $CHARACTERISTICS_IMAGE_SIZE)+($it.index * $CHARACTERISTICS_IMAGE_SIZE)-h/2",
+                    y: $"($characteristics_box.y + $CHARACTERISTICS_IMAGE_SIZE)+(5)+($it.index * $CHARACTERISTICS_IMAGE_SIZE)-h/2",
                 },
             } | ffmpeg options) --output (mktemp --tmpdir infinity-XXXXXXX.png)
         }
@@ -392,33 +610,48 @@ def gen-stat-page [troop: record, color: string, output: path] {
             } | ffmpeg options) --output (mktemp --tmpdir infinity-XXXXXXX.png)
         }
 
-    let versions = open versions.json
-    let version_text = $"[Army: ($versions.army), Rules: ($versions.rules)]"
-    let tmp = $tmp | ffmpeg apply ((ffmpeg-text $version_text $VERSION_POS $VERSION_FONT) | ffmpeg options) --output (mktemp --tmpdir infinity-XXXXXXX.png)
+    let tmp = $tmp | put-version
 
     let out = $output | path parse | update stem { $in ++ ".1" } | path join
     cp $tmp $out
     log info $"\t(ansi purple)($out)(ansi reset)"
 }
 
-def gen-charts-page [troop: record, output: path] {
-    let charts = [
-        [name,             type];
+def fit-items-in-width [
+    items: list<string>, h_space: int, --separator: string = ", "
+]: [
+    nothing -> list<list<string>>
+] {
+    generate { |var|
+        let res = $var
+            | skip 1
+            | reduce --fold [$var.0] { |it, acc|
+                $acc ++ [$"($acc | last)($separator)($it)"]
+            }
+            | where ($it | str length) <= $h_space
+            | last
+            | split row $separator
 
-        [cc-weapons,       cc],
-        [pistols,          pistol],
-        [rifles,           rifle],
-        [uncategorized,    null],
-        [grenades,         grenade],
-        [submachine-guns,  submachine_gun],
-        [shotguns,         shotgun],
-        [red_furies,       red_fury],
-        [rocket_launchers, rocket_launcher],
-    ] | reduce --fold [] { |it, acc|
-        $acc ++ (
-            { parent: "charts/weapons", stem: $it.name, extension: "csv" } | path join | open $in | insert type $it.type
-        )
+        let next = $var | skip ($res | length)
+
+        if ($next | is-empty) {
+            { out: $res }
+        } else {
+            { out: $res, next: $next }
+        }
+    } $items
+}
+
+def gen-charts-page [
+    troop: record,
+    output: path,
+    modifiers: table<name: string, mod: record>,
+] {
+    let charts = ls charts/weapons/*.csv | reduce --fold [] { |it, acc|
+        $acc ++ (open $it.name)
     }
+
+    let mods = $modifiers | transpose --header-row | into record
     let equipments = $troop.weaponry ++ $troop.equipment ++ $troop.peripheral ++ $troop.melee_weapons
         | each { |it|
             match ($it | describe --detailed).type {
@@ -429,52 +662,78 @@ def gen-charts-page [troop: record, output: path] {
         | insert stats { |var|
             let equipment = $charts | where NAME == ($var.name | str upcase)
             if ($equipment | length) == 0 {
-                log warning $"(ansi cyan)($var.name)(ansi reset) not found in charts"
+                log error $"(ansi cyan)($var.name)(ansi reset) not found in charts"
             }
             $equipment | each { into record }
         }
-        | upsert mod { |it|
-            let res = $it.mod? | default "" | parse "{k}={v}" | into record
-            if $res != {} {
-                $res
+        | flatten stats
+        | update name { |it|
+            if $it.stats.MODE == "" {
+                $it.stats.NAME
             } else {
-                let res = $it.mod? | default "" | parse --regex '(?<x>[+-])(?<v>\d+)(?<k>.+)' | into record
-                if $res != {} {
-                    $res
-                } else {
-                    if $it.mod? != null {
-                        log warning $"could not parse modifier '($it.mod)' of '($it.name)'"
-                    }
-                    null
-                }
+                $"($it.stats.NAME) \(($it.stats.MODE)\)"
             }
         }
+        | default null mod
+        | upsert mod { |it| $it | reject stats | parse modifier-from-skill }
         | where not ($it.stats | is-empty)
-        | flatten stats
+        | update stats { |it|
+            let stat = $it.stats
+                | update AMMUNITION { |stat|
+                    let skill = $mods."BS Attack"?
+                    if $skill != null {
+                        if $skill.k != "AMMO" {
+                            log warning $"invalid key '($skill.k)' for skill '($skill)'"
+                        } else if "CC" in $it.stats.TRAITS {
+                            $stat.AMMUNITION
+                        } else {
+                            $"($stat.AMMUNITION)->($skill.v)"
+                        }
+                    } else {
+                        $stat.AMMUNITION
+                    }
+                }
+                | update B { |stat|
+                    let skill = if "CC" in $it.stats.TRAITS {
+                        $mods."CC Attack"?
+                    } else {
+                        $mods."BS Attack"?
+                    }
 
-    # TODO: include modifier from special skills ?
-    for skill in $troop.special_skills {
-        if ($skill | describe --detailed).type == "record" {
-            log warning $"skipping modifier '($skill.mod)' of '($skill.name)'"
+                    if $skill != null and $skill.k == "B" {
+                        let v = $skill.v | into int
+                        match $skill.x? {
+                            # NOTE: no "-" (see p.68 of the rulebook)
+                             "+" => $"($stat.B)+($v)",
+                            null => $"($stat.B)->($v)",
+                        }
+                    } else {
+                        $stat.B
+                    }
+                }
+                if $it.mod? != null {
+                    let v = $it.mod.v | into int
+                    match $it.mod.x? {
+                        # NOTE: no "-" (see p.68 of the rulebook)
+                         "+" => { $stat | update $it.mod.k { $"($in)+($v)" } },
+                        null => { $stat | update $it.mod.k { $"($in)->($v)" } },
+                    }
+                } else {
+                    $stat
+                }
         }
-    }
 
     if ($equipments | is-empty) {
         log warning "\tno equipment"
-        let versions = open versions.json
-        let version_text = $"[Army: ($versions.army), Rules: ($versions.rules)]"
         let res = ffmpeg create ($BASE_IMAGE | ffmpeg options) --output (mktemp --tmpdir infinity-XXXXXXX.png)
-            | ffmpeg apply ((ffmpeg-text $version_text $VERSION_POS $VERSION_FONT) | ffmpeg options) --output (mktemp --tmpdir infinity-XXXXXXX.png)
+            | put-version
         let out = $output | path parse | update stem { $in ++ ".2" } | path join
         cp $res $out
         log info $"\t(ansi purple)($out)(ansi reset)"
         return
     }
 
-    let offset = {
-        x: ($CHART_START.x + $CHART_FONT_CHAR_SIZE * ($equipments.name | each { str length } | math max)),
-        y: $CHART_START.y
-    }
+    let offset = $CHART_START
 
     let names_transforms = $equipments | enumerate | each {(
         ffmpeg-text $in.item.name
@@ -486,24 +745,9 @@ def gen-charts-page [troop: record, output: path] {
         | where not ($it.stats.TRAITS | is-empty)
         | enumerate
         | each { |var|
-            let x_space = ($CANVAS.w - $offset.x - $CHART_START.x - 20) / $CHART_FONT_CHAR_SIZE | into int
-            let traits = $var.item.stats.TRAITS | split row ", "
-            let res = generate { |var|
-                let res = $var
-                    | skip 1
-                    | reduce --fold [$var.0] { |it, acc| $acc ++ [$"($acc | last), ($it)"] }
-                    | where ($it | str length) <= $x_space
-                    | last
-                    | split row ", "
-
-                let next = $var | skip ($res | length)
-
-                if ($next | is-empty) {
-                    { out: $res }
-                } else {
-                    { out: $res, next: $next }
-                }
-            } $traits
+            let h_space = ($CANVAS.w - $offset.x - 20) / $CHART_FONT_CHAR_SIZE | into int
+            let items = $var.item.stats.TRAITS | split row ", "
+            let res = fit-items-in-width $items $h_space --separator ", "
             $res | each { str join ", " } | enumerate | each { |it|
                 let name = if $it.index == 0 {
                     $var.item.name
@@ -569,12 +813,10 @@ def gen-charts-page [troop: record, output: path] {
         | insert item.no_header { $in.index > 0 }
         | get item
         | reduce --fold $res { |it, acc|
-            $acc | put-weapon-chart $it.equipment $it.x $it.y $column_widths --no-header=$it.no_header
+            $acc | put-weapon-chart $it.equipment $it.x $it.y $column_widths $modifiers --no-header=$it.no_header
         }
 
-    let versions = open versions.json
-    let version_text = $"[Army: ($versions.army), Rules: ($versions.rules)]"
-    let res = $res | ffmpeg apply ((ffmpeg-text $version_text $VERSION_POS $VERSION_FONT) | ffmpeg options) --output (mktemp --tmpdir infinity-XXXXXXX.png)
+    let res = $res | put-version
 
     let out = $output | path parse | update stem { $in ++ ".2" } | path join
     cp $res $out
@@ -582,17 +824,50 @@ def gen-charts-page [troop: record, output: path] {
 
 }
 
+# skills that do not modify stats directly but rather change the way the game is
+# played
+const UNSUPPORTED_SKILLS = [
+    "NCO", "Booty", "Dodge", "Dogged", "Frenzy", "Hacker", "Sensor", "Courage",
+    "Stealth", "Commlink", "Discover", "Immunity", "Mimetism", "No Cover",
+    "Number 2", "Warhorse", "Impetuous", "Minelayer", "Paramedic", "Lieutenant",
+    "Peripheral", "Super-Jump", "Combat Jump", "Parachutist", "Infiltration",
+    "Marksmanship", "Climbing Plus", "Transmutation", "Combat Instinct",
+    "Religious Troop", "Chain of Command", "Forward Observer",
+    "Forward Deployment", "Natural Born Warrior", "Specialist Operative",
+]
+
+# skills that modify the stats directly
+const SUPPORTED_SKILLS = [ "BS Attack", "CC Attack", "Martial Arts", "Terrain" ]
+
 export def main [troop: record, --color: string, --output: path = "output.png", --stats, --charts] {
+    let modifiers = $troop.special_skills | each { |skill|
+        let skill = if ($skill | describe --detailed).type == "record" {
+            $skill | default null mod | reject spec?
+        } else {
+            { name: $skill, mod: null }
+        }
+
+        if $skill.name in $SUPPORTED_SKILLS {
+            $skill
+        } else if $skill.name in $UNSUPPORTED_SKILLS {
+            log debug $"skipping skill '($skill)'"
+        } else {
+            log warning $"skipping skill '($skill)'"
+        }
+    }
+    | upsert mod { |it| $it | parse modifier-from-skill }
+    | where $it.mod != null
+
     match [$stats, $charts] {
         [true, true] | [false, false] => {
-            gen-stat-page $troop $color $output
-            gen-charts-page $troop $output
+            gen-stat-page $troop $color $output $modifiers
+            gen-charts-page $troop $output $modifiers
         },
         [true, false] => {
-            gen-stat-page $troop $color $output
+            gen-stat-page $troop $color $output $modifiers
         },
         [false, true] => {
-            gen-charts-page $troop $output
+            gen-charts-page $troop $output $modifiers
         },
     }
 }

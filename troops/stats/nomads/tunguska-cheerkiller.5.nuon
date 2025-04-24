@@ -1,7 +1,7 @@
 {
     isc: "Tunguska Cheerkillers",
     name: "Tunguska CHEERKILLERS",
-    short_name: "CHEERKILLER (Multispectral Visor L2)",
+    short_name: "CHEERKILLER",
     faction: "nomads",
     allowed_factions: ["tunguska"],
     asset: "nomads-tunguska-cheerkiller.any",
@@ -30,9 +30,9 @@
         "Super-Jump",
     ],
     weaponry: ["Shock Marksman Rifle", "Nanopulser"],
-    equipment: [],
+    equipment: [{ name: "Multispectral Visor", mod: "L2", spec: true }],
     peripheral: [],
-    melee_weapons: ["Pistol", "Shock CC Weapon"],
+    melee_weapons: ["Pistol", "Shock CCW"],
     SWC: 0,
     C: 24,
 }

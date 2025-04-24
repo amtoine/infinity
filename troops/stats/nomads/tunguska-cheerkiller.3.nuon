@@ -32,7 +32,7 @@
     weaponry: ["AP Rifle", "Nanopulser"],
     equipment: [],
     peripheral: [],
-    melee_weapons: [{ name: "MULTI Pistol", mod: "+1B" }, "Shock CC Weapon"],
+    melee_weapons: [{ name: "MULTI Pistol", mod: "+1B" }, "Shock CCW"],
     SWC: 0,
     C: 18,
 }

@@ -29,7 +29,7 @@
     weaponry: ["MULTI Rifle"],
     equipment: [],
     peripheral: [],
-    melee_weapons: ["Pistol", "CC Weapon"],
+    melee_weapons: ["Pistol", "CCW"],
     SWC: 0,
     C: 28,
 }

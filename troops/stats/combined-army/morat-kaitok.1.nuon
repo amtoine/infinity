@@ -36,7 +36,7 @@
     weaponry: [{ name: "Chain Rifle", mod: "+2B" }, "Flammenspeer"],
     equipment: [],
     peripheral: [],
-    melee_weapons: [{ name: "Heavy Pistol", mod: "+1B" }, { name: "CC Weapon", mod: "PS=6" }],
+    melee_weapons: [{ name: "Heavy Pistol", mod: "+1B" }, { name: "CCW", mod: "PS=6" }],
     SWC: 0,
     C: 19,
 }
