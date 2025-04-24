@@ -293,65 +293,16 @@ def put-weapon-chart [
                 x: $"($x + ($RANGES | length) * $CHART_RANGE_CELL_WIDTH + ($RANGES | length) - 1 + $it.item.1)-tw/2",
                 y: $"(if $no_header { $y } else { $y + $CHART_OFFSET_Y })+($CHART_RANGE_CELL_HEIGHT / 2)-th/2"
             }
-            if $it.item.0.field == "TRAITS" {
-                let text = if ($equipment.stats | get $it.item.0.field | is-empty) {
+            let text = if $it.item.0.field == "TRAITS" {
+                if ($equipment.stats | get $it.item.0.field | is-empty) {
                     ""
                 } else {
                     "*"
                 }
-                ffmpeg-text $text $pos $CHART_FONT_R
             } else {
-                let stat = $equipment.stats | get $it.item.0.field
-
-                if $it.item.0.short == "AMMO" {
-                    let skill = $modifiers."BS Attack"?
-                    if $skill != null {
-                        if $skill.k != "AMMO" {
-                            log warning $"invalid key '($skill.k)' for skill '($skill)'"
-                        } else if "CC" in $equipment.stats.TRAITS {
-                            ffmpeg-text $"($stat)" $pos $CHART_FONT_R
-                        } else {
-                            ffmpeg-text $"($skill.v)" $pos ($CHART_FONT_B | update fontcolor $CORVUS_BELLI_COLORS.yellow)
-                        }
-                    }
-                } else if $it.item.0.short == "B" {
-                    let skill = if "CC" in $equipment.stats.TRAITS {
-                        $modifiers."CC Attack"?
-                    } else {
-                        $modifiers."BS Attack"?
-                    }
-
-                    if $skill != null and $skill.k != "AMMO" {
-                        let v = $skill.v | into int
-                        let res = match $skill.x? {
-                            # NOTE: no "-" (see p.68 of the rulebook)
-                             "+" => { text: $"($stat + $v)", color: $CORVUS_BELLI_COLORS.green },
-                            null => { text: $"($v)",         color: $CORVUS_BELLI_COLORS.yellow },
-                        }
-                        ffmpeg-text $"($res.text)" $pos ($CHART_FONT_B | update fontcolor $res.color)
-                    } else if $equipment.mod != null and $it.item.0.field == $equipment.mod.k {
-                        let v = $equipment.mod.v | into int
-                        let res = match $equipment.mod.x? {
-                            # NOTE: no "-" (see p.68 of the rulebook)
-                             "+" => { text: $"($stat + $v)", color: $CORVUS_BELLI_COLORS.green },
-                            null => { text: $"($v)",         color: $CORVUS_BELLI_COLORS.yellow },
-                        }
-                        ffmpeg-text $"($res.text)" $pos ($CHART_FONT_B | update fontcolor $res.color)
-                    } else {
-                        ffmpeg-text $"($stat)" $pos $CHART_FONT_R
-                    }
-                } else if $equipment.mod != null and $it.item.0.field == $equipment.mod.k {
-                    let v = $equipment.mod.v | into int
-                    let res = match $equipment.mod.x? {
-                            # NOTE: no "-" (see p.68 of the rulebook)
-                         "+" => { text: $"($stat + $v)", color: $CORVUS_BELLI_COLORS.green },
-                        null => { text: $"($v)",         color: $CORVUS_BELLI_COLORS.yellow },
-                    }
-                    ffmpeg-text $"($res.text)" $pos ($CHART_FONT_B | update fontcolor $res.color)
-                } else {
-                    ffmpeg-text $"($stat)" $pos $CHART_FONT_R
-                }
+                $"($equipment.stats | get $it.item.0.field)"
             }
+            ffmpeg-text $text $pos $CHART_FONT_R
         }),
     ]
 
@@ -503,8 +454,8 @@ def gen-stat-page [
                             let v = $skill.v | into int
                             match $skill.x? {
                                 # NOTE: no "-" (see p.68 of the rulebook)
-                                 "+" => { v: $"($it.item.v + $v)", color: $CORVUS_BELLI_COLORS.green  },
-                                null => { v: $"($v)",              color: $CORVUS_BELLI_COLORS.yellow },
+                                 "+" => { v: $"($it.item.v)+($v)",  color: $CORVUS_BELLI_COLORS.green  },
+                                null => { v: $"($it.item.v)->($v)", color: $CORVUS_BELLI_COLORS.yellow },
                             }
                         }
                     },
@@ -512,12 +463,12 @@ def gen-stat-page [
                         let cc_skill = $modifiers."CC Attack"?
                         let ma_skill = $modifiers."Martial Arts"?
 
-                        let cc_value = if $cc_skill != null {
+                        let cc_value = if $cc_skill != null and $cc_skill.k == "" {
                             let v = $cc_skill.v | into int
                             match $cc_skill.x? {
                                 # NOTE: no "-" (see p.68 of the rulebook)
-                                 "+" => { $it.item.v + $v },
-                                null => { $v },
+                                 "+" => { $"($it.item.v)+($v)" },
+                                null => { $"($it.item.v)->($v)" },
                             }
                         } else {
                             $it.item.v
@@ -705,6 +656,8 @@ def gen-charts-page [
     let charts = ls charts/weapons/*.csv | reduce --fold [] { |it, acc|
         $acc ++ (open $it.name)
     }
+
+    let mods = $modifiers | transpose --header-row | into record
     let equipments = $troop.weaponry ++ $troop.equipment ++ $troop.peripheral ++ $troop.melee_weapons
         | each { |it|
             match ($it | describe --detailed).type {
@@ -730,6 +683,51 @@ def gen-charts-page [
         | default null mod
         | upsert mod { |it| $it | reject stats | parse modifier-from-skill }
         | where not ($it.stats | is-empty)
+        | update stats { |it|
+            let stat = $it.stats
+                | update AMMUNITION { |stat|
+                    let skill = $mods."BS Attack"?
+                    if $skill != null {
+                        if $skill.k != "AMMO" {
+                            log warning $"invalid key '($skill.k)' for skill '($skill)'"
+                        } else if "CC" in $it.stats.TRAITS {
+                            $stat.AMMUNITION
+                        } else {
+                            $"($stat.AMMUNITION)->($skill.v)"
+                        }
+                    } else {
+                        $stat.AMMUNITION
+                    }
+                }
+                | update B { |stat|
+                    let skill = if "CC" in $it.stats.TRAITS {
+                        $mods."CC Attack"?
+                    } else {
+                        $mods."BS Attack"?
+                    }
+
+                    if $skill != null and $skill.k == "B" {
+                        let v = $skill.v | into int
+                        match $skill.x? {
+                            # NOTE: no "-" (see p.68 of the rulebook)
+                             "+" => $"($stat.B)+($v)",
+                            null => $"($stat.B)->($v)",
+                        }
+                    } else {
+                        $stat.B
+                    }
+                }
+                if $it.mod? != null {
+                    let v = $it.mod.v | into int
+                    match $it.mod.x? {
+                        # NOTE: no "-" (see p.68 of the rulebook)
+                         "+" => { $stat | update $it.mod.k { $"($in)+($v)" } },
+                        null => { $stat | update $it.mod.k { $"($in)->($v)" } },
+                    }
+                } else {
+                    $stat
+                }
+        }
 
     if ($equipments | is-empty) {
         log warning "\tno equipment"
