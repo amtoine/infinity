@@ -1,5 +1,5 @@
 use ffmpeg.nu *
-use log.nu [ "log info", "log warning", "log error" ]
+use log.nu [ "log info", "log warning", "log error", "log debug" ]
 use std iter
 
 const CANVAS = { w: 1600, h: 1000 }
@@ -545,13 +545,6 @@ def gen-charts-page [troop: record, output: path] {
         }
         | where not ($it.stats | is-empty)
 
-    # TODO: include modifier from special skills ?
-    for skill in $troop.special_skills {
-        if ($skill | describe --detailed).type == "record" and $skill.mod? != null {
-            log warning $"skipping modifier '($skill.mod)' of '($skill.name)'"
-        }
-    }
-
     if ($equipments | is-empty) {
         log warning "\tno equipment"
         let versions = open versions.json
@@ -661,6 +654,67 @@ def gen-charts-page [troop: record, output: path] {
 }
 
 export def main [troop: record, --color: string, --output: path = "output.png", --stats, --charts] {
+    # TODO: include modifier from special skills ?
+    for skill in $troop.special_skills {
+        let skill = if ($skill | describe --detailed).type == "record" {
+            $skill | default null mod | reject spec?
+        } else {
+            { name: $skill, mod: null }
+        }
+
+        if $skill in [
+            { name:                "Dodge", mod:             '+3' },
+            { name:                "Dodge", mod:            '+1"' },
+            { name:                "Dodge", mod:            '+2"' },
+            { name:             "Mimetism", mod:             '-3' },
+            { name:             "Mimetism", mod:             '-6' },
+            { name:           "Peripheral", mod:      'Ancillary' },
+            { name:             "Immunity", mod:          'Shock' },
+            { name:             "Immunity", mod:       'Enhanced' },
+            { name:          "Parachutist", mod:      'Dep. Zone' },
+            { name:           "Super-Jump", mod:             null },
+            { name:           "Super-Jump", mod: 'Jet Propulsion' },
+            { name:           "Super-Jump", mod:             '3"' },
+            { name:        "Transmutation", mod:              '1' },
+            { name:             "Discover", mod:             '+3' },
+            { name:      "Religious Troop", mod:             null },
+            { name:              "Courage", mod:             null },
+            { name:               "Hacker", mod:             null },
+            { name: "Specialist Operative", mod:             null },
+            { name:             "Warhorse", mod:             null },
+            { name:               "Frenzy", mod:             null },
+            { name:      "Combat Instinct", mod:             null },
+            { name:                  "NCO", mod:             null },
+            { name:             "Number 2", mod:             null },
+            { name:              "Stealth", mod:             null },
+            { name:     "Chain of Command", mod:             null },
+            { name: "Natural Born Warrior", mod:             null },
+            { name:     "Forward Observer", mod:             null },
+            { name:          "Combat Jump", mod:             null },
+            { name:            "Paramedic", mod:             null },
+            { name:         "Infiltration", mod:             null },
+            { name:           "Lieutenant", mod:             null },
+            { name:            "Minelayer", mod:             null },
+            { name:        "Climbing Plus", mod:             null },
+            { name:            "Impetuous", mod:             null },
+            { name:                "Booty", mod:             null },
+            { name:             "No Cover", mod:             null },
+            { name:         "Marksmanship", mod:             null },
+        ] {
+            if $skill.mod != null {
+                log debug $"skipping modifier '($skill.mod)' of '($skill.name)'"
+            } else {
+                log debug $"skipping skill '($skill.name)'"
+            }
+        } else {
+            if $skill.mod != null {
+                log warning $"skipping modifier '($skill.mod)' of '($skill.name)'"
+            } else {
+                log warning $"skipping skill '($skill.name)'"
+            }
+        }
+    }
+
     match [$stats, $charts] {
         [true, true] | [false, false] => {
             gen-stat-page $troop $color $output
