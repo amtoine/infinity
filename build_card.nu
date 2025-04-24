@@ -331,12 +331,12 @@ def gen-stat-page [
             $"($equipment_or_skill.name) \(($equipment_or_skill.mod)\)"
         }
         let font = $base_font | if $equipment_or_skill.spec? == true {
-            update fontfile $BOLD_FONT | update fontcolor $CORVUS_BELLI_COLORS.yellow
+            update fontfile $BOLD_FONT
         } else {
             $in
         }
 
-        { transform: (ffmpeg-text $text $pos $font), text: $text }
+        { transform: (ffmpeg-text $text $pos $base_font), text: $text }
     }
 
     def equipment-to-text [x: record]: [ nothing -> list<record> ] {
@@ -454,8 +454,8 @@ def gen-stat-page [
                             let v = $skill.v | into int
                             match $skill.x? {
                                 # NOTE: no "-" (see p.68 of the rulebook)
-                                 "+" => { v: $"($it.item.v)+($v)",  color: $CORVUS_BELLI_COLORS.green  },
-                                null => { v: $"($it.item.v)->($v)", color: $CORVUS_BELLI_COLORS.yellow },
+                                 "+" => $"($it.item.v)+($v)",
+                                null => $"($it.item.v)->($v)",
                             }
                         }
                     },
@@ -474,24 +474,12 @@ def gen-stat-page [
                             $it.item.v
                         }
 
-                        let cc_value = if $ma_skill != null {
+                        if $ma_skill != null {
                             let art = $MARTIAL_ARTS | where level == $ma_skill.v | into record
                             $cc_value + $art.attack
                         } else {
                             $cc_value
                         }
-
-                        let color = if $cc_skill == null and $ma_skill == null {
-                            $STAT_FONT.fontcolor
-                        } else if $cc_value - $it.item.v == 0 {
-                            $CORVUS_BELLI_COLORS.yellow
-                        } else if $cc_value - $it.item.v > 0 {
-                            $CORVUS_BELLI_COLORS.green
-                        } else {
-                            $CORVUS_BELLI_COLORS.red
-                        }
-
-                        { v: $cc_value, color: $color }
                     },
                     "MOV" => {
                         let skill = $modifiers."Terrain"?
@@ -499,19 +487,19 @@ def gen-stat-page [
                             match $skill.v {
                                 "Total" => {
                                     let mov = $it.item.v | parse "{f}-{s}" | into record | into int f s
-                                    { v: $"($mov.f + 1)-($mov.s)", color: $CORVUS_BELLI_COLORS.green }
+                                    $"($mov.f + 1)-($mov.s)"
                                 },
-                                _ => { v: $it.item.v, color: $CORVUS_BELLI_COLORS.yellow },
+                                _ => $it.item.v,
                             }
                         }
                     },
                     _ => null,
                 }
-                | default { v: $it.item.v, color: $STAT_FONT.fontcolor }
+                | default $it.item.v
 
                 [
                     (ffmpeg-text $"($it.item.k)" { x: $"($STAT_KEYS_BOX.x)+($STAT_OFFSET_X)+($it.index)*($STAT_H_SPACE)-tw/2", y: $"($STAT_KEYS_BOX.y)+($STAT_KEYS_BOX.h / 2)-th/2" } $STAT_FONT),
-                    (ffmpeg-text $"($stat.v)" { x: $"($STAT_VALS_BOX.x)+($STAT_OFFSET_X)+($it.index)*($STAT_H_SPACE)-tw/2", y: $"($STAT_VALS_BOX.y)+($STAT_VALS_BOX.h / 2)-th/2" } ($STAT_FONT | update fontcolor $stat.color)),
+                    (ffmpeg-text $"($stat)" { x: $"($STAT_VALS_BOX.x)+($STAT_OFFSET_X)+($it.index)*($STAT_H_SPACE)-tw/2", y: $"($STAT_VALS_BOX.y)+($STAT_VALS_BOX.h / 2)-th/2" } $STAT_FONT),
                 ]
             } | flatten
         ),
