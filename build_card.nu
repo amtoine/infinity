@@ -257,7 +257,12 @@ def put-weapon-chart [equipment: record, x: int, y: int, column_widths: record, 
     $in | ffmpeg mapply ($transforms | each { ffmpeg options }) --output (mktemp --tmpdir infinity-XXXXXXX.png)
 }
 
-def gen-stat-page [troop: record, color: string, output: path] {
+def gen-stat-page [
+    troop: record,
+    color: string,
+    output: path,
+    modifiers: table<name: string, mod: record>,
+] {
     def equipment-or-skill-to-text [
         equipment_or_skill,
         base_font: record<fontfile: path, fontcolor: string, fontsize: int>,
@@ -303,6 +308,8 @@ def gen-stat-page [troop: record, color: string, output: path] {
             }
             | get transforms
     }
+
+    let modifiers = $modifiers | transpose --header-row | into record
 
     let peripheral = $troop.peripheral | if $in == [] {{
         equipment: $in,
@@ -378,10 +385,80 @@ def gen-stat-page [troop: record, color: string, output: path] {
         { kind: "drawbox",  options: { ...$STAT_VALS_BOX, color: "black@0.5",     t: "fill" } },
         { kind: "drawbox",  options: { ...$STAT_VALS_BOX, color: "black@0.5",     t: "5" } },
         ...(
-            $troop.stats | transpose k v | enumerate | each { |it| [
-                (ffmpeg-text $"($it.item.k)" { x: $"($STAT_KEYS_BOX.x)+($STAT_OFFSET_X)+($it.index)*($STAT_H_SPACE)-tw/2", y: $"($STAT_KEYS_BOX.y)+($STAT_KEYS_BOX.h / 2)-th/2" } $STAT_FONT),
-                (ffmpeg-text $"($it.item.v)" { x: $"($STAT_VALS_BOX.x)+($STAT_OFFSET_X)+($it.index)*($STAT_H_SPACE)-tw/2", y: $"($STAT_VALS_BOX.y)+($STAT_VALS_BOX.h / 2)-th/2" } $STAT_FONT),
-            ] } | flatten
+            $troop.stats | transpose k v | enumerate | each { |it|
+                const MARTIAL_ARTS = [
+                    [level, attack, opponent, burst      ];
+                    [    1,      0,       -3, [0]        ],
+                    [    2,     +3,       -3, [0]        ],
+                    [    3,     +3,       -3, [+1SD]     ],
+                    [    4,     +3,       -3, [+1B]      ],
+                    [    5,     +3,       -3, [+1B, +1SD]],
+                ]
+
+                let stat = match $it.item.k {
+                    "BS" => {
+                        if $modifiers."BS Attack"? != null {
+                            let v = $modifiers."BS Attack".v | into int
+                            match $modifiers."BS Attack".x? {
+                                 "-" => { v: $"($it.item.v - $v)", color: $CORVUS_BELLI_COLORS.red    },
+                                 "+" => { v: $"($it.item.v + $v)", color: $CORVUS_BELLI_COLORS.green  },
+                                null => { v: $"($v)",              color: $CORVUS_BELLI_COLORS.yellow },
+                            }
+                        } else {
+                            { v: $it.item.v, color: $STAT_FONT.fontcolor }
+                        }
+                    },
+                    "CC" => {
+                        let cc_value = if $modifiers."CC Attack"? != null {
+                            let v = $modifiers."CC Attack".v | into int
+                            match $modifiers."CC Attack".x? {
+                                 "-" => { $it.item.v - $v },
+                                 "+" => { $it.item.v + $v },
+                                null => { $v },
+                            }
+                        } else {
+                            $it.item.v
+                        }
+                        let cc_value = if $modifiers."Martial Arts"? != null {
+                            let art = $MARTIAL_ARTS | where level == $modifiers."Martial Arts".v | into record
+                            $cc_value + $art.attack
+                        } else {
+                            $cc_value
+                        }
+
+                        let color = if $modifiers."CC Attack"? == null and $modifiers."Martial Arts"? == null {
+                            $STAT_FONT.fontcolor
+                        } else if $cc_value - $it.item.v == 0 {
+                            $CORVUS_BELLI_COLORS.yellow
+                        } else if $cc_value - $it.item.v > 0 {
+                            $CORVUS_BELLI_COLORS.green
+                        } else {
+                            $CORVUS_BELLI_COLORS.red
+                        }
+
+                        { v: $cc_value, color: $color }
+                    },
+                    "MOV" => {
+                        if $modifiers."Terrain"? != null {
+                            match $modifiers."Terrain" {
+                                "Total" => {
+                                    let mov = $it.item.v | parse "{f}-{s}" | into record | into int f s
+                                    { v: $"($mov.f + 1)-($mov.s)", color: $CORVUS_BELLI_COLORS.green }
+                                },
+                                _ => {  v: $it.item.v, color: $CORVUS_BELLI_COLORS.yellow },
+                            }
+                        } else {
+                            { v: $it.item.v, color: $STAT_FONT.fontcolor }
+                        }
+                    },
+                    _ => { v: $it.item.v, color: $STAT_FONT.fontcolor },
+                }
+
+                [
+                    (ffmpeg-text $"($it.item.k)" { x: $"($STAT_KEYS_BOX.x)+($STAT_OFFSET_X)+($it.index)*($STAT_H_SPACE)-tw/2", y: $"($STAT_KEYS_BOX.y)+($STAT_KEYS_BOX.h / 2)-th/2" } $STAT_FONT),
+                    (ffmpeg-text $"($stat.v)" { x: $"($STAT_VALS_BOX.x)+($STAT_OFFSET_X)+($it.index)*($STAT_H_SPACE)-tw/2", y: $"($STAT_VALS_BOX.y)+($STAT_VALS_BOX.h / 2)-th/2" } ($STAT_FONT | update fontcolor $stat.color)),
+                ]
+            } | flatten
         ),
 
         ...(
@@ -547,7 +624,7 @@ def gen-charts-page [troop: record, output: path] {
             if $res != {} {
                 $res
             } else {
-                let res = $it.mod? | default "" | parse --regex '(?<x>[+-])(?<v>\d+)(?<k>.+)' | into record
+                let res = $it.mod? | default "" | parse --regex '^(?<x>[+-])(?<v>\d+)(?<k>.+)$' | into record
                 if $res != {} {
                     $res
                 } else {
@@ -666,7 +743,7 @@ def gen-charts-page [troop: record, output: path] {
 
 export def main [troop: record, --color: string, --output: path = "output.png", --stats, --charts] {
     # TODO: include modifier from special skills ?
-    for skill in $troop.special_skills {
+    let modifiers = $troop.special_skills | each { |skill|
         let skill = if ($skill | describe --detailed).type == "record" {
             $skill | default null mod | reject spec?
         } else {
@@ -724,20 +801,55 @@ export def main [troop: record, --color: string, --output: path = "output.png", 
             }
         } else {
             if $skill.mod != null {
-                log warning $"skipping modifier '($skill.mod)' of '($skill.name)'"
+                if $skill.name in [ "BS Attack", "CC Attack", "Martial Arts", "Terrain" ] {
+                    $skill
+                } else {
+                    log debug $"skipping modifier '($skill.mod)' of '($skill.name)'"
+                }
             } else {
                 log warning $"skipping skill '($skill.name)'"
             }
         }
     }
+    | upsert mod { |it|
+        let res = $it.mod? | default "" | parse "{k}={v}" | into record
+        if $res != {} {
+            $res
+        } else {
+            print "ok"
+            let res = $it.mod? | default "" | parse --regex '^(?<x>[+-])(?<v>\d+)(?<k>.*)$' | into record
+            if $res != {} {
+                if $res.k != "" {
+                    log warning $"skipping modifier '($it.mod)' of skill '($it.name)'"
+                } else {
+                    $res
+                }
+            } else {
+                let res = $it.mod? | default "" | parse --regex '^L(?<v>\d+)$' | into record
+                if $res != {} {
+                    $res | into int v
+                } else {
+                    if $it.mod? != null {
+                        if $it.mod in [ "Total", "Zero-G" ] {
+                            { v: $it.mod }
+                        } else {
+                            log error $"could not parse modifier '($it.mod)' of skill '($it.name)'"
+                        }
+                    }
+                }
+            }
+        }
+    }
+    | where $it.mod != null
+    print ($modifiers | table -e)
 
     match [$stats, $charts] {
         [true, true] | [false, false] => {
-            gen-stat-page $troop $color $output
+            gen-stat-page $troop $color $output $modifiers
             gen-charts-page $troop $output
         },
         [true, false] => {
-            gen-stat-page $troop $color $output
+            gen-stat-page $troop $color $output $modifiers
         },
         [false, true] => {
             gen-charts-page $troop $output
