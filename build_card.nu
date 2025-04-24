@@ -147,7 +147,7 @@ def "parse modifier-from-skill" []: [ record<name: string, mod: any> -> record ]
     let res = $mod | parse --regex $ATTR_MODIFIER_FMT | into record
     if $res != {} {
         # NOTE: see p.68 of the rulebook
-        if $res.k != "" or $res.x == "-" {
+        if $res.k != "B" or $res.x == "-" {
             log warning $"skipping modifier '($mod)' of skill '($skill.name)'"
             return null
         } else {
