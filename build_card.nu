@@ -756,6 +756,42 @@ const UNSUPPORTED_SKILLS = [
 # skills that modify the stats directly
 const SUPPORTED_SKILLS = [ "BS Attack", "CC Attack", "Martial Arts", "Terrain" ]
 
+
+const KV_MODIFIER_FMT           = '^(?<k>.*)=(?<v>.*)$'
+const ATTR_MODIFIER_FMT         = '^(?<x>[+-])(?<v>\d+)(?<k>.*)$'
+const MARTIAL_ARTS_MODIFIER_FMT = '^L(?<v>\d+)$'
+
+def "parse modifier-from-skill" []: [ record<name: string, mod: string> -> record ] {
+    let skill = $in
+
+    let res = $skill.mod | parse --regex $KV_MODIFIER_FMT | into record
+    if $res != {} {
+        return $res
+    }
+
+    let res = $skill.mod | parse --regex $ATTR_MODIFIER_FMT | into record
+    if $res != {} {
+        if $res.k != "" {
+            log warning $"skipping modifier '($skill.mod)' of skill '($skill.name)'"
+            return null
+        } else {
+            return $res
+        }
+    }
+
+    let res = $skill.mod | parse --regex $MARTIAL_ARTS_MODIFIER_FMT | into record
+    if $res != {} {
+        return ($res | into int v)
+    }
+
+    if $skill.name == "Terrain" {
+        { v: $skill.mod }
+    } else {
+        log error $"could not parse modifier '($skill.mod)' of skill '($skill.name)'"
+        null
+    }
+}
+
 export def main [troop: record, --color: string, --output: path = "output.png", --stats, --charts] {
     let modifiers = $troop.special_skills | each { |skill|
         let skill = if ($skill | describe --detailed).type == "record" {
@@ -772,35 +808,8 @@ export def main [troop: record, --color: string, --output: path = "output.png", 
             log warning $"skipping skill '($skill)'"
         }
     }
-    | upsert mod { |it|
-        let res = $it.mod? | default "" | parse "{k}={v}" | into record
-        if $res != {} {
-            $res
-        } else {
-            let res = $it.mod? | default "" | parse --regex '^(?<x>[+-])(?<v>\d+)(?<k>.*)$' | into record
-            if $res != {} {
-                if $res.k != "" {
-                    log warning $"skipping modifier '($it.mod)' of skill '($it.name)'"
-                } else {
-                    $res
-                }
-            } else {
-                let res = $it.mod? | default "" | parse --regex '^L(?<v>\d+)$' | into record
-                if $res != {} {
-                    $res | into int v
-                } else {
-                    if $it.mod? != null {
-                        if $it.mod in [ "Total", "Zero-G" ] {
-                            { v: $it.mod }
-                        } else {
-                            log error $"could not parse modifier '($it.mod)' of skill '($it.name)'"
-                        }
-                    }
-                }
-            }
-        }
-    }
     | where $it.mod != null
+    | upsert mod { |it| $it | parse modifier-from-skill }
 
     match [$stats, $charts] {
         [true, true] | [false, false] => {
