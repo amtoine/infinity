@@ -42,3 +42,7 @@ export def "log info" [msg: string] {
 export def "log debug" [msg: string] {
     __log $msg $LOG_LEVELS.DEBUG "default_dimmed" "DEBUG"
 }
+
+export def "log trace" [msg: string] {
+    __log $msg $LOG_LEVELS.TRACE "gray" "TRACE"
+}

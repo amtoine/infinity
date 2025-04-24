@@ -816,7 +816,6 @@ export def main [troop: record, --color: string, --output: path = "output.png", 
         if $res != {} {
             $res
         } else {
-            print "ok"
             let res = $it.mod? | default "" | parse --regex '^(?<x>[+-])(?<v>\d+)(?<k>.*)$' | into record
             if $res != {} {
                 if $res.k != "" {
@@ -841,7 +840,6 @@ export def main [troop: record, --color: string, --output: path = "output.png", 
         }
     }
     | where $it.mod != null
-    print ($modifiers | table -e)
 
     match [$stats, $charts] {
         [true, true] | [false, false] => {
