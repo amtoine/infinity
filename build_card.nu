@@ -766,32 +766,33 @@ const MARTIAL_ARTS_MODIFIER_FMT = '^L(?<v>\d+)$'
 
 def "parse modifier-from-skill" []: [ record<name: string, mod: string> -> record ] {
     let skill = $in
+    let mod = $skill.mod? | default ""
 
-    let res = $skill.mod | parse --regex $KV_MODIFIER_FMT | into record
+    let res = $mod | parse --regex $KV_MODIFIER_FMT | into record
     if $res != {} {
         return $res
     }
 
-    let res = $skill.mod | parse --regex $ATTR_MODIFIER_FMT | into record
+    let res = $mod | parse --regex $ATTR_MODIFIER_FMT | into record
     if $res != {} {
         # NOTE: see p.68 of the rulebook
         if $res.k != "" or $res.x == "-" {
-            log warning $"skipping modifier '($skill.mod)' of skill '($skill.name)'"
+            log warning $"skipping modifier '($mod)' of skill '($skill.name)'"
             return null
         } else {
             return $res
         }
     }
 
-    let res = $skill.mod | parse --regex $MARTIAL_ARTS_MODIFIER_FMT | into record
+    let res = $mod | parse --regex $MARTIAL_ARTS_MODIFIER_FMT | into record
     if $res != {} {
         return ($res | into int v)
     }
 
     if $skill.name == "Terrain" {
-        { v: $skill.mod }
+        { v: $mod }
     } else {
-        log error $"could not parse modifier '($skill.mod)' of skill '($skill.name)'"
+        log error $"could not parse modifier '($mod)' of skill '($skill.name)'"
         null
     }
 }
@@ -812,8 +813,8 @@ export def main [troop: record, --color: string, --output: path = "output.png", 
             log warning $"skipping skill '($skill)'"
         }
     }
-    | where $it.mod != null
     | upsert mod { |it| $it | parse modifier-from-skill }
+    | where $it.mod != null
 
     match [$stats, $charts] {
         [true, true] | [false, false] => {
