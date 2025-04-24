@@ -210,9 +210,9 @@ const CHART_FONT_SIZE = 25
 const CHART_FONT_CHAR_SIZE = 15
 const CHART_OFFSET_Y = 30
 const CHART_ATTR_INTERSPACE = 15
-const CHART_RANGE_CELL_WIDTH = 98
+const CHART_RANGE_CELL_WIDTH = 85
 const CHART_RANGE_CELL_HEIGHT = 50
-const CHART_START = { x: 20, y: 50 }
+const CHART_START = { x: 560, y: 50 }
 const CHART_NAMES_OFFSET_X = 10
 const CHART_FONT_B = { fontfile: $BOLD_FONT,    fontcolor: "black", fontsize: $CHART_FONT_SIZE }
 const CHART_FONT_R = { fontfile: $REGULAR_FONT, fontcolor: "black", fontsize: $CHART_FONT_SIZE }
@@ -739,10 +739,7 @@ def gen-charts-page [
         return
     }
 
-    let offset = {
-        x: ($CHART_START.x + $CHART_FONT_CHAR_SIZE * ($equipments.name | each { str length } | math max)),
-        y: $CHART_START.y
-    }
+    let offset = $CHART_START
 
     let names_transforms = $equipments | enumerate | each {(
         ffmpeg-text $in.item.name
@@ -754,7 +751,7 @@ def gen-charts-page [
         | where not ($it.stats.TRAITS | is-empty)
         | enumerate
         | each { |var|
-            let h_space = ($CANVAS.w - $offset.x - $CHART_START.x - 20) / $CHART_FONT_CHAR_SIZE | into int
+            let h_space = ($CANVAS.w - $offset.x - 20) / $CHART_FONT_CHAR_SIZE | into int
             let items = $var.item.stats.TRAITS | split row ", "
             let res = fit-items-in-width $items $h_space --separator ", "
             $res | each { str join ", " } | enumerate | each { |it|
