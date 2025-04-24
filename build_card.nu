@@ -210,8 +210,8 @@ const CHART_FONT_SIZE = 25
 const CHART_FONT_CHAR_SIZE = 15
 const CHART_OFFSET_Y = 30
 const CHART_ATTR_INTERSPACE = 15
-const CHART_RANGE_CELL_WIDTH = 85
-const CHART_RANGE_CELL_HEIGHT = 50
+const CHART_RANGE_CELL_WIDTH = 70
+const CHART_RANGE_CELL_HEIGHT = 45
 const CHART_START = { x: 560, y: 50 }
 const CHART_NAMES_OFFSET_X = 10
 const CHART_FONT_B = { fontfile: $BOLD_FONT,    fontcolor: "black", fontsize: $CHART_FONT_SIZE }
@@ -231,7 +231,7 @@ def put-weapon-chart [
     let widths = $column_widths | values
     let positions = $widths
         | zip ($widths | skip 1)
-        | reduce --fold [($CHART_ATTR_INTERSPACE + $CHART_FONT_CHAR_SIZE * $widths.0)] { |it, acc|
+        | reduce --fold [($CHART_ATTR_INTERSPACE / 2 + $CHART_FONT_CHAR_SIZE * $widths.0)] { |it, acc|
             $acc | append (($acc | last) + $CHART_ATTR_INTERSPACE + $CHART_FONT_CHAR_SIZE * ($it.0 + $it.1) / 2)
         }
 
@@ -280,7 +280,7 @@ def put-weapon-chart [
             } else {
                 $STATS | zip $positions | enumerate | each {
                     let pos = {
-                        x: $"($x + ($RANGES | length) * $CHART_RANGE_CELL_WIDTH + ($RANGES | length) - 1 + $in.item.1)-tw/2",
+                        x: $"($x + ($RANGES | length) * $CHART_RANGE_CELL_WIDTH + $in.item.1)-tw/2",
                         y: $y
                     }
                     ffmpeg-text $in.item.0.short $pos $CHART_FONT_B
@@ -290,7 +290,7 @@ def put-weapon-chart [
         # stats values
         ...($STATS | zip $positions | enumerate | each { |it|
             let pos = {
-                x: $"($x + ($RANGES | length) * $CHART_RANGE_CELL_WIDTH + ($RANGES | length) - 1 + $it.item.1)-tw/2",
+                x: $"($x + ($RANGES | length) * $CHART_RANGE_CELL_WIDTH + $it.item.1)-tw/2",
                 y: $"(if $no_header { $y } else { $y + $CHART_OFFSET_Y })+($CHART_RANGE_CELL_HEIGHT / 2)-th/2"
             }
             let text = if $it.item.0.field == "TRAITS" {
