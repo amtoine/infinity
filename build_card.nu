@@ -483,14 +483,15 @@ def gen-stat-page [
                     },
                     "MOV" => {
                         let skill = $modifiers."Terrain"?
+                        let mov = $it.item.v | parse "{f}-{s}" | into record | into int f s
+
                         if $skill != null {
                             match $skill.v {
-                                "Total" => {
-                                    let mov = $it.item.v | parse "{f}-{s}" | into record | into int f s
-                                    $"($mov.f + 1)-($mov.s)"
-                                },
-                                _ => $it.item.v,
+                                "Total" => $"($mov.f)+1/($mov.s)",
+                                _ => $"($mov.f)~1/($mov.s)",
                             }
+                        } else {
+                            $"($mov.f)/($mov.s)"
                         }
                     },
                     _ => null,
