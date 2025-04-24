@@ -31,9 +31,9 @@ const ISC_FONT = { fontfile: $REGULAR_FONT, fontcolor: "black", fontsize: 30 }
 
 const QR_CODE_SIZE = 4
 const QR_CODE_MARGIN = 1
-const QR_CODE_WIDTH = 100
+const QR_CODE_WIDTH = 105
 
-const NAME_2_BOX = { x: 810, y: 780, w: (1560 - ($QR_CODE_WIDTH + 10) - 810), h: (830 - 780) }
+const NAME_2_BOX = { x: 810, y: 785, w: (1560 - ($QR_CODE_WIDTH + 10) - 810), h: (840 - 785) }
 const NAME_2_OFFSET_X = 10
 const NAME_2_POS = { x: $"($NAME_2_BOX.x)+($NAME_2_OFFSET_X)", y: $"($NAME_2_BOX.y)+($NAME_2_BOX.h / 2)-th/2" }
 const NAME_2_FONT = { fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: 30 }
@@ -43,7 +43,10 @@ const ICON_BOX = { x: 35, y: 35, w: (155 - 35), h: (155 - 35) }
 const CHARACTERISTICS_BOX = { x: 35, y: 175, w: (120 - 35), h: null }
 const CHARACTERISTICS_V_SPACE = 10
 const CHARACTERISTICS_IMAGE_SIZE = 70 + 5
-const CHARACTERISTICS_TYPE_POS = { x: $"($CHARACTERISTICS_BOX.x + $CHARACTERISTICS_BOX.w // 2)-tw/2", y: $"($CHARACTERISTICS_BOX.y + 20)-th/2" }
+const CHARACTERISTICS_TYPE_POS = {
+    x: $"($CHARACTERISTICS_BOX.x + $CHARACTERISTICS_BOX.w // 2)-tw/2",
+    y: $"($CHARACTERISTICS_BOX.y + 25)-th/2",
+}
 const CHARACTERISTICS_TYPE_FONT = { fontfile: $BOLD_FONT, fontcolor: "white", fontsize: 30 }
 
 const FACTION_POS = { x: 1455, y: 500 }
@@ -65,14 +68,14 @@ const QR_CODE_OVERLAY = { kind: "overlay",  options: { x: "1560-w", y: $"($NAME_
 const ALLOWED_FACTIONS_OFFSET = { x: 50, y: 50 }
 const ALLOWED_FACTIONS_IMAGE_SIZE = 70 + 10
 
-const BOTTOM_FIRST_ROW_Y = 880
-const BOTTOM_SECOND_ROW_Y = 925
+const BOTTOM_FIRST_ROW_Y = 885
+const BOTTOM_SECOND_ROW_Y = 930
 
 const BOXES_MARGIN = 20
 const EMPTY_BOX_HEIGHT = 60
-const FULL_BOX_HEIGHT = 110
+const FULL_BOX_HEIGHT = 105
 
-const EQUIPMENT_BOX = { x: 35, y: 850, w: (790 - 35), h: null }
+const EQUIPMENT_BOX = { x: 35, y: 855, w: (790 - 35), h: null }
 const EQUIPMENT_OFFSET_X = 10
 const EQUIPMENT_TITLE_POS = { x: $"($EQUIPMENT_BOX.x)+($EQUIPMENT_OFFSET_X)", y: $"($BOTTOM_FIRST_ROW_Y)-th/2" }
 const EQUIPMENT_POS = { x: $"($EQUIPMENT_BOX.x)+($EQUIPMENT_OFFSET_X)", y: $"($BOTTOM_SECOND_ROW_Y)-th/2" }
@@ -84,7 +87,7 @@ const LIST_SEPARATOR = ", "
 const LIST_SEPARATOR_V_OFFSET = 10
 const EQUIPMENT_CHAR_SIZE = $EQUIPMENT_FONT.fontsize * 0.6
 
-const MELEE_BOX = { x: 810, y: 850, w: (1335 - 810), h: (960 - 850) }
+const MELEE_BOX = { x: 810, y: 855, w: (1335 - 810), h: (960 - 855) }
 const MELEE_OFFSET_X = 10
 const MELEE_WEAPONS_TITLE_POS = { x: $"($MELEE_BOX.x)+($MELEE_OFFSET_X)", y: $"($BOTTOM_FIRST_ROW_Y)-th/2" }
 const MELEE_WEAPONS_POS = { x: $"($MELEE_BOX.x)+($MELEE_OFFSET_X)", y: $"($BOTTOM_SECOND_ROW_Y)-th/2" }
@@ -92,14 +95,14 @@ const MELEE_FONT_SIZE = 30
 const MELEE_WEAPONS_TITLE_FONT  = { fontfile: $BOLD_FONT, fontcolor: "white", fontsize: ($MELEE_FONT_SIZE - 2) }
 const MELEE_WEAPONS_FONT = { fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: ($MELEE_FONT_SIZE - 8) }
 
-const SWC_BOX = { x: 1355, y: 850, w: (1445 - 1355), h: (960 - 850) }
+const SWC_BOX = { x: 1355, y: 855, w: (1445 - 1355), h: (960 - 855) }
 const SWC_TITLE_POS = { x: $"($SWC_BOX.x)+($SWC_BOX.w // 2)-tw/2", y: $"($BOTTOM_FIRST_ROW_Y)-th/2" }
 const SWC_POS = { x: $"($SWC_BOX.x)+($SWC_BOX.w // 2)-tw/2", y: $"($BOTTOM_SECOND_ROW_Y)-th/2" }
 const SWC_FONT_SIZE = 30
 const SWC_TITLE_FONT = { fontfile: $BOLD_FONT, fontcolor: "white", fontsize: $SWC_FONT_SIZE }
 const SWC_FONT = { fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: $SWC_FONT_SIZE }
 
-const C_BOX = { x: 1460, y: 850, w: (1560 - 1460), h: (960 - 850) }
+const C_BOX = { x: 1460, y: 855, w: (1560 - 1460), h: (960 - 855) }
 const C_TITLE_POS = { x: $"($C_BOX.x)+($C_BOX.w // 2)-tw/2", y: $"($BOTTOM_FIRST_ROW_Y)-th/2" }
 const C_POS = { x: $"($C_BOX.x)+($C_BOX.w // 2)-tw/2", y: $"($BOTTOM_SECOND_ROW_Y)-th/2" }
 const C_FONT_SIZE = 30
@@ -412,7 +415,7 @@ def gen-stat-page [
     log info $"generating QR code in (ansi purple)($qrcode)(ansi reset)"
     qrencode --margin $QR_CODE_MARGIN --size $QR_CODE_SIZE -o $qrcode $troop.reference
     let qrcode = $qrcode
-        | ffmpeg apply "scale=100:100" --output (mktemp --tmpdir infinity-XXXXXXX.png)
+        | ffmpeg apply $"scale=($QR_CODE_WIDTH):($QR_CODE_WIDTH)" --output (mktemp --tmpdir infinity-XXXXXXX.png)
 
     let transforms = [
         (ffmpeg-text $"ISC: ($troop.isc)"  $ISC_POS            $ISC_FONT),
@@ -586,7 +589,7 @@ def gen-stat-page [
                 kind: "overlay",
                 options: {
                     x: $"($characteristics_box.x + $characteristics_box.w // 2)-w/2",
-                    y: $"($characteristics_box.y + $CHARACTERISTICS_IMAGE_SIZE)+($it.index * $CHARACTERISTICS_IMAGE_SIZE)-h/2",
+                    y: $"($characteristics_box.y + $CHARACTERISTICS_IMAGE_SIZE)+(5)+($it.index * $CHARACTERISTICS_IMAGE_SIZE)-h/2",
                 },
             } | ffmpeg options) --output (mktemp --tmpdir infinity-XXXXXXX.png)
         }
