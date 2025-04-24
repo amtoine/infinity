@@ -444,7 +444,7 @@ def gen-stat-page [
                     "MOV" => {
                         let skill = $modifiers."Terrain"?
                         if $skill != null {
-                            match $skill {
+                            match $skill.v {
                                 "Total" => {
                                     let mov = $it.item.v | parse "{f}-{s}" | into record | into int f s
                                     { v: $"($mov.f + 1)-($mov.s)", color: $CORVUS_BELLI_COLORS.green }
