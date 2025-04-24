@@ -103,13 +103,15 @@ def "main clean" [] {
 }
 
 def batch-transform-pairs [name: string, transform: closure, extension: string]: [ nothing -> list<path> ] {
-    let todo = ls $OUT_DIR | where $it.name =~ $name
-    let total = ($todo | length) / 2
-
-    $todo
+    let todo = ls $OUT_DIR
+        | where $it.name =~ $name
         | insert key {
             $in.name | path parse | get stem | split row '.' | reverse | skip 1 | reverse | str join "."
         }
+    let total = ($todo | length) / 2
+    let width = $todo | each { $in.key | str length } | math max
+
+    $todo
         | group-by --to-table key
         | enumerate
         | each {
@@ -119,7 +121,7 @@ def batch-transform-pairs [name: string, transform: closure, extension: string]:
                         | fill --alignment "right" --width ($total | into string | str length) --character ' '
                 ),
                 total: $total,
-                content: $in.item.key,
+                content: ($in.item.key | fill --alignment "left" --width $width --character ' '),
             } | print --no-newline $"[($in.current) / ($in.total)] ($in.content)\r"
             let output = { parent: $nu.temp-path, stem: $in.item.key, extension: $extension } | path join
             do $transform $in.item.items.name $output
