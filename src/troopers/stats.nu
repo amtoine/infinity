@@ -5,6 +5,8 @@ use common.nu [
 
 use std iter
 
+const CANVAS_MARGINS = { top: 35, left: 35, right: 0, bottom: 960 }
+
 const NAME_BOX = { x: 480, y: 80, w: (1560 - 480), h: (160 - 80) }
 const NAME_OFFSET_X = 28
 const NAME_POS = { x: $"($NAME_BOX.x)+($NAME_OFFSET_X)", y: $"($NAME_BOX.y)+($NAME_BOX.h / 2)-th/2" }
@@ -15,7 +17,7 @@ const CLASSIFICATION_POS = { x: $"($NAME_BOX.x + $NAME_BOX.w - $NAME_OFFSET_X)-t
 const ISC_FONT = { fontfile: $REGULAR_FONT, fontcolor: "black", fontsize: 30 }
 
 ################################################################################
-###### EQUIPMENT BOXES #########################################################
+###### QR CODE #################################################################
 ################################################################################
 const QR_CODE_SIZE = 4     # passed to --size
 const QR_CODE_MARGIN = 1   # passed to --margin
@@ -27,16 +29,32 @@ const NAME_2_OFFSET_X = 10
 const NAME_2_POS = { x: $"($NAME_2_BOX.x)+($NAME_2_OFFSET_X)", y: $"($NAME_2_BOX.y)+($NAME_2_BOX.h / 2)-th/2" }
 const NAME_2_FONT = { fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: 30 }
 
-const ICON_BOX = { x: 35, y: 35, w: (155 - 35), h: (155 - 35) }
+################################################################################
+###### ICON and CHARACTERISTICS BOXES ##########################################
+################################################################################
+const ICON_BOX = {
+    x: $CANVAS_MARGINS.left,
+    y: $CANVAS_MARGINS.top,
+    w: (155 - $CANVAS_MARGINS.left),
+    h: (155 - $CANVAS_MARGINS.top),
+}
 
-const CHARACTERISTICS_BOX = { x: 35, y: 175, w: (120 - 35), h: null }
-const CHARACTERISTICS_V_SPACE = 10
-const CHARACTERISTICS_IMAGE_SIZE = 70 + 5
+const CHARACTERISTICS_BOX = {
+    x: $CANVAS_MARGINS.left,
+    y: ($ICON_BOX.y + $ICON_BOX.h + 20),
+    w: (120 - $CANVAS_MARGINS.left),
+    h: null,
+}
+# space between the trooper type and the first characteristics asset
+const CHARACTERISTICS_V_SPACE = 5
+# size of a characteristics asset
+const CHARACTERISTICS_IMAGE_SIZE = 70
 const CHARACTERISTICS_TYPE_POS = {
     x: $"($CHARACTERISTICS_BOX.x + $CHARACTERISTICS_BOX.w // 2)-tw/2",
     y: $"($CHARACTERISTICS_BOX.y + 25)-th/2",
 }
 const CHARACTERISTICS_TYPE_FONT = { fontfile: $BOLD_FONT, fontcolor: "white", fontsize: 30 }
+################################################################################
 
 const FACTION_POS = { x: 1455, y: 500 }
 
@@ -63,8 +81,6 @@ const ALLOWED_FACTIONS_IMAGE_SIZE = 70 + 10
 const EQUIPMENT_BOXES_V_SPACE = 20
 const EMPTY_EQUIPMENT_BOX_HEIGHT = 60
 const FULL_EQUIPMENT_BOX_HEIGHT = 105
-
-const CANVAS_MARGINS = { top: 0, left: 35, right: 0, bottom: 960 }
 
 # the most bottom "equipment" box, i.e. the "peripheral" one, used as a base for
 # the other "equipment" boxes
@@ -261,8 +277,8 @@ export def gen-stats-page [
 
     let characteristics_box = $CHARACTERISTICS_BOX | update h (
         $CHARACTERISTICS_BOX.w // 2 +  # because text is twice larger
-        (if ($troop.characteristics | is-empty) { 0 } else { $CHARACTERISTICS_V_SPACE }) +
-        $CHARACTERISTICS_IMAGE_SIZE * ($troop.characteristics | length)
+        (if ($troop.characteristics | is-empty) { 0 } else { 2 * $CHARACTERISTICS_V_SPACE }) +
+        ($CHARACTERISTICS_IMAGE_SIZE + $CHARACTERISTICS_V_SPACE) * ($troop.characteristics | length)
     )
     let special_skills_box = $SPECIAL_SKILLS_BOX | update h (
         $SPECIAL_SKILLS_V_BASE + $SPECIAL_SKILLS_V_SPACE * (($troop.special_skills | length) - 1)
@@ -446,7 +462,8 @@ export def gen-stats-page [
                 kind: "overlay",
                 options: {
                     x: $"($characteristics_box.x + $characteristics_box.w // 2)-w/2",
-                    y: $"($characteristics_box.y + $CHARACTERISTICS_IMAGE_SIZE)+(5)+($it.index * $CHARACTERISTICS_IMAGE_SIZE)-h/2",
+                    # FIXME: the first vertical offset is a bit magical
+                    y: $"($characteristics_box.y + 2 * $CHARACTERISTICS_V_SPACE + $CHARACTERISTICS_IMAGE_SIZE)+($it.index * ($CHARACTERISTICS_IMAGE_SIZE + $CHARACTERISTICS_V_SPACE))-h/2",
                 },
             } | ffmpeg options) --output (mktemp --tmpdir infinity-XXXXXXX.png)
         }
