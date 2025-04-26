@@ -56,10 +56,6 @@ const ALLOWED_FACTIONS_IMAGE_SIZE = 70 + 10
 ################################################################################
 ###### EQUIPMENT BOXES #########################################################
 ################################################################################
-# the vertical row positions in the bottom base "equipment" box, i.e. the "peripheral" box
-const BOTTOM_FIRST_ROW_Y = 885
-const BOTTOM_SECOND_ROW_Y = 930
-
 const EQUIPMENT_BOXES_V_SPACE = 20
 const EMPTY_EQUIPMENT_BOX_HEIGHT = 60
 const FULL_EQUIPMENT_BOX_HEIGHT = 105
@@ -76,8 +72,8 @@ const EQUIPMENT_BOX = {
 }
 # the horizontal offset of text in "equipment" boxes
 const EQUIPMENT_OFFSET_X = 10
-const EQUIPMENT_TITLE_POS = { x: $"($EQUIPMENT_BOX.x)+($EQUIPMENT_OFFSET_X)", y: $"($BOTTOM_FIRST_ROW_Y)-th/2" }
-const EQUIPMENT_POS =       { x: $"($EQUIPMENT_BOX.x)+($EQUIPMENT_OFFSET_X)", y: $"($BOTTOM_SECOND_ROW_Y)-th/2" }
+const EQUIPMENT_TITLE_POS = { x: $"($EQUIPMENT_BOX.x)+($EQUIPMENT_OFFSET_X)", y: $"($EQUIPMENT_BOX.y +  4 / 15 * $FULL_EQUIPMENT_BOX_HEIGHT)-th/2" }
+const EQUIPMENT_POS =       { x: $"($EQUIPMENT_BOX.x)+($EQUIPMENT_OFFSET_X)", y: $"($EQUIPMENT_BOX.y + 11 / 15 * $FULL_EQUIPMENT_BOX_HEIGHT)-th/2" }
 const EQUIPMENT_FONT_SIZE = 22
 const EQUIPMENT_TITLE_FONT = { fontfile: $BOLD_FONT, fontcolor: "white", fontsize: ($EQUIPMENT_FONT_SIZE + 6) }
 const EQUIPMENT_FONT = { fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: $EQUIPMENT_FONT_SIZE }
@@ -89,6 +85,10 @@ const LIST_SEPARATOR_V_OFFSET = 10
 # the horizontal space a character takes in the "equipment" lists
 const EQUIPMENT_CHAR_SIZE = $EQUIPMENT_FONT.fontsize * 0.6
 ################################################################################
+
+# the vertical row positions in the bottom base "equipment" box, i.e. the "peripheral" box
+const BOTTOM_FIRST_ROW_Y = 885
+const BOTTOM_SECOND_ROW_Y = 930
 
 const MELEE_BOX = { x: 810, y: 855, w: (1335 - 810), h: (960 - 855) }
 const MELEE_OFFSET_X = 10
