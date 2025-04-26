@@ -5,7 +5,7 @@ use common.nu [
 
 use std iter
 
-const CANVAS_MARGINS = { top: 35, left: 35, right: 0, bottom: 960 }
+const CANVAS_MARGINS = { top: 35, left: 35, right: 1560, bottom: 960 }
 
 const FACTION_POS = { x: 1455, y: 500 }
 const MINI_OVERLAY = { kind: "overlay",  options: { x: "320-w/2", y: "H-h-50" } }
@@ -69,7 +69,7 @@ const SPECIAL_SKILLS_TITLE_FONT = { fontfile: $BOLD_FONT,    fontcolor: "white",
 const SPECIAL_SKILLS_FONT       = { fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: 18 }
 
 ################################################################################
-###### EQUIPMENT BOXES #########################################################
+###### BOTTOM ##################################################################
 ################################################################################
 const EQUIPMENT_BOXES_V_SPACE = 20
 const EMPTY_EQUIPMENT_BOX_HEIGHT = 60
@@ -94,50 +94,71 @@ const EQUIPMENT_FONT = { fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: 
 # used to build lists of things dynamically
 const LIST_SEPARATOR = ", "
 const LIST_SEPARATOR_V_OFFSET = 10
-
 # the horizontal space a character takes in the "equipment" lists
 const EQUIPMENT_CHAR_SIZE = $EQUIPMENT_FONT.fontsize * 0.6
-################################################################################
-
-################################################################################
-###### QR CODE #################################################################
-################################################################################
-const QR_CODE_SIZE = 4     # passed to --size
-const QR_CODE_MARGIN = 1   # passed to --margin
-const QR_CODE_WIDTH = 105  # the final width of the QR code
-################################################################################
-
-const NAME_2_BOX = { x: 810, y: 785, w: (1560 - ($QR_CODE_WIDTH + 10) - 810), h: (840 - 785) }
-const NAME_2_OFFSET_X = 10
-const NAME_2_POS = { x: $"($NAME_2_BOX.x)+($NAME_2_OFFSET_X)", y: $"($NAME_2_BOX.y)+($NAME_2_BOX.h / 2)-th/2" }
-const NAME_2_FONT = { fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: 30 }
-const QR_CODE_OVERLAY = { kind: "overlay",  options: { x: "1560-w", y: $"($NAME_2_BOX.y + $NAME_2_BOX.h)-h" } }
 
 # the vertical row positions in the bottom base "equipment" box, i.e. the "peripheral" box
 const BOTTOM_FIRST_ROW_Y = 885
 const BOTTOM_SECOND_ROW_Y = 930
 
-const MELEE_BOX = { x: 810, y: 855, w: (1335 - 810), h: (960 - 855) }
+const MELEE_BOX = {
+    x: ($EQUIPMENT_BOX.x + $EQUIPMENT_BOX.w + 20),
+    y: ($CANVAS_MARGINS.bottom - $FULL_EQUIPMENT_BOX_HEIGHT),
+    w: (1335 - ($EQUIPMENT_BOX.x + $EQUIPMENT_BOX.w + 20)),
+    h: $FULL_EQUIPMENT_BOX_HEIGHT,
+}
+# the horizontal offset of text in "melee" box
 const MELEE_OFFSET_X = 10
-const MELEE_WEAPONS_TITLE_POS = { x: $"($MELEE_BOX.x)+($MELEE_OFFSET_X)", y: $"($BOTTOM_FIRST_ROW_Y)-th/2" }
-const MELEE_WEAPONS_POS = { x: $"($MELEE_BOX.x)+($MELEE_OFFSET_X)", y: $"($BOTTOM_SECOND_ROW_Y)-th/2" }
-const MELEE_FONT_SIZE = 30
-const MELEE_WEAPONS_TITLE_FONT  = { fontfile: $BOLD_FONT, fontcolor: "white", fontsize: ($MELEE_FONT_SIZE - 2) }
-const MELEE_WEAPONS_FONT = { fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: ($MELEE_FONT_SIZE - 8) }
+const MELEE_WEAPONS_TITLE_POS = { x: $"($MELEE_BOX.x)+($MELEE_OFFSET_X)", y: $"($MELEE_BOX.y +  4 / 15 * $FULL_EQUIPMENT_BOX_HEIGHT)-th/2" }
+const MELEE_WEAPONS_POS =       { x: $"($MELEE_BOX.x)+($MELEE_OFFSET_X)", y: $"($MELEE_BOX.y + 11 / 15 * $FULL_EQUIPMENT_BOX_HEIGHT)-th/2" }
+const MELEE_FONT_SIZE = 22
+const MELEE_WEAPONS_TITLE_FONT  = { fontfile: $BOLD_FONT, fontcolor: "white", fontsize: ($MELEE_FONT_SIZE + 6) }
+const MELEE_WEAPONS_FONT = { fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: $MELEE_FONT_SIZE }
 
-const SWC_BOX = { x: 1355, y: 855, w: (1445 - 1355), h: (960 - 855) }
-const SWC_TITLE_POS = { x: $"($SWC_BOX.x)+($SWC_BOX.w // 2)-tw/2", y: $"($BOTTOM_FIRST_ROW_Y)-th/2" }
-const SWC_POS = { x: $"($SWC_BOX.x)+($SWC_BOX.w // 2)-tw/2", y: $"($BOTTOM_SECOND_ROW_Y)-th/2" }
+const SWC_BOX = {
+    x: ($MELEE_BOX.x + $MELEE_BOX.w + 20),
+    y: ($CANVAS_MARGINS.bottom - $FULL_EQUIPMENT_BOX_HEIGHT),
+    w: (1445 - ($MELEE_BOX.x + $MELEE_BOX.w + 20)),
+    h: $FULL_EQUIPMENT_BOX_HEIGHT,
+}
+const SWC_TITLE_POS = { x: $"($SWC_BOX.x)+($SWC_BOX.w // 2)-tw/2", y: $"($SWC_BOX.y +  4 / 15 * $FULL_EQUIPMENT_BOX_HEIGHT)-th/2" }
+const SWC_POS =       { x: $"($SWC_BOX.x)+($SWC_BOX.w // 2)-tw/2", y: $"($SWC_BOX.y + 11 / 15 * $FULL_EQUIPMENT_BOX_HEIGHT)-th/2" }
 const SWC_FONT_SIZE = 30
 const SWC_TITLE_FONT = { fontfile: $BOLD_FONT, fontcolor: "white", fontsize: $SWC_FONT_SIZE }
 const SWC_FONT = { fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: $SWC_FONT_SIZE }
 
-const C_BOX = { x: 1460, y: 855, w: (1560 - 1460), h: (960 - 855) }
-const C_TITLE_POS = { x: $"($C_BOX.x)+($C_BOX.w // 2)-tw/2", y: $"($BOTTOM_FIRST_ROW_Y)-th/2" }
-const C_POS = { x: $"($C_BOX.x)+($C_BOX.w // 2)-tw/2", y: $"($BOTTOM_SECOND_ROW_Y)-th/2" }
+const C_BOX = {
+    x: ($SWC_BOX.x + $SWC_BOX.w + 15),
+    y: ($CANVAS_MARGINS.bottom - $FULL_EQUIPMENT_BOX_HEIGHT),
+    w: ($CANVAS_MARGINS.right - ($SWC_BOX.x + $SWC_BOX.w + 15)),
+    h: $FULL_EQUIPMENT_BOX_HEIGHT,
+}
+const C_TITLE_POS = { x: $"($C_BOX.x)+($C_BOX.w // 2)-tw/2", y: $"($C_BOX.y +  4 / 15 * $FULL_EQUIPMENT_BOX_HEIGHT)-th/2" }
+const C_POS =       { x: $"($C_BOX.x)+($C_BOX.w // 2)-tw/2", y: $"($C_BOX.y + 11 / 15 * $FULL_EQUIPMENT_BOX_HEIGHT)-th/2" }
 const C_FONT_SIZE = 30
 const C_TITLE_FONT = { fontfile: $BOLD_FONT, fontcolor: "white", fontsize: $C_FONT_SIZE }
 const C_FONT = { fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: $C_FONT_SIZE }
+
+const QR_CODE_SIZE = 4     # passed to --size
+const QR_CODE_MARGIN = 1   # passed to --margin
+const QR_CODE_WIDTH = 105  # the final width of the QR code
+
+const NAME_2_BOX = {
+    x: ($EQUIPMENT_BOX.x + $EQUIPMENT_BOX.w + 20),
+    y: ($MELEE_BOX.y - 15 - 55),
+    w: ($CANVAS_MARGINS.right - ($QR_CODE_WIDTH + 10) - ($EQUIPMENT_BOX.x + $EQUIPMENT_BOX.w + 20)),
+    h: 55,
+}
+# the horizontal offset of text in "name 2" box
+const NAME_2_OFFSET_X = 10
+const NAME_2_POS = { x: $"($NAME_2_BOX.x)+($NAME_2_OFFSET_X)", y: $"($NAME_2_BOX.y)+($NAME_2_BOX.h / 2)-th/2" }
+const NAME_2_FONT = { fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: 30 }
+
+const QR_CODE_OVERLAY = { kind: "overlay",  options: {
+    x: $"($CANVAS_MARGINS.right)-w",
+    y: $"($NAME_2_BOX.y + $NAME_2_BOX.h)-h",
+} }
+###### END BOTTOM ##############################################################
 
 # marks "spec" equipments or skill in bold
 def equipment-or-skill-to-text [
