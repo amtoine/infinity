@@ -7,27 +7,8 @@ use std iter
 
 const CANVAS_MARGINS = { top: 35, left: 35, right: 0, bottom: 960 }
 
-const NAME_BOX = { x: 480, y: 80, w: (1560 - 480), h: (160 - 80) }
-const NAME_OFFSET_X = 28
-const NAME_POS = { x: $"($NAME_BOX.x)+($NAME_OFFSET_X)", y: $"($NAME_BOX.y)+($NAME_BOX.h / 2)-th/2" }
-const NAME_FONT = { fontfile: $BOLD_FONT, fontcolor: "white", fontsize: 45 }
-
-const ISC_POS = { x: ($NAME_BOX.x + $NAME_OFFSET_X), y: ($NAME_BOX.y - $NAME_OFFSET_X) }
-const CLASSIFICATION_POS = { x: $"($NAME_BOX.x + $NAME_BOX.w - $NAME_OFFSET_X)-tw", y: $ISC_POS.y }
-const ISC_FONT = { fontfile: $REGULAR_FONT, fontcolor: "black", fontsize: 30 }
-
-################################################################################
-###### QR CODE #################################################################
-################################################################################
-const QR_CODE_SIZE = 4     # passed to --size
-const QR_CODE_MARGIN = 1   # passed to --margin
-const QR_CODE_WIDTH = 105  # the final width of the QR code
-################################################################################
-
-const NAME_2_BOX = { x: 810, y: 785, w: (1560 - ($QR_CODE_WIDTH + 10) - 810), h: (840 - 785) }
-const NAME_2_OFFSET_X = 10
-const NAME_2_POS = { x: $"($NAME_2_BOX.x)+($NAME_2_OFFSET_X)", y: $"($NAME_2_BOX.y)+($NAME_2_BOX.h / 2)-th/2" }
-const NAME_2_FONT = { fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: 30 }
+const FACTION_POS = { x: 1455, y: 500 }
+const MINI_OVERLAY = { kind: "overlay",  options: { x: "320-w/2", y: "H-h-50" } }
 
 ################################################################################
 ###### ICON and CHARACTERISTICS BOXES ##########################################
@@ -56,7 +37,14 @@ const CHARACTERISTICS_TYPE_POS = {
 const CHARACTERISTICS_TYPE_FONT = { fontfile: $BOLD_FONT, fontcolor: "white", fontsize: 30 }
 ################################################################################
 
-const FACTION_POS = { x: 1455, y: 500 }
+const NAME_BOX = { x: 480, y: 80, w: (1560 - 480), h: (160 - 80) }
+const NAME_OFFSET_X = 28
+const NAME_POS = { x: $"($NAME_BOX.x)+($NAME_OFFSET_X)", y: $"($NAME_BOX.y)+($NAME_BOX.h / 2)-th/2" }
+const NAME_FONT = { fontfile: $BOLD_FONT, fontcolor: "white", fontsize: 45 }
+
+const ISC_POS = { x: ($NAME_BOX.x + $NAME_OFFSET_X), y: ($NAME_BOX.y - $NAME_OFFSET_X) }
+const CLASSIFICATION_POS = { x: $"($NAME_BOX.x + $NAME_BOX.w - $NAME_OFFSET_X)-tw", y: $ISC_POS.y }
+const ISC_FONT = { fontfile: $REGULAR_FONT, fontcolor: "black", fontsize: 30 }
 
 const STAT_KEYS_BOX = { x: 480, y: 180, w: (1560 - 480), h: (245 - 180) }
 const STAT_VALS_BOX = {
@@ -69,11 +57,16 @@ const STAT_H_SPACE = 108
 const STAT_OFFSET_X = 60
 const STAT_FONT = { fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: 30 }
 
-const MINI_OVERLAY = { kind: "overlay",  options: { x: "320-w/2", y: "H-h-50" } }
-const QR_CODE_OVERLAY = { kind: "overlay",  options: { x: "1560-w", y: $"($NAME_2_BOX.y + $NAME_2_BOX.h)-h" } }
-
 const ALLOWED_FACTIONS_OFFSET = { x: 50, y: 50 }
 const ALLOWED_FACTIONS_IMAGE_SIZE = 70 + 10
+
+const SPECIAL_SKILLS_BOX = { x: 1135, y: 350, w: (1560 - 1135), h: null }
+const SPECIAL_SKILLS_OFFSET = { x: 10, y: 80 }
+const SPECIAL_SKILLS_V_BASE = 100
+const SPECIAL_SKILLS_V_SPACE = 30
+const SPECIAL_SKILLS_TITLE_POS = { x: $"($SPECIAL_SKILLS_BOX.x)+($SPECIAL_SKILLS_OFFSET.x)", y: $"($SPECIAL_SKILLS_BOX.y)+30-th/2" }
+const SPECIAL_SKILLS_TITLE_FONT = { fontfile: $BOLD_FONT,    fontcolor: "white", fontsize: 32 }
+const SPECIAL_SKILLS_FONT       = { fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: 18 }
 
 ################################################################################
 ###### EQUIPMENT BOXES #########################################################
@@ -106,6 +99,20 @@ const LIST_SEPARATOR_V_OFFSET = 10
 const EQUIPMENT_CHAR_SIZE = $EQUIPMENT_FONT.fontsize * 0.6
 ################################################################################
 
+################################################################################
+###### QR CODE #################################################################
+################################################################################
+const QR_CODE_SIZE = 4     # passed to --size
+const QR_CODE_MARGIN = 1   # passed to --margin
+const QR_CODE_WIDTH = 105  # the final width of the QR code
+################################################################################
+
+const NAME_2_BOX = { x: 810, y: 785, w: (1560 - ($QR_CODE_WIDTH + 10) - 810), h: (840 - 785) }
+const NAME_2_OFFSET_X = 10
+const NAME_2_POS = { x: $"($NAME_2_BOX.x)+($NAME_2_OFFSET_X)", y: $"($NAME_2_BOX.y)+($NAME_2_BOX.h / 2)-th/2" }
+const NAME_2_FONT = { fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: 30 }
+const QR_CODE_OVERLAY = { kind: "overlay",  options: { x: "1560-w", y: $"($NAME_2_BOX.y + $NAME_2_BOX.h)-h" } }
+
 # the vertical row positions in the bottom base "equipment" box, i.e. the "peripheral" box
 const BOTTOM_FIRST_ROW_Y = 885
 const BOTTOM_SECOND_ROW_Y = 930
@@ -131,14 +138,6 @@ const C_POS = { x: $"($C_BOX.x)+($C_BOX.w // 2)-tw/2", y: $"($BOTTOM_SECOND_ROW_
 const C_FONT_SIZE = 30
 const C_TITLE_FONT = { fontfile: $BOLD_FONT, fontcolor: "white", fontsize: $C_FONT_SIZE }
 const C_FONT = { fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: $C_FONT_SIZE }
-
-const SPECIAL_SKILLS_BOX = { x: 1135, y: 350, w: (1560 - 1135), h: null }
-const SPECIAL_SKILLS_OFFSET = { x: 10, y: 80 }
-const SPECIAL_SKILLS_V_BASE = 100
-const SPECIAL_SKILLS_V_SPACE = 30
-const SPECIAL_SKILLS_TITLE_POS = { x: $"($SPECIAL_SKILLS_BOX.x)+($SPECIAL_SKILLS_OFFSET.x)", y: $"($SPECIAL_SKILLS_BOX.y)+30-th/2" }
-const SPECIAL_SKILLS_TITLE_FONT = { fontfile: $BOLD_FONT,    fontcolor: "white", fontsize: 32 }
-const SPECIAL_SKILLS_FONT       = { fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: 18 }
 
 # marks "spec" equipments or skill in bold
 def equipment-or-skill-to-text [
