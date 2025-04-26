@@ -23,7 +23,43 @@ const UNSUPPORTED_SKILLS = [
 # skills that modify the stats directly
 const SUPPORTED_SKILLS = [ "BS Attack", "CC Attack", "Martial Arts", "Terrain" ]
 
-export def build-trooper-card [troop: record, --color: string, --output: path = "output.png", --stats, --charts] {
+export def build-trooper-card [
+    troop: record<
+        isc: string,
+        name: string,
+        short_name: string,
+        faction: string,
+        allowed_factions: list<string>,
+        asset: string,
+        classification: string,
+        reference: string,
+        type: string,
+        characteristics: list<string>,
+        stats: record<
+            MOV: string,
+            CC: int,
+            BS: int,
+            PH: int,
+            WIP: int,
+            ARM: int,
+            BTS: int,
+            VITA: int,
+            S: int,
+            AVA: int,
+        >,
+        special_skills: list<any>,
+        weaponry: list<any>,
+        equipment: list<any>,
+        peripheral: list<any>,
+        melee_weapons: list<any>,
+        SWC: number,
+        C: int
+    >,
+    --color: string,
+    --output: path = "output.png",
+    --stats,
+    --charts,
+] {
     let modifiers = $troop.special_skills | each { |skill|
         let skill = if ($skill | describe --detailed).type == "record" {
             $skill | default null mod | reject spec?

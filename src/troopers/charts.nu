@@ -152,7 +152,37 @@ def fit-items-in-width [
 }
 
 export def gen-charts-page [
-    troop: record,
+    troop: record<
+        isc: string,
+        name: string,
+        short_name: string,
+        faction: string,
+        allowed_factions: list<string>,
+        asset: string,
+        classification: string,
+        reference: string,
+        type: string,
+        characteristics: list<string>,
+        stats: record<
+            MOV: string,
+            CC: int,
+            BS: int,
+            PH: int,
+            WIP: int,
+            ARM: int,
+            BTS: int,
+            VITA: int,
+            S: int,
+            AVA: int,
+        >,
+        special_skills: list<any>,
+        weaponry: list<any>,
+        equipment: list<any>,
+        peripheral: list<any>,
+        melee_weapons: list<any>,
+        SWC: number,
+        C: int
+    >,
     output: path,
     modifiers: table<name: string, mod: record>,
 ] {
