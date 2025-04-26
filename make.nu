@@ -34,7 +34,7 @@ const COLORS = {
 const SHOWCASE = [
     [name,             color];
     ["panoceania/orc", $COLORS.panoceania],
-    ["jsa/shikami",    $COLORS.jsa],
+    ["jsa/shikami.1",  $COLORS.jsa],
 ]
 
 def list-troops []: [ nothing -> table<name: string, color: string> ] {
