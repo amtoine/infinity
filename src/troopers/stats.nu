@@ -14,9 +14,13 @@ const ISC_POS = { x: ($NAME_BOX.x + $NAME_OFFSET_X), y: ($NAME_BOX.y - $NAME_OFF
 const CLASSIFICATION_POS = { x: $"($NAME_BOX.x + $NAME_BOX.w - $NAME_OFFSET_X)-tw", y: $ISC_POS.y }
 const ISC_FONT = { fontfile: $REGULAR_FONT, fontcolor: "black", fontsize: 30 }
 
-const QR_CODE_SIZE = 4
-const QR_CODE_MARGIN = 1
-const QR_CODE_WIDTH = 105
+################################################################################
+###### EQUIPMENT BOXES #########################################################
+################################################################################
+const QR_CODE_SIZE = 4     # passed to --size
+const QR_CODE_MARGIN = 1   # passed to --margin
+const QR_CODE_WIDTH = 105  # the final width of the QR code
+################################################################################
 
 const NAME_2_BOX = { x: 810, y: 785, w: (1560 - ($QR_CODE_WIDTH + 10) - 810), h: (840 - 785) }
 const NAME_2_OFFSET_X = 10
