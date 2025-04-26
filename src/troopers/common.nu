@@ -19,7 +19,7 @@ const VERSION_POS = { x: $"($CANVAS.w)-tw-2", y: $"($CANVAS.h)-th-2" }
 const VERSION_FONT = { fontfile: $REGULAR_FONT, fontsize: 15, fontcolor: "black"}
 
 export def "ffmpeg-text" [
-    text: string, position: record<x: string, y: string>, options: record
+    text: string, position: record<x: any, y: any>, options: record
 ]: [
     nothing -> record<kind: string, options: record<text: string, x: string, y: string>>
 ] {
