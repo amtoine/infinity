@@ -1,4 +1,4 @@
-use log.nu [ "log info", "log warning" ]
+use . log [ "log info", "log warning" ]
 
 const FONT_UPSTREAM = "https://download.gnome.org/sources/adwaita-fonts/48/adwaita-fonts-48.2.tar.xz"
 const FONT_LOCAL = "/tmp/adwaita-fonts-48.2.tar.xz"
@@ -56,7 +56,7 @@ def list-troops []: [ nothing -> table<name: string, color: string> ] {
 }
 
 def run [troops: table<name: string, color: string>, --stats, --charts] {
-    use build_card.nu
+    use . troopers build-trooper-card
 
     if ($troops | is-empty) {
         log warning "nothing to do"
@@ -79,7 +79,7 @@ def run [troops: table<name: string, color: string>, --stats, --charts] {
             total: $total,
             content: $t.item.name,
         } | log info $"\(($in.current) / ($in.total)\) ($in.content)"
-        build_card (open $troop_file) --color $t.item.color --output $output --stats=$stats --charts=$charts
+        build-trooper-card (open $troop_file) --color $t.item.color --output $output --stats=$stats --charts=$charts
     }
 }
 
@@ -131,7 +131,7 @@ def batch-transform-pairs [name: string, transform: closure, extension: string]:
 
 # combine pairs of cards into single PNGs and view them
 def "main viz" [name: string = ""] {
-    use ffmpeg.nu [ "ffmpeg combine", VSTACKING ]
+    use . ffmpeg [ "ffmpeg combine", VSTACKING ]
 
     feh --image-bg '#aaaaaa' --draw-tinted --draw-exif --draw-filename --fullscreen ...(
         batch-transform-pairs $name { |x, out| $x | ffmpeg combine $VSTACKING --output $out } "png"

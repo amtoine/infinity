@@ -839,7 +839,7 @@ const UNSUPPORTED_SKILLS = [
 # skills that modify the stats directly
 const SUPPORTED_SKILLS = [ "BS Attack", "CC Attack", "Martial Arts", "Terrain" ]
 
-export def main [troop: record, --color: string, --output: path = "output.png", --stats, --charts] {
+export def build-trooper-card [troop: record, --color: string, --output: path = "output.png", --stats, --charts] {
     let modifiers = $troop.special_skills | each { |skill|
         let skill = if ($skill | describe --detailed).type == "record" {
             $skill | default null mod | reject spec?
