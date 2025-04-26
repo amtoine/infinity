@@ -155,6 +155,13 @@ export def "ffmpeg mapply" [
             $acc | ffmpeg apply $it --output $output
         }
     }
+
+    {
+        in: $"(ansi purple)($res)(ansi reset)",
+        output: $"(ansi purple)($output)(ansi reset)",
+    } | log trace $"($in.in) --> ($in.output)"
+    cp $res $output
+    $output
 }
 
 export def "ffmpeg combine" [
