@@ -147,7 +147,7 @@ export def "ffmpeg mapply" [
         }},
     }
 
-    $transforms | reduce --fold $input { |it, acc|
+    let res = $transforms | reduce --fold $input { |it, acc|
         let output = mktemp --tmpdir "ffmpeg-mapply-XXXXXXX.png"
         if $acc == null {
             ffmpeg create $it --output $output

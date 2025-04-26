@@ -5,13 +5,12 @@ use common.nu [
 
 const RANGES = ['8"', '16"', '24"', '32"', '40"', '48"', '96"']
 const STATS = [
-    [field,                    short];
-    [PS,                       PS],
-    [B,                        B],
-    [AMMUNITION,               AMMO],
-    ["SAVING ROLL ATTRIBUTE",  ATTR],
-    ["NUMBER OF SAVING ROLLS", SR],
-    ["TRAITS",                 TRAITS],
+    [field,                    short,  x   ];
+    [PS,                       PS,     750 ],
+    [B,                        B,      805 ],
+    [AMMUNITION,               AMMO,   905 ],
+    ["SAVING ROLL ATTRIBUTE",  ATTR,   1060],
+    ["NUMBER OF SAVING ROLLS", SR,     1200],
 ]
 
 const CORVUS_BELLI_COLORS = {
@@ -23,108 +22,24 @@ const CORVUS_BELLI_COLORS = {
     gray:   "0xcdd5de",
 }
 
-const CHART_FONT_SIZE = 25
-const CHART_FONT_CHAR_SIZE = 15
-const CHART_OFFSET_Y = 30
-const CHART_ATTR_INTERSPACE = 15
-const CHART_RANGE_CELL_WIDTH = 70
-const CHART_RANGE_CELL_HEIGHT = 45
 const CHART_START = { x: 560, y: 50 }
-const CHART_NAMES_OFFSET_X = 10
-const CHART_FONT_B = { fontfile: $BOLD_FONT,    fontcolor: "black", fontsize: $CHART_FONT_SIZE }
-const CHART_FONT_R = { fontfile: $REGULAR_FONT, fontcolor: "black", fontsize: $CHART_FONT_SIZE }
-const CHART_V_SPACE = 60
-const CHART_TRAITS_V_SPACE = 50
-const CHART_TRAITS_H_SPACE = 20
 
-def put-weapon-chart [
-    equipment: record,
-    x: int,
-    y: int,
-    column_widths: record,
-    --no-header,
-    modifiers: table<name: string, mod: record>,
-]: [ path -> path ] {
-    let widths = $column_widths | values
-    let positions = $widths
-        | zip ($widths | skip 1)
-        | reduce --fold [($CHART_ATTR_INTERSPACE / 2 + $CHART_FONT_CHAR_SIZE * $widths.0)] { |it, acc|
-            $acc | append (($acc | last) + $CHART_ATTR_INTERSPACE + $CHART_FONT_CHAR_SIZE * ($it.0 + $it.1) / 2)
-        }
+const CHART_RANGE_CELL_WIDTH = 72
 
-    let modifiers = $modifiers | transpose --header-row | into record
+const FONT = { fontfile: $REGULAR_FONT, fontcolor: "black", fontsize: 22 }
+const HEADER_FONT = { fontfile: $BOLD_FONT, fontcolor: "white", fontsize: 25 }
 
-    let transforms = [
-        # range headers
-        ...(
-            if $no_header {
-                []
-            } else {
-                $RANGES | enumerate | each {
-                    let pos = {
-                        x: $"($x + $CHART_RANGE_CELL_WIDTH / 2 + $in.index * $CHART_RANGE_CELL_WIDTH + $in.index - 1)-tw/2",
-                        y: $y
-                    }
-                    ffmpeg-text $in.item $pos $CHART_FONT_B
-                }
-            }
-        ),
-        # range values
-        ...($RANGES | enumerate | each { |it|
-            let color = match ($equipment.stats | get $it.item) {
-                "+3" | 3 | "3" => $CORVUS_BELLI_COLORS.green,
-                "0" | 0 => $CORVUS_BELLI_COLORS.blue,
-                "-3" | -3 => $CORVUS_BELLI_COLORS.yellow,
-                "-6" | -6 => $CORVUS_BELLI_COLORS.red,
-                "null" => $CORVUS_BELLI_COLORS.black,
-                _ => $CORVUS_BELLI_COLORS.gray,
-            }
+const V_SPACE = 20
 
-            {
-                kind: "drawbox",
-                options: {
-                    x: ($x + $it.index * $CHART_RANGE_CELL_WIDTH + $in.index - 1),
-                    y: (if $no_header { $y } else { $y + $CHART_OFFSET_Y }),
-                    w: $CHART_RANGE_CELL_WIDTH, h: $CHART_RANGE_CELL_HEIGHT,
-                    color: $color, t: "fill",
-                },
-            }
-        }),
-        # stats headers
-        ...(
-            if $no_header {
-                []
-            } else {
-                $STATS | zip $positions | enumerate | each {
-                    let pos = {
-                        x: $"($x + ($RANGES | length) * $CHART_RANGE_CELL_WIDTH + $in.item.1)-tw/2",
-                        y: $y
-                    }
-                    ffmpeg-text $in.item.0.short $pos $CHART_FONT_B
-                }
-            }
-        ),
-        # stats values
-        ...($STATS | zip $positions | enumerate | each { |it|
-            let pos = {
-                x: $"($x + ($RANGES | length) * $CHART_RANGE_CELL_WIDTH + $it.item.1)-tw/2",
-                y: $"(if $no_header { $y } else { $y + $CHART_OFFSET_Y })+($CHART_RANGE_CELL_HEIGHT / 2)-th/2"
-            }
-            let text = if $it.item.0.field == "TRAITS" {
-                if ($equipment.stats | get $it.item.0.field | is-empty) {
-                    ""
-                } else {
-                    "*"
-                }
-            } else {
-                $"($equipment.stats | get $it.item.0.field)"
-            }
-            ffmpeg-text $text $pos $CHART_FONT_R
-        }),
-    ]
+const HEADER_MAX_CHARS = 10
+const NAME_MAX_CHARS = 15
+const TRAITS_MAX_CHARS = 27
 
-    $in | ffmpeg mapply ($transforms | each { ffmpeg options }) --output (mktemp --tmpdir infinity-XXXXXXX.png)
-}
+const NAME_X = 95 + 20
+const RANGE_X = $NAME_X + $FONT.fontsize * ($NAME_MAX_CHARS * 0.33)
+const TRAITS_X = $CANVAS.w - 165 - 20
+
+const START_Y = 35
 
 def fit-items-in-width [
     items: list<string>, h_space: int, --separator: string = ", "
@@ -179,7 +94,9 @@ export def gen-charts-page [
         $acc ++ (open $it.name)
     }
 
+    # NOTE: this is required because of signature issues in Nushell
     let mods = $modifiers | transpose --header-row | into record
+
     let equipments = $troop.weaponry ++ $troop.equipment ++ $troop.peripheral ++ $troop.melee_weapons
         | each { |it|
             match ($it | describe --detailed).type {
@@ -261,90 +178,142 @@ export def gen-charts-page [
         return
     }
 
-    let offset = $CHART_START
+    let header_transforms = [
+        { field: "NAME", x: $NAME_X },
+        { field: "RANGE", x: ($RANGE_X + ($RANGES | length) / 2 * $CHART_RANGE_CELL_WIDTH) },
+        ...($STATS | select field x),
+        { field: "TRAITS", x: $TRAITS_X },
+    ] | each { |h|
+        # FIXME: no idea why this is IO call is required...
+        print --no-newline ""
+        let header_lines = fit-items-in-width ($h.field | split row " ") $HEADER_MAX_CHARS --separator " "
+            | each { str join " " }
 
-    let names_transforms = $equipments | enumerate | each {(
-        ffmpeg-text $in.item.name
-            { x: $"($offset.x)-($CHART_NAMES_OFFSET_X)-tw", y: $"($offset.y)+($CHART_OFFSET_Y)+($in.index * $CHART_V_SPACE)+25-th/2" }
-            $CHART_FONT_B
-    )}
+        $header_lines | enumerate | each { |l|
+            ffmpeg-text $l.item {
+                x: $"($h.x)-tw/2",
+                y: $"($START_Y)+((3 - ($header_lines | length)) / 2 * $HEADER_FONT.fontsize)+($l.index * $HEADER_FONT.fontsize)-th/2"
+            } $HEADER_FONT
+        }
+    }
+    | flatten
+    const HEADERS_BACKGROUND = {
+        kind: "drawbox",
+        options: {
+            x: 0,
+            y: $"($START_Y)+($HEADER_FONT.fontsize)-h/2",
+            w: $CANVAS.w,
+            h: (3 * $HEADER_FONT.fontsize + 20),
+            color: "0x333333",
+            t: "fill",
+        },
+    }
 
-    let traits = $equipments
-        | where not ($it.stats.TRAITS | is-empty)
-        | enumerate
-        | each { |var|
-            let h_space = ($CANVAS.w - $offset.x - 20) / $CHART_FONT_CHAR_SIZE | into int
-            let items = $var.item.stats.TRAITS | split row ", "
-            let res = fit-items-in-width $items $h_space --separator ", "
-            $res | each { str join ", " } | enumerate | each { |it|
-                let name = if $it.index == 0 {
-                    $var.item.name
-                } else {
-                    ""
-                }
-                let traits = if $it.index < ($res | length) - 1 {
-                    $it.item ++ ","
-                } else {
-                    $it.item
-                }
-                { name: $name, traits: $traits }
+    const RANGES_Y = $START_Y + $HEADER_FONT.fontsize + $HEADERS_BACKGROUND.options.h / 2 + ($HEADER_FONT.fontsize + 20) / 2 + 10
+    let ranges_transforms = $RANGES | enumerate | each { |r|
+        ffmpeg-text $r.item {
+            x: $"($RANGE_X + $CHART_RANGE_CELL_WIDTH / 2 + $r.index * $CHART_RANGE_CELL_WIDTH)-tw/2",
+            y: $"($RANGES_Y)-th/2",
+        } $HEADER_FONT
+    }
+    const RANGES_BACKGROUND = {
+        kind: "drawbox",
+        options: {
+            x: 0,
+            y: $"($RANGES_Y)-h/2",
+            w: $CANVAS.w,
+            h: ($HEADER_FONT.fontsize + 20),
+            color: "0x555555",
+            t: "fill",
+        },
+    }
+
+    let transforms = $equipments | enumerate | reduce --fold { y: ($RANGES_Y + $RANGES_BACKGROUND.options.h), ts: [] } { |eq, acc|
+        # FIXME: no idea why this is IO call is required...
+        print --no-newline ""
+
+        let name = fit-items-in-width ($eq.item.name | split row " ") $NAME_MAX_CHARS --separator " "
+            | each { str join " " }
+        let traits = fit-items-in-width ($eq.item.stats.traits | split row " ") $TRAITS_MAX_CHARS --separator " "
+            | each { str join " " }
+
+        let y = if ($name | length) == ($traits | length) {
+            { name: $acc.y, traits: $acc.y }
+        } else if ($name | length) > ($traits | length) {
+            let d = ($name | length) - ($traits | length)
+            { name: $acc.y, traits: ($acc.y + $d / 2 * $FONT.fontsize) }
+        } else {
+            let d = ($traits | length) - ($name | length)
+            { name: ($acc.y + $d / 2 * $FONT.fontsize), traits: $acc.y }
+        }
+
+        let name_lines = $name | enumerate | each { |t|
+            ffmpeg-text $t.item { x: $"($NAME_X)-tw/2", y: $"($y.name)+($t.index * $FONT.fontsize)-th/2" } $FONT
+        }
+        let trait_lines = $traits | enumerate | each { |t|
+            ffmpeg-text $t.item { x: $"($TRAITS_X)-tw/2", y: $"($y.traits)+($t.index * $FONT.fontsize)-th/2" } $FONT
+        }
+
+        let range_y = $"($y.name + (($name | length) - 1) / 2 * $FONT.fontsize)"
+        let range_h = ([($name | length), ($traits | length)] | math max) * $FONT.fontsize + $V_SPACE * 0.75
+
+        let background = {
+            kind: "drawbox",
+            options: {
+                x: 0,
+                y: $"($range_y)-h/2",
+                w: $CANVAS.w,
+                h: $range_h,
+                color: (if ($eq.index mod 2) == 0 { "0xd0d0d0" } else { "0xc2c2c2" }),
+                t: "fill",
+            },
+        }
+
+        let ranges_boxes = $RANGES | enumerate | each { |it|
+            let color = match ($eq.item.stats | get $it.item) {
+                "+3" | 3 | "3" => $CORVUS_BELLI_COLORS.green,
+                "0" | 0 => $CORVUS_BELLI_COLORS.blue,
+                "-3" | -3 => $CORVUS_BELLI_COLORS.yellow,
+                "-6" | -6 => $CORVUS_BELLI_COLORS.red,
+                "null" => $CORVUS_BELLI_COLORS.black,
+                _ => $CORVUS_BELLI_COLORS.gray,
+            }
+
+            {
+                kind: "drawbox",
+                options: {
+                    x: ($RANGE_X + $it.index * $CHART_RANGE_CELL_WIDTH),
+                    y: $"($range_y)-h/2",
+                    w: $CHART_RANGE_CELL_WIDTH,
+                    h: $range_h,
+                    color: $color, t: "fill",
+                },
             }
         }
-        | flatten
 
-    let traits_names_transforms = $traits
-        | enumerate
-        | each {(
-            ffmpeg-text $in.item.name
-                {
-                    x: $"($offset.x)-($CHART_NAMES_OFFSET_X)-tw",
-                    y: $"($offset.y)+($CHART_OFFSET_Y)+($CHART_V_SPACE)*($equipments | length)+($CHART_TRAITS_V_SPACE)+($in.index * $CHART_TRAITS_V_SPACE)",
-                }
-                $CHART_FONT_B
-        )}
-    let traits_values_transforms = $traits
-        | enumerate
-        | each {(
-            ffmpeg-text $in.item.traits
-                {
-                    x: ($offset.x + $CHART_TRAITS_H_SPACE),
-                    y: $"($offset.y)+($CHART_OFFSET_Y)+($CHART_V_SPACE)*($equipments | length)+($CHART_TRAITS_V_SPACE)+($in.index * $CHART_TRAITS_V_SPACE)",
-                }
-                $CHART_FONT_R
-        )}
-
-    let column_widths_values = $STATS.field
-        | reduce --fold ($equipments | flatten | select ...$STATS.field) { |it, acc|
-            $acc | update $it { into string | str length }
+        let stats_boxes = $STATS | each { |s|
+            let pos = {
+                x: $"($s.x)-tw/2",
+                y: $"($range_y)-th/2",
+            }
+            let text = $"($eq.item.stats | get $s.field)"
+            ffmpeg-text $text $pos $FONT
         }
-        | math max
-        | update TRAITS { "TRAITS" | str length }
-        | transpose
-        | transpose --header-row
 
-    let column_widths_keys = $STATS | insert len { $in.short | str length } | reject short | transpose --header-row
-    let column_widths = $column_widths_keys | append $column_widths_values| math max
-
-    let weapon_bars = $equipments | enumerate | each { |var| {
-        equipment: $var.item,
-        x: $offset.x,
-        y: ($offset.y + (if $var.index == 0 { 0 } else { $CHART_FONT_SIZE }) + ($var.index * $CHART_V_SPACE)),
-    }}
+        {
+            y: ($acc.y + $V_SPACE + ([($name | length), ($traits | length)] | math max) * $FONT.fontsize),
+            ts: ($acc.ts ++ [$background] ++ $name_lines ++ $ranges_boxes ++ $stats_boxes ++ $trait_lines),
+        }
+    }
+    | get ts
 
     let res = ffmpeg create ($BASE_IMAGE | ffmpeg options) --output (mktemp --tmpdir infinity-XXXXXXX.png)
-        | ffmpeg mapply ($names_transforms | each { ffmpeg options }) --output (mktemp --tmpdir infinity-XXXXXXX.png)
-        | ffmpeg mapply ($traits_names_transforms | each { ffmpeg options }) --output (mktemp --tmpdir infinity-XXXXXXX.png)
-        | ffmpeg mapply ($traits_values_transforms | each { ffmpeg options }) --output (mktemp --tmpdir infinity-XXXXXXX.png)
-
-    let res = $weapon_bars
-        | enumerate
-        | insert item.no_header { $in.index > 0 }
-        | get item
-        | reduce --fold $res { |it, acc|
-            $acc | put-weapon-chart $it.equipment $it.x $it.y $column_widths $modifiers --no-header=$it.no_header
-        }
-
-    let res = $res | put-version
+        | ffmpeg apply ($HEADERS_BACKGROUND | ffmpeg options ) --output (mktemp --tmpdir infinity-XXXXXXX.png)
+        | ffmpeg mapply ($header_transforms | each { ffmpeg options }) --output (mktemp --tmpdir infinity-XXXXXXX.png)
+        | ffmpeg apply ($RANGES_BACKGROUND | ffmpeg options ) --output (mktemp --tmpdir infinity-XXXXXXX.png)
+        | ffmpeg mapply ($ranges_transforms | each { ffmpeg options }) --output (mktemp --tmpdir infinity-XXXXXXX.png)
+        | ffmpeg mapply ($transforms | each { ffmpeg options }) --output (mktemp --tmpdir infinity-XXXXXXX.png)
+        | put-version
 
     let out = $output | path parse | update stem { $in ++ ".2" } | path join
     cp $res $out
