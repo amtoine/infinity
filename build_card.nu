@@ -838,18 +838,23 @@ def gen-charts-page [
         x: $"W-($CHART_EQUIPMENT_MARGIN)-w",
         y: $"H-($CHART_EQUIPMENT_MARGIN)-20-h",
     }
+    const CHART_EQUIPMENT_SCALE = 0.75
     let res = $equipments.asset
         | each { |it| "./equipments/assets/" | path join $it }
         | sort-by --reverse {
             ffmpeg metadata | get streams.width
         } | reduce --fold { img: $res, pos: $CHART_EQUIPMENT_POS } { |it, acc|
-            let transform = { kind: overlay, options: $acc.pos }
+            let transform = { kind: overlay, options: $acc.pos } | ffmpeg options
+            let transform = [
+                $"[1:v]scale=iw*($CHART_EQUIPMENT_SCALE):-1[scaled]",
+                $"[0:v][scaled]overlay=x=($acc.pos.x):y=($acc.pos.y)",
+            ] | str join ";"
             let out = mktemp --tmpdir infinity-XXXXXXX.png
 
-            let res = [$acc.img, $it] | ffmpeg combine ($transform | ffmpeg options) --output $out
+            let res = [$acc.img, $it] | ffmpeg combine $transform --output $out
 
             let size = $it | ffmpeg metadata | get streams | select width height
-            let new_pos = $acc.pos | update x { $"($in)-($size.width)-20"}
+            let new_pos = $acc.pos | update x { $"($in)-($size.width * $CHART_EQUIPMENT_SCALE)-20"}
 
             { img: $res, pos: $new_pos }
         }
