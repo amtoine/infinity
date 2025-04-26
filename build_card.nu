@@ -209,8 +209,8 @@ const CORVUS_BELLI_COLORS = {
     gray:   "0xcdd5de",
 }
 
-const CHART_FONT_SIZE = 25
-const CHART_FONT_CHAR_SIZE = 15
+const CHART_FONT_SIZE = 20
+const CHART_FONT_CHAR_SIZE = 12
 const CHART_OFFSET_Y = 30
 const CHART_ATTR_INTERSPACE = 15
 const CHART_RANGE_CELL_WIDTH = 70
@@ -650,9 +650,10 @@ def gen-charts-page [
     let charts = ls charts/weapons/*.csv | reduce --fold [] { |it, acc|
         $acc ++ (open $it.name)
     }
+    let equipments = open equipments/list.nuon
 
     let mods = $modifiers | transpose --header-row | into record
-    let equipments = $troop.weaponry ++ $troop.equipment ++ $troop.peripheral ++ $troop.melee_weapons
+    let weapons_or_equipments = $troop.weaponry ++ $troop.equipment ++ $troop.peripheral ++ $troop.melee_weapons
         | each { |it|
             match ($it | describe --detailed).type {
                 "string" => { name: $it },
@@ -662,13 +663,22 @@ def gen-charts-page [
         | insert stats { |var|
             let equipment = $charts | where NAME == ($var.name | str upcase)
             if ($equipment | length) == 0 {
-                log error $"(ansi cyan)($var.name)(ansi reset) not found in charts"
+                if $var.name in $equipments.name {
+                    [($equipments
+                        | where $it.name == $var.name and ($it.mod == "*" or $it.mod == $var.mod?)
+                        | into record
+                    )]
+                } else {
+                    log error $"(ansi cyan)($var.name)(ansi reset) not found in charts"
+                    []
+                }
+            } else {
+                $equipment | each { into record }
             }
-            $equipment | each { into record }
         }
         | flatten stats
         | update name { |it|
-            if $it.stats.MODE == "" {
+            if ($it.stats.MODE? | default "") == "" {
                 $it.stats.NAME
             } else {
                 $"($it.stats.NAME) \(($it.stats.MODE)\)"
@@ -678,6 +688,9 @@ def gen-charts-page [
         | upsert mod { |it| $it | reject stats | parse modifier-from-skill }
         | where not ($it.stats | is-empty)
         | update stats { |it|
+            if $it.stats.MODE? == null {
+                return $it.stats
+            }
             let stat = $it.stats
                 | update AMMUNITION { |stat|
                     let skill = $mods."BS Attack"?
@@ -723,7 +736,10 @@ def gen-charts-page [
                 }
         }
 
-    if ($equipments | is-empty) {
+    let weapons = $weapons_or_equipments | where $it.stats.MODE? != null
+    let equipments = $weapons_or_equipments | where $it.stats.MODE? == null | get stats
+
+    if ($weapons | is-empty) {
         log warning "\tno equipment"
         let res = ffmpeg create ($BASE_IMAGE | ffmpeg options) --output (mktemp --tmpdir infinity-XXXXXXX.png)
             | put-version
@@ -735,17 +751,17 @@ def gen-charts-page [
 
     let offset = $CHART_START
 
-    let names_transforms = $equipments | enumerate | each {(
+    let names_transforms = $weapons | enumerate | each {(
         ffmpeg-text $in.item.name
             { x: $"($offset.x)-($CHART_NAMES_OFFSET_X)-tw", y: $"($offset.y)+($CHART_OFFSET_Y)+($in.index * $CHART_V_SPACE)+25-th/2" }
             $CHART_FONT_B
     )}
 
-    let traits = $equipments
+    let traits = $weapons
         | where not ($it.stats.TRAITS | is-empty)
         | enumerate
         | each { |var|
-            let h_space = ($CANVAS.w - $offset.x - 20) / $CHART_FONT_CHAR_SIZE | into int
+            let h_space = ($CANVAS.w - $offset.x - 10) / $CHART_FONT_CHAR_SIZE | into int
             let items = $var.item.stats.TRAITS | split row ", "
             let res = fit-items-in-width $items $h_space --separator ", "
             $res | each { str join ", " } | enumerate | each { |it|
@@ -763,6 +779,7 @@ def gen-charts-page [
             }
         }
         | flatten
+        | sort-by --reverse { $in.traits | str join ", " | str length }
 
     let traits_names_transforms = $traits
         | enumerate
@@ -770,7 +787,7 @@ def gen-charts-page [
             ffmpeg-text $in.item.name
                 {
                     x: $"($offset.x)-($CHART_NAMES_OFFSET_X)-tw",
-                    y: $"($offset.y)+($CHART_OFFSET_Y)+($CHART_V_SPACE)*($equipments | length)+($CHART_TRAITS_V_SPACE)+($in.index * $CHART_TRAITS_V_SPACE)",
+                    y: $"($offset.y)+($CHART_OFFSET_Y)+($CHART_V_SPACE)*($weapons | length)+($CHART_TRAITS_V_SPACE)+($in.index * $CHART_TRAITS_V_SPACE)",
                 }
                 $CHART_FONT_B
         )}
@@ -780,13 +797,13 @@ def gen-charts-page [
             ffmpeg-text $in.item.traits
                 {
                     x: ($offset.x + $CHART_TRAITS_H_SPACE),
-                    y: $"($offset.y)+($CHART_OFFSET_Y)+($CHART_V_SPACE)*($equipments | length)+($CHART_TRAITS_V_SPACE)+($in.index * $CHART_TRAITS_V_SPACE)",
+                    y: $"($offset.y)+($CHART_OFFSET_Y)+($CHART_V_SPACE)*($weapons | length)+($CHART_TRAITS_V_SPACE)+($in.index * $CHART_TRAITS_V_SPACE)",
                 }
                 $CHART_FONT_R
         )}
 
     let column_widths_values = $STATS.field
-        | reduce --fold ($equipments | flatten | select ...$STATS.field) { |it, acc|
+        | reduce --fold ($weapons | flatten | select ...$STATS.field) { |it, acc|
             $acc | update $it { into string | str length }
         }
         | math max
@@ -797,7 +814,7 @@ def gen-charts-page [
     let column_widths_keys = $STATS | insert len { $in.short | str length } | reject short | transpose --header-row
     let column_widths = $column_widths_keys | append $column_widths_values| math max
 
-    let weapon_bars = $equipments | enumerate | each { |var| {
+    let weapon_bars = $weapons | enumerate | each { |var| {
         equipment: $var.item,
         x: $offset.x,
         y: ($offset.y + (if $var.index == 0 { 0 } else { $CHART_FONT_SIZE }) + ($var.index * $CHART_V_SPACE)),
@@ -815,6 +832,24 @@ def gen-charts-page [
         | reduce --fold $res { |it, acc|
             $acc | put-weapon-chart $it.equipment $it.x $it.y $column_widths $modifiers --no-header=$it.no_header
         }
+
+    const CHART_EQUIPMENT_POS = { x: $"W-20-w", y: "H-40-h" }
+    let res = $equipments.asset
+        | each { |it| "./equipments/assets/" | path join $it }
+        | sort-by --reverse {
+            ffmpeg metadata | get streams.width
+        } | reduce --fold { img: $res, pos: $CHART_EQUIPMENT_POS } { |it, acc|
+            let transform = { kind: overlay, options: $acc.pos }
+            let out = mktemp --tmpdir infinity-XXXXXXX.png
+
+            let res = [$acc.img, $it] | ffmpeg combine ($transform | ffmpeg options) --output $out
+
+            let size = $it | ffmpeg metadata | get streams | select width height
+            let new_pos = $acc.pos | update x { $"($in)-($size.width)-20"}
+
+            { img: $res, pos: $new_pos }
+        }
+        | get img
 
     let res = $res | put-version
 
