@@ -149,8 +149,8 @@ def equipments-to-text [
     x: record<
         equipments: list<any>,
         box: record<x: int, y: int, w: int, h: int>,
-        title_pos: record<x: int, y: int>,
-        text_pos: record<x: int, y: int>,
+        title_pos: record<x: any, y: any>,
+        text_pos: record<x: any, y: any>,
     >
 ]: [ nothing -> list<record> ] {
     if $x.equipments == [] {
