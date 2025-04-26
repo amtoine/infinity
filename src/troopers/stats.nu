@@ -37,36 +37,65 @@ const CHARACTERISTICS_TYPE_POS = {
 const CHARACTERISTICS_TYPE_FONT = { fontfile: $BOLD_FONT, fontcolor: "white", fontsize: 30 }
 ################################################################################
 
-const NAME_BOX = { x: 480, y: 80, w: (1560 - 480), h: (160 - 80) }
+################################################################################
+###### TOP #####################################################################
+################################################################################
+const NAME_BOX = {
+    x: 480,
+    y: ($CANVAS_MARGINS.top + 45),
+    w: ($CANVAS_MARGINS.right - 480),
+    h: (160 - ($CANVAS_MARGINS.top + 45)),
+}
 const NAME_OFFSET_X = 28
 const NAME_POS = { x: $"($NAME_BOX.x)+($NAME_OFFSET_X)", y: $"($NAME_BOX.y)+($NAME_BOX.h / 2)-th/2" }
 const NAME_FONT = { fontfile: $BOLD_FONT, fontcolor: "white", fontsize: 45 }
 
-const ISC_POS = { x: ($NAME_BOX.x + $NAME_OFFSET_X), y: ($NAME_BOX.y - $NAME_OFFSET_X) }
-const CLASSIFICATION_POS = { x: $"($NAME_BOX.x + $NAME_BOX.w - $NAME_OFFSET_X)-tw", y: $ISC_POS.y }
 const ISC_FONT = { fontfile: $REGULAR_FONT, fontcolor: "black", fontsize: 30 }
+const ISC_POS = { x: ($NAME_BOX.x + $NAME_OFFSET_X), y: ($NAME_BOX.y - $ISC_FONT.fontsize) }
+const CLASSIFICATION_POS = { x: $"($NAME_BOX.x + $NAME_BOX.w - $NAME_OFFSET_X)-tw", y: $ISC_POS.y }
 
-const STAT_KEYS_BOX = { x: 480, y: 180, w: (1560 - 480), h: (245 - 180) }
+const STAT_KEYS_BOX = {
+    x: $NAME_BOX.x,
+    y: ($NAME_BOX.y + $NAME_BOX.h + 20),
+    w: ($CANVAS_MARGINS.right - $NAME_BOX.x),
+    h: (245 - ($NAME_BOX.y + $NAME_BOX.h + 20)),
+}
 const STAT_VALS_BOX = {
     x: $STAT_KEYS_BOX.x,
-    y: 265,
+    y: ($STAT_KEYS_BOX.y + $STAT_KEYS_BOX.h + 20),
     w: $STAT_KEYS_BOX.w,
     h: $STAT_KEYS_BOX.h,
 }
+# horizontal space between stats
 const STAT_H_SPACE = 108
+# horizontal offset for the first stat (MOV)
 const STAT_OFFSET_X = 60
 const STAT_FONT = { fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: 30 }
 
+# offset to the bottom-left corner of the "stat values" box
 const ALLOWED_FACTIONS_OFFSET = { x: 50, y: 50 }
-const ALLOWED_FACTIONS_IMAGE_SIZE = 70 + 10
+const ALLOWED_FACTIONS_IMAGE_SIZE = 70
+const ALLOWED_FACTIONS_IMAGE_H_SPACE = 10
 
-const SPECIAL_SKILLS_BOX = { x: 1135, y: 350, w: (1560 - 1135), h: null }
+const SPECIAL_SKILLS_BOX = {
+    x: ($CANVAS_MARGINS.right - 425),
+    y: ($STAT_VALS_BOX.y + $STAT_VALS_BOX.h + 20),
+    w: 425,
+    h: null,
+}
+# offset for the first special skill
 const SPECIAL_SKILLS_OFFSET = { x: 10, y: 80 }
+# the base height for the "special skill" box
 const SPECIAL_SKILLS_V_BASE = 100
+# the vertical space between two special skills
 const SPECIAL_SKILLS_V_SPACE = 30
-const SPECIAL_SKILLS_TITLE_POS = { x: $"($SPECIAL_SKILLS_BOX.x)+($SPECIAL_SKILLS_OFFSET.x)", y: $"($SPECIAL_SKILLS_BOX.y)+30-th/2" }
+const SPECIAL_SKILLS_TITLE_POS = {
+    x: $"($SPECIAL_SKILLS_BOX.x)+($SPECIAL_SKILLS_OFFSET.x)",
+    y: $"($SPECIAL_SKILLS_BOX.y)+30-th/2",
+}
 const SPECIAL_SKILLS_TITLE_FONT = { fontfile: $BOLD_FONT,    fontcolor: "white", fontsize: 32 }
 const SPECIAL_SKILLS_FONT       = { fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: 18 }
+###### END TOP #################################################################
 
 ################################################################################
 ###### BOTTOM ##################################################################
@@ -348,7 +377,7 @@ export def gen-stats-page [
                 let stat = match $it.item.k {
                     "BS" => {
                         let skill = $modifiers."BS Attack"?
-                        if $skill != null and $skill.k != "AMMO" {
+                        if $skill != null and $skill.k == "" {
                             let v = $skill.v | into int
                             match $skill.x? {
                                 # NOTE: no "-" (see p.68 of the rulebook)
@@ -398,7 +427,7 @@ export def gen-stats-page [
 
                 [
                     (ffmpeg-text $"($it.item.k)" { x: $"($STAT_KEYS_BOX.x)+($STAT_OFFSET_X)+($it.index)*($STAT_H_SPACE)-tw/2", y: $"($STAT_KEYS_BOX.y)+($STAT_KEYS_BOX.h / 2)-th/2" } $STAT_FONT),
-                    (ffmpeg-text $"($stat)" { x: $"($STAT_VALS_BOX.x)+($STAT_OFFSET_X)+($it.index)*($STAT_H_SPACE)-tw/2", y: $"($STAT_VALS_BOX.y)+($STAT_VALS_BOX.h / 2)-th/2" } $STAT_FONT),
+                    (ffmpeg-text $"($stat)"      { x: $"($STAT_VALS_BOX.x)+($STAT_OFFSET_X)+($it.index)*($STAT_H_SPACE)-tw/2", y: $"($STAT_VALS_BOX.y)+($STAT_VALS_BOX.h / 2)-th/2" } $STAT_FONT),
                 ]
             } | flatten
         ),
@@ -498,7 +527,7 @@ export def gen-stats-page [
             [$acc, ({ parent: $DIRS.allowed_factions, stem: $it.item, extension: "png" } | path join)] | ffmpeg combine ({
                 kind: "overlay",
                 options: {
-                    x: $"($STAT_VALS_BOX.x)+($ALLOWED_FACTIONS_OFFSET.x)+($it.index * $ALLOWED_FACTIONS_IMAGE_SIZE)-w/2",
+                    x: $"($STAT_VALS_BOX.x)+($ALLOWED_FACTIONS_OFFSET.x)+($it.index * ($ALLOWED_FACTIONS_IMAGE_SIZE + $ALLOWED_FACTIONS_IMAGE_H_SPACE))-w/2",
                     y: $"($STAT_VALS_BOX.y)+($STAT_VALS_BOX.h)+($ALLOWED_FACTIONS_OFFSET.y)-h/2",
                 },
             } | ffmpeg options) --output (mktemp --tmpdir infinity-XXXXXXX.png)
