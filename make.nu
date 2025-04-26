@@ -150,8 +150,8 @@ def "main archive" [] {
         | each { str replace '/' '-' | $"($OUT_DIR)/($in)" | [ $"($in).1.png", $"($in).2.png" ] }
         | flatten
 
-    ^tar czf $"infinity-trooper-assets-(git describe).tar.gz" ...$assets
-    ^zip $"infinity-trooper-assets-(git describe).zip" ...$assets
+    ^tar czf $"archives/infinity-trooper-assets-(git describe).tar.gz" ...$assets
+    ^zip $"archives/infinity-trooper-assets-(git describe).zip" ...$assets
 }
 
 # run all that is required for a release
