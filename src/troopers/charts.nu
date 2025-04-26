@@ -22,8 +22,6 @@ const CORVUS_BELLI_COLORS = {
     gray:   "0xcdd5de",
 }
 
-const CHART_START = { x: 560, y: 50 }
-
 const CHART_RANGE_CELL_WIDTH = 72
 
 const FONT = { fontfile: $REGULAR_FONT, fontcolor: "black", fontsize: 22 }
@@ -66,118 +64,9 @@ def fit-items-in-width [
     } $items
 }
 
-export def gen-charts-page [
-    troop: record<
-        isc: string,
-        name: string,
-        short_name: string,
-        faction: any, # string or null
-        allowed_factions: list<string>,
-        asset: string,
-        classification: string,
-        reference: string,
-        type: string,
-        characteristics: list<string>,
-        stats: record,
-        special_skills: list<any>,
-        weaponry: list<any>,
-        equipment: list<any>,
-        peripheral: list<any>,
-        melee_weapons: list<any>,
-        SWC: number,
-        C: int
-    >,
-    output: path,
-    modifiers: table<name: string, mod: record>,
+def put-weapons-charts [equipments: table<name: string, stats: record>]: [
+    nothing -> table<kind: string, options: record>
 ] {
-    let charts = ls charts/weapons/*.csv | reduce --fold [] { |it, acc|
-        $acc ++ (open $it.name)
-    }
-
-    # NOTE: this is required because of signature issues in Nushell
-    let mods = $modifiers | transpose --header-row | into record
-
-    let equipments = $troop.weaponry ++ $troop.equipment ++ $troop.peripheral ++ $troop.melee_weapons
-        | each { |it|
-            match ($it | describe --detailed).type {
-                "string" => { name: $it },
-                "record" => $it,
-            } | update name { str replace "CCW" "CC Weapon" }
-        }
-        | insert stats { |var|
-            let equipment = $charts | where NAME == ($var.name | str upcase)
-            if ($equipment | length) == 0 {
-                log error $"(ansi cyan)($var.name)(ansi reset) not found in charts"
-            }
-            $equipment | each { into record }
-        }
-        | flatten stats
-        | update name { |it|
-            if $it.stats.MODE == "" {
-                $it.stats.NAME
-            } else {
-                $"($it.stats.NAME) \(($it.stats.MODE)\)"
-            }
-        }
-        | default null mod
-        | upsert mod { |it| $it | reject stats | parse modifier-from-skill }
-        | where not ($it.stats | is-empty)
-        | update stats { |it|
-            let stat = $it.stats
-                | update AMMUNITION { |stat|
-                    let skill = $mods."BS Attack"?
-                    if $skill != null {
-                        if $skill.k != "AMMO" {
-                            log warning $"invalid key '($skill.k)' for skill '($skill)'"
-                        } else if "CC" in $it.stats.TRAITS {
-                            $stat.AMMUNITION
-                        } else {
-                            $"($stat.AMMUNITION)->($skill.v)"
-                        }
-                    } else {
-                        $stat.AMMUNITION
-                    }
-                }
-                | update B { |stat|
-                    let skill = if "CC" in $it.stats.TRAITS {
-                        $mods."CC Attack"?
-                    } else {
-                        $mods."BS Attack"?
-                    }
-
-                    if $skill != null and $skill.k == "B" {
-                        let v = $skill.v | into int
-                        match $skill.x? {
-                            # NOTE: no "-" (see p.68 of the rulebook)
-                             "+" => $"($stat.B)+($v)",
-                            null => $"($stat.B)->($v)",
-                        }
-                    } else {
-                        $stat.B
-                    }
-                }
-                if $it.mod? != null {
-                    let v = $it.mod.v | into int
-                    match $it.mod.x? {
-                        # NOTE: no "-" (see p.68 of the rulebook)
-                         "+" => { $stat | update $it.mod.k { $"($in)+($v)" } },
-                        null => { $stat | update $it.mod.k { $"($in)->($v)" } },
-                    }
-                } else {
-                    $stat
-                }
-        }
-
-    if ($equipments | is-empty) {
-        log warning "\tno equipment"
-        let res = ffmpeg create ($BASE_IMAGE | ffmpeg options) --output (mktemp --tmpdir infinity-XXXXXXX.png)
-            | put-version
-        let out = $output | path parse | update stem { $in ++ ".2" } | path join
-        cp $res $out
-        log info $"\t(ansi purple)($out)(ansi reset)"
-        return
-    }
-
     let header_transforms = [
         { field: "NAME", x: $NAME_X },
         { field: "RANGE", x: ($RANGE_X + ($RANGES | length) / 2 * $CHART_RANGE_CELL_WIDTH) },
@@ -307,12 +196,124 @@ export def gen-charts-page [
     }
     | get ts
 
+    [$HEADERS_BACKGROUND] ++ $header_transforms ++ [$RANGES_BACKGROUND] ++ $ranges_transforms ++ $transforms
+}
+
+export def gen-charts-page [
+    troop: record<
+        isc: string,
+        name: string,
+        short_name: string,
+        faction: any, # string or null
+        allowed_factions: list<string>,
+        asset: string,
+        classification: string,
+        reference: string,
+        type: string,
+        characteristics: list<string>,
+        stats: record,
+        special_skills: list<any>,
+        weaponry: list<any>,
+        equipment: list<any>,
+        peripheral: list<any>,
+        melee_weapons: list<any>,
+        SWC: number,
+        C: int
+    >,
+    output: path,
+    modifiers: table<name: string, mod: record>,
+] {
+    let charts = ls charts/weapons/*.csv | reduce --fold [] { |it, acc|
+        $acc ++ (open $it.name)
+    }
+
+    # NOTE: this is required because of signature issues in Nushell
+    let mods = $modifiers | transpose --header-row | into record
+
+    let equipments = $troop.weaponry ++ $troop.equipment ++ $troop.peripheral ++ $troop.melee_weapons
+        | each { |it|
+            match ($it | describe --detailed).type {
+                "string" => { name: $it },
+                "record" => $it,
+            } | update name { str replace "CCW" "CC Weapon" }
+        }
+        | insert stats { |var|
+            let equipment = $charts | where NAME == ($var.name | str upcase)
+            if ($equipment | length) == 0 {
+                log error $"(ansi cyan)($var.name)(ansi reset) not found in charts"
+            }
+            $equipment | each { into record }
+        }
+        | flatten stats
+        | update name { |it|
+            if $it.stats.MODE == "" {
+                $it.stats.NAME
+            } else {
+                $"($it.stats.NAME) \(($it.stats.MODE)\)"
+            }
+        }
+        | default null mod
+        | upsert mod { |it| $it | reject stats | parse modifier-from-skill }
+        | where not ($it.stats | is-empty)
+        | update stats { |it|
+            let stat = $it.stats
+                | update AMMUNITION { |stat|
+                    let skill = $mods."BS Attack"?
+                    if $skill != null {
+                        if $skill.k != "AMMO" {
+                            log warning $"invalid key '($skill.k)' for skill '($skill)'"
+                        } else if "CC" in $it.stats.TRAITS {
+                            $stat.AMMUNITION
+                        } else {
+                            $"($stat.AMMUNITION)->($skill.v)"
+                        }
+                    } else {
+                        $stat.AMMUNITION
+                    }
+                }
+                | update B { |stat|
+                    let skill = if "CC" in $it.stats.TRAITS {
+                        $mods."CC Attack"?
+                    } else {
+                        $mods."BS Attack"?
+                    }
+
+                    if $skill != null and $skill.k == "B" {
+                        let v = $skill.v | into int
+                        match $skill.x? {
+                            # NOTE: no "-" (see p.68 of the rulebook)
+                             "+" => $"($stat.B)+($v)",
+                            null => $"($stat.B)->($v)",
+                        }
+                    } else {
+                        $stat.B
+                    }
+                }
+                if $it.mod? != null {
+                    let v = $it.mod.v | into int
+                    match $it.mod.x? {
+                        # NOTE: no "-" (see p.68 of the rulebook)
+                         "+" => { $stat | update $it.mod.k { $"($in)+($v)" } },
+                        null => { $stat | update $it.mod.k { $"($in)->($v)" } },
+                    }
+                } else {
+                    $stat
+                }
+        }
+
+    if ($equipments | is-empty) {
+        log warning "\tno equipment"
+        let res = ffmpeg create ($BASE_IMAGE | ffmpeg options) --output (mktemp --tmpdir infinity-XXXXXXX.png)
+            | put-version
+        let out = $output | path parse | update stem { $in ++ ".2" } | path join
+        cp $res $out
+        log info $"\t(ansi purple)($out)(ansi reset)"
+        return
+    }
+
+
     let res = ffmpeg create ($BASE_IMAGE | ffmpeg options) --output (mktemp --tmpdir infinity-XXXXXXX.png)
-        | ffmpeg apply ($HEADERS_BACKGROUND | ffmpeg options ) --output (mktemp --tmpdir infinity-XXXXXXX.png)
-        | ffmpeg mapply ($header_transforms | each { ffmpeg options }) --output (mktemp --tmpdir infinity-XXXXXXX.png)
-        | ffmpeg apply ($RANGES_BACKGROUND | ffmpeg options ) --output (mktemp --tmpdir infinity-XXXXXXX.png)
-        | ffmpeg mapply ($ranges_transforms | each { ffmpeg options }) --output (mktemp --tmpdir infinity-XXXXXXX.png)
-        | ffmpeg mapply ($transforms | each { ffmpeg options }) --output (mktemp --tmpdir infinity-XXXXXXX.png)
+        | ffmpeg mapply (put-weapons-charts $equipments | each { ffmpeg options }) --output (mktemp --tmpdir infinity-XXXXXXX.png)
         | put-version
 
     let out = $output | path parse | update stem { $in ++ ".2" } | path join
