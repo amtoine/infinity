@@ -7,8 +7,11 @@ use std iter
 
 const CANVAS_MARGINS = { top: 35, left: 35, right: 1560, bottom: 960 }
 
-const FACTION_POS = { x: 1455, y: 500 }
-const MINI_OVERLAY = { kind: "overlay",  options: { x: "320-w/2", y: "H-h-50" } }
+const FACTION_POS = { x: ($CANVAS_MARGINS.right - 105), y: ($CANVAS.h // 2) }
+const MINI_OVERLAY = { kind: "overlay",  options: {
+    x: "320-w/2",
+    y: $"($CANVAS.h)-50-h",
+} }
 
 ################################################################################
 ###### ICON and CHARACTERISTICS BOXES ##########################################
