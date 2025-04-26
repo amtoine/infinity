@@ -44,5 +44,5 @@ export def "log debug" [msg: string] {
 }
 
 export def "log trace" [msg: string] {
-    __log $msg $LOG_LEVELS.TRACE "gray" "TRACE"
+    __log $msg $LOG_LEVELS.TRACE "grey" "TRACE"
 }
