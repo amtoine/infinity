@@ -833,7 +833,11 @@ def gen-charts-page [
             $acc | put-weapon-chart $it.equipment $it.x $it.y $column_widths $modifiers --no-header=$it.no_header
         }
 
-    const CHART_EQUIPMENT_POS = { x: $"W-20-w", y: "H-40-h" }
+    const CHART_EQUIPMENT_MARGIN = 20
+    const CHART_EQUIPMENT_POS = {
+        x: $"W-($CHART_EQUIPMENT_MARGIN)-w",
+        y: $"H-($CHART_EQUIPMENT_MARGIN)-20-h",
+    }
     let res = $equipments.asset
         | each { |it| "./equipments/assets/" | path join $it }
         | sort-by --reverse {
