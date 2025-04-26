@@ -1,0 +1,14 @@
+[
+    [                    name,  mod,                        asset ];
+
+    [   "Multispectral Visor", "L1", "multispectral_visor_l1.png" ],
+    [   "Multispectral Visor", "L2", "multispectral_visor_l2.png" ],
+    [   "Multispectral Visor", "L3", "multispectral_visor_l3.png" ],
+    [            "360* Visor",  "*",              "360_visor.png" ],
+    [       "Biometric Visor",  "*",        "biometric_visor.png" ],
+    [               "X Visor",  "*",                "x_visor.png" ],
+    [        "Hacking Device",  "*",         "hacking_device.png" ],
+    [   "Hacking Device Plus",  "*",    "hacking_device_plus.png" ],
+    [ "Killer Hacking Device",  "*",  "killer_hacking_device.png" ],
+    [    "Evo Hacking Device",  "*",     "evo_hacking_device.png" ],
+]
