@@ -137,7 +137,7 @@ def equipment-or-skill-to-text [
         $"($equipment_or_skill.name) \(($equipment_or_skill.mod)\)"
     }
     let font = $base_font | if $equipment_or_skill.spec? == true {
-        update fontfile $BOLD_FONT
+        update fontfile $BOLD_FONT | update fontsize { $in * 1.10 }
     } else {
         $in
     }
