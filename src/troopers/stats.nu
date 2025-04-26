@@ -142,7 +142,7 @@ def equipment-or-skill-to-text [
         $in
     }
 
-    { transform: (ffmpeg-text $text $pos $base_font), text: $text }
+    { transform: (ffmpeg-text $text $pos $font), text: $text }
 }
 
 def equipments-to-text [
