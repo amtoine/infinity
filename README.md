@@ -1,9 +1,9 @@
 ## Troop cards
 
-| Inspiration                                           | Mine (stat page)                 | Mine (charts page)                |
+| Inspiration                                           | Mine (stat page)                 | Mine (charts page)               |
 |-------------------------------------------------------|----------------------------------|----------------------------------|
 | ![](assets/4fb8339e-3d5d-4f70-9e3e-3f76bb449dd4.jpeg) | ![](assets/panoceania-orc.1.png) | ![](assets/panoceania-orc.2.png) |
-| ![](assets/c10788ac-cffd-4494-8f02-d7eaafcc30fa.jpeg) | ![](assets/jsa-shikami.1.png)    | ![](assets/jsa-shikami.2.png)    |
+| ![](assets/c10788ac-cffd-4494-8f02-d7eaafcc30fa.jpeg) | ![](assets/jsa-shikami.1.1.png)  | ![](assets/jsa-shikami.1.2.png)  |
 | ![](assets/e3948ce6-e52d-4d15-be89-131ea8f03858.jpeg) |                                  |                                  |
 
 > Sources:
