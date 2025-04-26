@@ -53,24 +53,42 @@ const QR_CODE_OVERLAY = { kind: "overlay",  options: { x: "1560-w", y: $"($NAME_
 const ALLOWED_FACTIONS_OFFSET = { x: 50, y: 50 }
 const ALLOWED_FACTIONS_IMAGE_SIZE = 70 + 10
 
+################################################################################
+###### EQUIPMENT BOXES #########################################################
+################################################################################
+# the vertical row positions in the bottom base "equipment" box, i.e. the "peripheral" box
 const BOTTOM_FIRST_ROW_Y = 885
 const BOTTOM_SECOND_ROW_Y = 930
 
-const BOXES_MARGIN = 20
-const EMPTY_BOX_HEIGHT = 60
-const FULL_BOX_HEIGHT = 105
+const EQUIPMENT_BOXES_V_SPACE = 20
+const EMPTY_EQUIPMENT_BOX_HEIGHT = 60
+const FULL_EQUIPMENT_BOX_HEIGHT = 105
 
-const EQUIPMENT_BOX = { x: 35, y: 855, w: (790 - 35), h: null }
+const CANVAS_MARGINS = { top: 0, left: 35, right: 0, bottom: 960 }
+
+# the most bottom "equipment" box, i.e. the "peripheral" one, used as a base for
+# the other "equipment" boxes
+const EQUIPMENT_BOX = {
+    x: $CANVAS_MARGINS.left,
+    y: ($CANVAS_MARGINS.bottom - $FULL_EQUIPMENT_BOX_HEIGHT),
+    w: (790 - $CANVAS_MARGINS.left),
+    h: null,
+}
+# the horizontal offset of text in "equipment" boxes
 const EQUIPMENT_OFFSET_X = 10
 const EQUIPMENT_TITLE_POS = { x: $"($EQUIPMENT_BOX.x)+($EQUIPMENT_OFFSET_X)", y: $"($BOTTOM_FIRST_ROW_Y)-th/2" }
-const EQUIPMENT_POS = { x: $"($EQUIPMENT_BOX.x)+($EQUIPMENT_OFFSET_X)", y: $"($BOTTOM_SECOND_ROW_Y)-th/2" }
-const EQUIPMENT_FONT_SIZE = 30
-const EQUIPMENT_TITLE_FONT = { fontfile: $BOLD_FONT, fontcolor: "white", fontsize: ($EQUIPMENT_FONT_SIZE - 2) }
-const EQUIPMENT_FONT = { fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: ($EQUIPMENT_FONT_SIZE - 8) }
+const EQUIPMENT_POS =       { x: $"($EQUIPMENT_BOX.x)+($EQUIPMENT_OFFSET_X)", y: $"($BOTTOM_SECOND_ROW_Y)-th/2" }
+const EQUIPMENT_FONT_SIZE = 22
+const EQUIPMENT_TITLE_FONT = { fontfile: $BOLD_FONT, fontcolor: "white", fontsize: ($EQUIPMENT_FONT_SIZE + 6) }
+const EQUIPMENT_FONT = { fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: $EQUIPMENT_FONT_SIZE }
 
+# used to build lists of things dynamically
 const LIST_SEPARATOR = ", "
 const LIST_SEPARATOR_V_OFFSET = 10
+
+# the horizontal space a character takes in the "equipment" lists
 const EQUIPMENT_CHAR_SIZE = $EQUIPMENT_FONT.fontsize * 0.6
+################################################################################
 
 const MELEE_BOX = { x: 810, y: 855, w: (1335 - 810), h: (960 - 855) }
 const MELEE_OFFSET_X = 10
@@ -101,6 +119,60 @@ const SPECIAL_SKILLS_V_SPACE = 30
 const SPECIAL_SKILLS_TITLE_POS = { x: $"($SPECIAL_SKILLS_BOX.x)+($SPECIAL_SKILLS_OFFSET.x)", y: $"($SPECIAL_SKILLS_BOX.y)+30-th/2" }
 const SPECIAL_SKILLS_TITLE_FONT = { fontfile: $BOLD_FONT,    fontcolor: "white", fontsize: 32 }
 const SPECIAL_SKILLS_FONT       = { fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: 18 }
+
+# marks "spec" equipments or skill in bold
+def equipment-or-skill-to-text [
+    equipment_or_skill,  # string | record<name: string, mod?: string, spec?: bool>
+    base_font: record<fontfile: path, fontcolor: string, fontsize: int>,
+    pos: record<x: any, y: any>,
+]: [ nothing -> record<transform: record, text: string> ] {
+    let equipment_or_skill = match ($equipment_or_skill | describe --detailed).type {
+        "string" => { name: $equipment_or_skill },
+        "record" => $equipment_or_skill,
+    }
+
+    let text = if $equipment_or_skill.mod? == null {
+        $equipment_or_skill.name
+    } else {
+        $"($equipment_or_skill.name) \(($equipment_or_skill.mod)\)"
+    }
+    let font = $base_font | if $equipment_or_skill.spec? == true {
+        update fontfile $BOLD_FONT
+    } else {
+        $in
+    }
+
+    { transform: (ffmpeg-text $text $pos $base_font), text: $text }
+}
+
+def equipments-to-text [
+    x: record<
+        equipments: list<any>,
+        box: record<x: int, y: int, w: int, h: int>,
+        title_pos: record<x: int, y: int>,
+        text_pos: record<x: int, y: int>,
+    >
+]: [ nothing -> list<record> ] {
+    if $x.equipments == [] {
+        return []
+    }
+
+    $x.equipments
+        | iter intersperse $LIST_SEPARATOR
+        | reduce --fold { transforms: [], pos: $x.text_pos } { |it, acc|
+            let pos = if $it == $LIST_SEPARATOR {
+                $acc.pos | update y { $"($in)+($LIST_SEPARATOR_V_OFFSET)" }
+            } else {
+                $acc.pos
+            }
+            let res = equipment-or-skill-to-text $it $EQUIPMENT_FONT $pos
+            let next_pos = $acc.pos
+                | update x { $"($in) + (($res.text | str length) * $EQUIPMENT_CHAR_SIZE)" }
+
+            { transforms: ($acc.transforms | append $res.transform), pos: $next_pos }
+        }
+        | get transforms
+}
 
 export def gen-stats-page [
     troop: record<
@@ -138,88 +210,49 @@ export def gen-stats-page [
     output: path,
     modifiers: table<name: string, mod: record>,
 ] {
-    def equipment-or-skill-to-text [
-        equipment_or_skill,
-        base_font: record<fontfile: path, fontcolor: string, fontsize: int>,
-        pos: record<x: any, y: any>,
-    ]: [ nothing -> record<transform: record, text: string> ] {
-        let equipment_or_skill = match ($equipment_or_skill | describe --detailed).type {
-            "string" => { name: $equipment_or_skill },
-            "record" => $equipment_or_skill,
-        }
-
-        let text = if $equipment_or_skill.mod? == null {
-            $equipment_or_skill.name
-        } else {
-            $"($equipment_or_skill.name) \(($equipment_or_skill.mod)\)"
-        }
-        let font = $base_font | if $equipment_or_skill.spec? == true {
-            update fontfile $BOLD_FONT
-        } else {
-            $in
-        }
-
-        { transform: (ffmpeg-text $text $pos $base_font), text: $text }
-    }
-
-    def equipment-to-text [x: record]: [ nothing -> list<record> ] {
-        if $x.equipment == [] {
-            return []
-        }
-
-        $x.equipment
-            | iter intersperse $LIST_SEPARATOR
-            | reduce --fold { transforms: [], pos: $x.text_pos } { |it, acc|
-                let pos = if $it == $LIST_SEPARATOR {
-                    $acc.pos | update y { $"($in)+($LIST_SEPARATOR_V_OFFSET)" }
-                } else {
-                    $acc.pos
-                }
-                let res = equipment-or-skill-to-text $it $EQUIPMENT_FONT $pos
-                let next_pos = $acc.pos
-                    | update x { $"($in) + (($res.text | str length) * $EQUIPMENT_CHAR_SIZE)" }
-
-                { transforms: ($acc.transforms | append $res.transform), pos: $next_pos }
-            }
-            | get transforms
-    }
-
+    # NOTE: this is required because of signature issues in Nushell
     let modifiers = $modifiers | transpose --header-row | into record
 
+    # NOTE: because we assume the box will be full at the start
+    const EQUIPMENT_BOX_DELTA_HEIGHT = $FULL_EQUIPMENT_BOX_HEIGHT - $EMPTY_EQUIPMENT_BOX_HEIGHT
+
+    # first "equipment" box from bottom
     let peripheral = $troop.peripheral | if $in == [] {{
-        equipment: $in,
-        box: ($EQUIPMENT_BOX | update h $EMPTY_BOX_HEIGHT | update y { $in + $FULL_BOX_HEIGHT - $EMPTY_BOX_HEIGHT }),
-        title_pos: ($EQUIPMENT_TITLE_POS | update y { $"($in)+($FULL_BOX_HEIGHT - $EMPTY_BOX_HEIGHT)" }),
-        text_pos: ($EQUIPMENT_POS | update y { $"($in)+($FULL_BOX_HEIGHT - $EMPTY_BOX_HEIGHT)" }),
+        equipments: $in,
+        box: ($EQUIPMENT_BOX | update h $EMPTY_EQUIPMENT_BOX_HEIGHT | update y { $in + $EQUIPMENT_BOX_DELTA_HEIGHT }),
+        title_pos: ($EQUIPMENT_TITLE_POS | update y { $"($in)+($EQUIPMENT_BOX_DELTA_HEIGHT)" }),
+        text_pos: ($EQUIPMENT_POS | update y { $"($in)+($EQUIPMENT_BOX_DELTA_HEIGHT)" }),
     }} else {{
-        equipment: $in,
-        box: ($EQUIPMENT_BOX | update h $FULL_BOX_HEIGHT),
+        equipments: $in,
+        box: ($EQUIPMENT_BOX | update h $FULL_EQUIPMENT_BOX_HEIGHT),
         title_pos: $EQUIPMENT_TITLE_POS,
         text_pos: $EQUIPMENT_POS,
     }}
 
+    # second "equipment" box from bottom
     let equipment = $troop.equipment | if $in == [] {{
-        equipment: $in,
-        box: ($peripheral.box | update y { $in - ($BOXES_MARGIN + $EMPTY_BOX_HEIGHT) } | update h $EMPTY_BOX_HEIGHT),
-        title_pos: ($peripheral.title_pos | update y { $"($in)-($BOXES_MARGIN + $EMPTY_BOX_HEIGHT)" }),
-        text_pos: ($peripheral.text_pos | update y { $"($in)-($BOXES_MARGIN + $EMPTY_BOX_HEIGHT)" }),
+        equipments: $in,
+        box: ($peripheral.box | update y { $in - ($EQUIPMENT_BOXES_V_SPACE + $EMPTY_EQUIPMENT_BOX_HEIGHT) } | update h $EMPTY_EQUIPMENT_BOX_HEIGHT),
+        title_pos: ($peripheral.title_pos | update y { $"($in)-($EQUIPMENT_BOXES_V_SPACE + $EMPTY_EQUIPMENT_BOX_HEIGHT)" }),
+        text_pos: ($peripheral.text_pos | update y { $"($in)-($EQUIPMENT_BOXES_V_SPACE + $EMPTY_EQUIPMENT_BOX_HEIGHT)" }),
     }} else {{
-        equipment: $in,
-        box: ($peripheral.box | update y { $in - ($BOXES_MARGIN + $FULL_BOX_HEIGHT) } | update h $FULL_BOX_HEIGHT),
-        title_pos: ($peripheral.title_pos | update y { $"($in)-($BOXES_MARGIN + $FULL_BOX_HEIGHT)" }),
-        text_pos: ($peripheral.text_pos | update y { $"($in)-($BOXES_MARGIN + $FULL_BOX_HEIGHT)" }),
+        equipments: $in,
+        box: ($peripheral.box | update y { $in - ($EQUIPMENT_BOXES_V_SPACE + $FULL_EQUIPMENT_BOX_HEIGHT) } | update h $FULL_EQUIPMENT_BOX_HEIGHT),
+        title_pos: ($peripheral.title_pos | update y { $"($in)-($EQUIPMENT_BOXES_V_SPACE + $FULL_EQUIPMENT_BOX_HEIGHT)" }),
+        text_pos: ($peripheral.text_pos | update y { $"($in)-($EQUIPMENT_BOXES_V_SPACE + $FULL_EQUIPMENT_BOX_HEIGHT)" }),
     }}
 
+    # third and last "equipment" box from bottom
     let weaponry = $troop.weaponry | if $in == [] {{
-        equipment: $in,
-        box: ($equipment.box | update y { $in - ($BOXES_MARGIN + $EMPTY_BOX_HEIGHT) } | update h $EMPTY_BOX_HEIGHT),
-        title_pos: ($equipment.title_pos | update y { $"($in)-($BOXES_MARGIN + $EMPTY_BOX_HEIGHT)" }),
-        text_pos: ($equipment.text_pos | update y { $"($in)-($BOXES_MARGIN + $EMPTY_BOX_HEIGHT)" }),
+        equipments: $in,
+        box: ($equipment.box | update y { $in - ($EQUIPMENT_BOXES_V_SPACE + $EMPTY_EQUIPMENT_BOX_HEIGHT) } | update h $EMPTY_EQUIPMENT_BOX_HEIGHT),
+        title_pos: ($equipment.title_pos | update y { $"($in)-($EQUIPMENT_BOXES_V_SPACE + $EMPTY_EQUIPMENT_BOX_HEIGHT)" }),
+        text_pos: ($equipment.text_pos | update y { $"($in)-($EQUIPMENT_BOXES_V_SPACE + $EMPTY_EQUIPMENT_BOX_HEIGHT)" }),
     }} else {{
-        equipment: $in,
-        box: ($equipment.box | update y { $in - ($BOXES_MARGIN + $FULL_BOX_HEIGHT) } | update h $FULL_BOX_HEIGHT),
-        title_pos: ($equipment.title_pos | update y { $"($in)-($BOXES_MARGIN + $FULL_BOX_HEIGHT)" }),
-        text_pos: ($equipment.text_pos | update y { $"($in)-($BOXES_MARGIN + $FULL_BOX_HEIGHT)" }),
+        equipments: $in,
+        box: ($equipment.box | update y { $in - ($EQUIPMENT_BOXES_V_SPACE + $FULL_EQUIPMENT_BOX_HEIGHT) } | update h $FULL_EQUIPMENT_BOX_HEIGHT),
+        title_pos: ($equipment.title_pos | update y { $"($in)-($EQUIPMENT_BOXES_V_SPACE + $FULL_EQUIPMENT_BOX_HEIGHT)" }),
+        text_pos: ($equipment.text_pos | update y { $"($in)-($EQUIPMENT_BOXES_V_SPACE + $FULL_EQUIPMENT_BOX_HEIGHT)" }),
     }}
 
     let characteristics_box = $CHARACTERISTICS_BOX | update h (
@@ -354,17 +387,17 @@ export def gen-stats-page [
         { kind: "drawbox",  options: { ...$weaponry.box, color: "black@0.5", t: "fill" } },
         { kind: "drawbox",  options: { ...$weaponry.box, color: "black@0.5", t: "5" } },
         (ffmpeg-text "WEAPONRY" $weaponry.title_pos $EQUIPMENT_TITLE_FONT),
-        ...(equipment-to-text $weaponry),
+        ...(equipments-to-text $weaponry),
 
         { kind: "drawbox",  options: { ...$equipment.box, color: "black@0.5", t: "fill" } },
         { kind: "drawbox",  options: { ...$equipment.box, color: "black@0.5", t: "5" } },
         (ffmpeg-text "EQUIPMENT" $equipment.title_pos $EQUIPMENT_TITLE_FONT),
-        ...(equipment-to-text $equipment),
+        ...(equipments-to-text $equipment),
 
         { kind: "drawbox",  options: { ...$peripheral.box, color: "black@0.5", t: "fill" } },
         { kind: "drawbox",  options: { ...$peripheral.box, color: "black@0.5", t: "5" } },
         (ffmpeg-text "PERIPHERAL" $peripheral.title_pos $EQUIPMENT_TITLE_FONT),
-        ...(equipment-to-text $peripheral),
+        ...(equipments-to-text $peripheral),
 
         { kind: "drawbox",  options: { ...$MELEE_BOX, color: "black@0.5", t: "fill" } },
         { kind: "drawbox",  options: { ...$MELEE_BOX, color: "black@0.5", t: "5" } },
