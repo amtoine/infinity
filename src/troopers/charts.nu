@@ -39,8 +39,9 @@ const SKILL_MAX_CHARS = 60
 const SKILL_MARGIN = 20
 const SKILL_BORDER = 5
 const SKILL_WIDTH = $SKILL_MAX_CHARS * $SKILL_FONT.fontsize * 6 // 10 + 20 + 2 * $SKILL_BORDER
-const START_X = 35
 const SKILL_CARD_MARGIN = 10
+
+const SKILL_START = { x: 10, y: 10 }
 
 const V_SPACE = 20
 
@@ -132,7 +133,7 @@ def put-weapons-charts [equipments: table<name: string, stats: record>]: [
         },
     }
 
-    let transforms = $equipments | enumerate | reduce --fold { y: ($RANGES_Y + $RANGES_BACKGROUND.options.h), ts: [] } { |eq, acc|
+    let transforms = $equipments | enumerate | reduce --fold { y: ($RANGES_Y + $RANGES_BACKGROUND.options.h), last_y: 0, ts: [] } { |eq, acc|
         # FIXME: no idea why this is IO call is required...
         print --no-newline ""
 
@@ -206,12 +207,13 @@ def put-weapons-charts [equipments: table<name: string, stats: record>]: [
 
         {
             y: ($acc.y + $V_SPACE + ([($name | length), ($traits | length)] | math max) * $FONT.fontsize),
+            last_y: ($acc.y + $range_h // 2),
             ts: ($acc.ts ++ [$background] ++ $name_lines ++ $ranges_boxes ++ $stats_boxes ++ $trait_lines),
         }
     }
 
     {
-        y: $transforms.y,
+        y: $transforms.last_y,
         ts: ([$HEADERS_BACKGROUND] ++ $header_transforms ++ [$RANGES_BACKGROUND] ++ $ranges_transforms ++ $transforms.ts),
     }
 }
@@ -665,8 +667,8 @@ export def gen-charts-page [
                 transform: {
                     kind: "overlay",
                     options: {
-                        x: ($START_X + $in.index * ($SKILL_WIDTH + $SKILL_CARD_MARGIN)),
-                        y: ($weapons_transforms.y | into int),
+                        x: ($SKILL_START.x + $in.index * ($SKILL_WIDTH + $SKILL_CARD_MARGIN)),
+                        y: ($SKILL_START.y + ($weapons_transforms.y | into int)),
                     },
                 },
             }
