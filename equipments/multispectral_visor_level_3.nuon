@@ -1,0 +1,20 @@
+{
+    name: "MULTISPECTRAL VISOR LEVEL 3",
+    type: "AUTOMATIC EQUIPMENT",
+    description: "This piece of Equipment was designed to combat the effects of different military concealment and camouflage technologies.",
+    labels: ["Obligatory"],
+    requirements: [
+    ],
+    effects: [
+        "This Visor reduces MODs from Mimetism, and from Visibility Zones, to 0.",
+        "In addition, it allows its user to draw LoF through Visibility Zones without having to apply that Zone’s MODs to any Skill that requires LoF.",
+        "Troopers equipped with this piece of Equipment do not make Face to Face Rolls against weapons that use Smoke Ammunition.",
+        "When performing Discover against a target in Camouflaged State, the user’s WIP Roll is automatically a success.",
+        "Users of a Multispectral Visor L3 ignore Surprise Attack MODs if they have LoF to the attacker. In addition, they also ignore Surprise Attack MODs from CC Attacks even if they don’t have LoF to the attacker.",
+        "Additionally, in the Active Turn the user may perform a BS Attack on a Camouflage Marker (CAMO) in LoF without making a previous Discover Roll, but they must apply the Mimetism MOD indicated on the Marker. However, the Cancellation clauses for Camouflaged State are applied as usual.",
+    ],
+    important: [
+    ],
+    remember: [
+    ],
+}

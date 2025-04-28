@@ -1,0 +1,17 @@
+{
+    name: "MULTISPECTRAL VISOR LEVEL 2",
+    type: "AUTOMATIC EQUIPMENT",
+    description: "This piece of Equipment was designed to combat the effects of different military concealment and camouflage technologies.",
+    labels: ["Obligatory"],
+    requirements: [
+    ],
+    effects: [
+        "This Visor reduces MODs from Mimetism and from Visibility Zones to 0.",
+        "In addition, it allows its user to draw LoF through Visibility Zones without having to apply that Zone’s MODs to any Skill that requires LoF .",
+        "Troopers equipped with this piece of Equipment do not make Face to Face Rolls against weapons that use Smoke Ammunition.",
+    ],
+    important: [
+    ],
+    remember: [
+    ],
+}

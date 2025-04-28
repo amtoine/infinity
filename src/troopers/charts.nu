@@ -33,6 +33,7 @@ const HEADER_FONT = { fontfile: $BOLD_FONT, fontcolor: "white", fontsize: 25 }
 
 const SKILL_FONT = { fontfile: $REGULAR_FONT, fontcolor: "black", fontsize: 10 }
 const SKILL_BOLD_FONT = { fontfile: $BOLD_FONT, fontcolor: "white", fontsize: 20 }
+const SKILL_TYPE_FONT = { fontfile: $BOLD_FONT, fontcolor: "white", fontsize: 18 }
 
 const SKILL_MAX_CHARS = 60
 const SKILL_MARGIN = 20
@@ -236,13 +237,14 @@ const COMMON_SKILLS = [
     "SUPPRESSIVE FIRE",
 ]
 
-def generate-skill-card [skill: record]: [
+def generate-equipment-or-skill-card [equipment_or_skill: record]: [
     nothing -> path
 ]  {
     let hash = [
-        ($skill | to nuon),
+        ($equipment_or_skill | to nuon),
         $SKILL_FONT,
         $SKILL_BOLD_FONT,
+        $SKILL_TYPE_FONT,
         $SKILL_MAX_CHARS,
         $SKILL_MARGIN,
         $SKILL_BORDER,
@@ -250,22 +252,22 @@ def generate-skill-card [skill: record]: [
     ]
     | str join ''
     | hash sha256
-    let output = $CACHE | path join "assets/" $"($skill.name)-($hash).png"
+    let output = $CACHE | path join "assets/" $"($equipment_or_skill.name | str replace --all ' ' '_')-($hash).png"
 
     if ($output | path exists) {
-        log debug $"getting asset for '($skill.name)' from (ansi purple)($output | path parse | get stem)(ansi reset)"
+        log debug $"getting asset for '($equipment_or_skill.name)' from (ansi purple)($output | path parse | get stem)(ansi reset)"
         return $output
     }
 
     mkdir ($output | path dirname)
 
-    let description = fit-items-in-width ($skill.description | split row " ") $SKILL_MAX_CHARS --separator " "
-    let requirements = $skill.requirements | each {
+    let description = fit-items-in-width ($equipment_or_skill.description | split row " ") $SKILL_MAX_CHARS --separator " "
+    let requirements = $equipment_or_skill.requirements | each {
         # FIXME: no idea why this is IO call is required...
         print --no-newline ""
         fit-items-in-width ($in | split row " ") ($SKILL_MAX_CHARS - 2) --separator " " | each { str join " " }
     }
-    let effects = $skill.effects | each { |it|
+    let effects = $equipment_or_skill.effects | each { |it|
         # FIXME: no idea why this is IO call is required...
         print --no-newline ""
         match ($it | describe --detailed).type {
@@ -296,15 +298,15 @@ def generate-skill-card [skill: record]: [
     let text_x = 10
     let text_y = 10
 
-    let color = match $skill.type {
-        "AUTOMATIC SKILL"   => $CORVUS_BELLI_COLORS.black,
-        "BASIC SHORT SKILL" => $CORVUS_BELLI_COLORS.blue,
-        "DEPLOYMENT SKILL"  => $CORVUS_BELLI_COLORS.purple,
-        "LONG SKILL"        => $CORVUS_BELLI_COLORS.red,
-        "ARO"               => $CORVUS_BELLI_COLORS.yellow,
-        "SHORT SKILL"       => $CORVUS_BELLI_COLORS.green,
-        "SHORT SKILL / ARO" => $CORVUS_BELLI_COLORS.yellow_green,
-        _                   => "0xffffff",
+    let color = match $equipment_or_skill.type {
+        "AUTOMATIC SKILL" | "AUTOMATIC EQUIPMENT"  => $CORVUS_BELLI_COLORS.black,
+        "BASIC SHORT SKILL"                        => $CORVUS_BELLI_COLORS.blue,
+        "DEPLOYMENT SKILL"                         => $CORVUS_BELLI_COLORS.purple,
+        "LONG SKILL"                               => $CORVUS_BELLI_COLORS.red,
+        "ARO"                                      => $CORVUS_BELLI_COLORS.yellow,
+        "SHORT SKILL"                              => $CORVUS_BELLI_COLORS.green,
+        "SHORT SKILL / ARO"                        => $CORVUS_BELLI_COLORS.yellow_green,
+        _                                          => "0xffffff",
     }
 
     let description_y = $text_y + 2 * $SKILL_BOLD_FONT.fontsize + $SKILL_MARGIN
@@ -317,11 +319,11 @@ def generate-skill-card [skill: record]: [
     }
 
     let text_transforms = [
-        (ffmpeg-text $skill.name { x: $text_x, y: $text_y } $SKILL_BOLD_FONT),
-        (ffmpeg-text $skill.type {
+        (ffmpeg-text $equipment_or_skill.name { x: $text_x, y: $text_y } $SKILL_BOLD_FONT),
+        (ffmpeg-text $equipment_or_skill.type {
             x: $"($SKILL_WIDTH)-($SKILL_BORDER)-tw",
-            y: ($text_y + $SKILL_BOLD_FONT.fontsize),
-        } $SKILL_BOLD_FONT),
+            y: $"(2 * ($SKILL_FONT.fontsize + $SKILL_MARGIN) - 5)-th",
+        } $SKILL_TYPE_FONT),
         ...(
             $description
                 | each { str join " " }
@@ -334,7 +336,7 @@ def generate-skill-card [skill: record]: [
                     ffmpeg-text $line.item $pos $SKILL_FONT
                 }
         ),
-        (ffmpeg-text ($skill.labels | str join ", ") { x: $text_x, y: $labels_y } $SKILL_FONT),
+        (ffmpeg-text ($equipment_or_skill.labels | str join ", ") { x: $text_x, y: $labels_y } $SKILL_FONT),
         (if not ($requirements | is-empty) {
             ffmpeg-text "REQUIREMENTS" { x: ($text_x + 5), y: $"($requirements_y)-th/2" } $SKILL_BOLD_FONT}
         ),
@@ -437,8 +439,8 @@ def generate-skill-card [skill: record]: [
                 }
                 | get ts
         ),
-        (if not ($skill.important | is-empty) { log warning $"skipping 'important' for skill '($skill.name)'" }),
-        (if not ($skill.remember | is-empty) { log warning $"skipping 'remember' for skill '($skill.name)'" }),
+        (if not ($equipment_or_skill.important | is-empty) { log warning $"skipping 'important' for equipment or skill '($equipment_or_skill.name)'" }),
+        (if not ($equipment_or_skill.remember | is-empty) { log warning $"skipping 'remember' for equipment or skill '($equipment_or_skill.name)'" }),
     ]
     | compact
 
@@ -537,20 +539,36 @@ export def gen-charts-page [
             } | update name { str replace "CCW" "CC Weapon" }
         }
         | insert stats { |var|
-            let equipment = $charts | where NAME == ($var.name | str upcase)
+            let name = $var.name | str upcase
+            let equipment = $charts | where NAME == $name
             if ($equipment | length) == 0 {
-                let e = $equipments | where NAME == ($var.name | str upcase) | into record
+                let name = match $var.name {
+                    "Multispectral Visor" => { $"($name) ($var.mod | str replace 'L' 'LEVEL ')" | str upcase },
+                    _ => $name,
+                }
+
+                let e = $equipments | where NAME == $name | into record
                 if $e == {} {
                     log error $"(ansi cyan)($var.name)(ansi reset) not found"
                 } else {
-                    $e | insert type "EQUIPMENT"
+                    [ ($e | insert __type "EQUIPMENT" | update name $name) ]
                 }
             } else {
-                $equipment | each { into record } | insert type "WEAPON"
+                $equipment | each { into record } | insert __type "WEAPON"
             }
         }
         | flatten stats
+        | update stats { |it| # NOTE: i hate Nuhsell
+            if $it.stats.stats? == null {
+                $it.stats
+            } else {
+                $it.stats.stats
+            }
+        }
+        | where not ($it.stats | is-empty)
         | update name { |it|
+            if $it.stats.__type == "EQUIPMENT" { return $it.stats.name }
+
             if $it.stats.MODE? == null {
                 $it.name
             } else if $it.stats.MODE == "" {
@@ -560,9 +578,10 @@ export def gen-charts-page [
             }
         }
         | default null mod
-        | upsert mod { |it| $it | reject stats | parse modifier-from-skill }
-        | where not ($it.stats | is-empty)
+        | upsert mod { |it| $it | select name mod | parse modifier-from-skill }
         | update stats { |it|
+            if $it.stats.__type == "EQUIPMENT" { return $it.stats }
+
             let stat = $it.stats
                 | update AMMUNITION { |stat|
                     let skill = $mods."BS Attack"?
@@ -612,8 +631,8 @@ export def gen-charts-page [
         log warning "\tno equipment"
     }
 
-    let weapons = $weapons_or_equipments | where stats.type == "WEAPON"
-    let equipments = $weapons_or_equipments | where stats.type == "EQUIPMENT"
+    let weapons = $weapons_or_equipments | where stats.__type == "WEAPON"
+    let equipments = $weapons_or_equipments | where stats.__type == "EQUIPMENT" | flatten stats
     let skills = $troop.special_skills
         | each { |it|
             match ($it | describe --detailed).type {
@@ -636,13 +655,13 @@ export def gen-charts-page [
 
     let weapons_transforms = put-weapons-charts $weapons
 
-    let skills_transforms = $skills
+    let equipments_and_skills_transforms = $skills ++ $equipments
         | enumerate
         | each {
             # FIXME: no idea why this is IO call is required...
             print --no-newline ""
             {
-                asset: (generate-skill-card $in.item),
+                asset: (generate-equipment-or-skill-card $in.item),
                 transform: {
                     kind: "overlay",
                     options: {
@@ -656,7 +675,7 @@ export def gen-charts-page [
     let res = ffmpeg create ($BASE_IMAGE | ffmpeg options) --output (mktemp --tmpdir infinity-XXXXXXX.png)
         | ffmpeg mapply ($weapons_transforms.ts | each { ffmpeg options }) --output (mktemp --tmpdir infinity-XXXXXXX.png)
 
-    let res = $skills_transforms
+    let res = $equipments_and_skills_transforms
         | reduce --fold $res { |it, acc|
             [$acc, $it.asset] | ffmpeg combine ($it.transform | ffmpeg options) --output (mktemp --tmpdir infinity-XXXXXXX.png)
         }

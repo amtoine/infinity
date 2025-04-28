@@ -1,0 +1,14 @@
+{
+    name: "",
+    type: "",
+    description: "",
+    labels: [],
+    requirements: [
+    ],
+    effects: [
+    ],
+    important: [
+    ],
+    remember: [
+    ],
+}
