@@ -1,0 +1,16 @@
+{
+    name: "BOOTY",
+    type: "DEPLOYMENT SKILL",
+    description: "Soldiers with this Special Skill have an uncanny ability to find equipment and gear during their field operations and take some of it as a keepsake. As a consequence, each of them carries a different extra weapon or piece of equipment into battle.",
+    labels: ["Optional"],
+    requirements: [
+    ],
+    effects: [
+        "Booty allows a roll on the Booty Chart, after placing the Trooper in Model form on the table, in order to determine that Trooper’s extra item.",
+        "The item obtained via the Booty Chart is added to the Trooper’s gear and does not replace any of the Trooper’s weapons or pieces of Equipment.",
+    ],
+    important: [
+    ],
+    remember: [
+    ],
+}

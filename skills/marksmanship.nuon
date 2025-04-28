@@ -1,0 +1,16 @@
+{
+    name: "MARKSMANSHIP",
+    type: "AUTOMATIC SKILL",
+    description: "Users of this Special Skill are exceptional sharpshooters, adept at hitting their target’s weakest spots and making every shot count.",
+    labels: ["Obligatory"],
+    requirements: [
+        "The user may only benefit from this Special Skill when he declares a BS Attack.",
+    ],
+    effects: [
+        "The user may ignore the negative BS MODs imposed by Partial Cover, and Nanoscreen.",
+    ],
+    important: [
+    ],
+    remember: [
+    ],
+}

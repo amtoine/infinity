@@ -1,0 +1,16 @@
+{
+    name: "MIMETISM",
+    type: "AUTOMATIC SKILL",
+    description: "This Special Skill represents the soldier’s ability to conceal their position and move stealthily, making them difficult to target in combat.",
+    labels: ["NFB", "Obligatory"],
+    requirements: [
+    ],
+    effects: [
+        "Any enemy declaring a BS Attack that requires LoF, or Discover, against the user of this Skill must apply a negative MOD to their Attribute, as shown in round brackets in the Unit Profile: Mimetism (-3), Mimetism (-6)...",
+        "The Mimetism MOD does not apply to CC Attacks.",
+    ],
+    important: [
+    ],
+    remember: [
+    ],
+}

@@ -1,0 +1,17 @@
+{
+    name: "NCO",
+    type: "AUTOMATIC SKILL",
+    description: "This Special Skill designates the trusted non-commissioned officer of the Lieutenant, who can operate under their direct orders.",
+    labels: ["Optional"],
+    requirements: [
+    ],
+    effects: [
+        "Allows the user to replace any Special Lieutenant Orders with Tactical Orders and to use them.",
+        "This Special Skill does not require the NCO and the Lieutenant to be in the same Combat Group.",
+        "If the Trooper with this Special Skill is a member of a Fireteam and is designated as the Team Leader, then he may use that Tactical Order to activate their Fireteam.",
+    ],
+    important: [
+    ],
+    remember: [
+    ],
+}

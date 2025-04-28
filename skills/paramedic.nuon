@@ -1,0 +1,15 @@
+{
+    name: "PARAMEDIC",
+    type: "AUTOMATIC SKILL",
+    description: "Paramedics provide their unit with first aid treatment on the field.",
+    labels: ["Obligatory"],
+    requirements: [
+    ],
+    effects: [
+        "Paramedics are equipped with MediKits to recover their Unconscious comrades.",
+    ],
+    important: [
+    ],
+    remember: [
+    ],
+}

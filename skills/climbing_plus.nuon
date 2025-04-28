@@ -1,0 +1,26 @@
+{
+    name: "CLIMBING PLUS",
+    type: "AUTOMATIC SKILL",
+    description: "Troopers with Climbing Plus are particularly gifted in or equipped for climbing and vertical relocation.",
+    labels: ["Movement", "Optional"],
+    requirements: [
+        "At the end of the movement, Troopers must be able to place themselves on a surface that is equal or larger than their base.",
+    ],
+    effects: [
+        "With this Special Skill, the Climb Long Skill is turned into a Basic Short Skill, if declared as the first Basic Short Skill of the Order.",
+        "Climbing Plus also allows the user to move on vertical surfaces as if performing normal Movement on a horizontal surface when declaring Move or Dodge, or during movement due to a failed Guts Roll. The General Movement Rules and the Moving and Measuring chapter must be applied.",
+        "The Climbing Plus Special Skill allows its user to perform other Basic Short Skills or Short Skills (e.g. Move + BS Attack) while moving on a vertical surface, or if hanging from a height (see Trooper Activation, p. 13).",
+        "Restriction: The Trooper can only declare Climb as a Basic Short Skill once per Order. If the Trooper then declares Move as their second Basic Short Skill, this uses the second value of their MOV Attribute.",
+        "Restriction: As with the Climb Skill, Troopers using Climbing Plus do not benefit from Partial Cover MODs while they are on a vertical surface.",
+        "For visualization purposes, Troopers using this Skill move with at least half of their base’s underside in contact with the vertical surface, as indicated in the Requirements of the Move and Climb Skills.",
+        "During the Reactive Turn, Climbing Plus allows its owner to react in ARO, if applicable, while being on a vertical surface.",
+        "If the Trooper is or becomes Impetuous (due to having the Frenzy Skill or due to any other rule), they will be able to use Climbing Plus in the Impetuous Phase.",
+    ],
+    important: [
+        "Troopers cannot be deployed on vertical surfaces during the Deployment Phase or during the game.",
+    ],
+    remember: [
+        "When declaring the use of Climbing Plus, the complete and exact trajectory that Trooper will perform must be specified so the rival player may declare all their AROs.",
+        "Troopers have a 360° LoF during their entire trajectory.",
+    ],
+}

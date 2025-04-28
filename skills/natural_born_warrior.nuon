@@ -1,0 +1,16 @@
+{
+    name: "NATURAL BORN WARRIOR",
+    type: "AUTOMATIC SKILL",
+    description: "Troopers with this CC Special Skill are superb fighters, able to cancel the negative MODs that their enemies try to impose on them in Close Combat.",
+    labels: ["CC Special Skill"],
+    requirements: [
+        "The user must be the target of a CC Attack and must declare a CC Attack.",
+    ],
+    effects: [
+        "In the CC Face to Face Roll, the user ignores all negative MODs imposed by the opposing Trooper.",
+    ],
+    important: [
+    ],
+    remember: [
+    ],
+}

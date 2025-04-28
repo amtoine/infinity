@@ -1,0 +1,15 @@
+{
+    name: "NO COVER",
+    type: "AUTOMATIC SKILL",
+    description: "For a variety of reasons (agility, size, training...), the Trooper cannot benefit from any of the MODs granted by Partial Cover.",
+    labels: ["Obligatory"],
+    requirements: [
+    ],
+    effects: [
+        "Troopers with this Special Skill do not benefit from Partial Cover MODs.",
+    ],
+    important: [
+    ],
+    remember: [
+    ],
+}

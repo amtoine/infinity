@@ -1,0 +1,24 @@
+{
+    name: "INFILTRATION",
+    type: "DEPLOYMENT SKILL",
+    description: "The user of this Special Skill may deploy outside the limits of their Deployment Zone thanks to their training in infiltration techniques.",
+    labels: ["Superior Deployment", "Optional"],
+    requirements: [
+    ],
+    effects: [
+        "During the Deployment Phase, the Trooper may be deployed anywhere in the player’s half of the table.",
+        "It also allows the user to deploy in the opponent’s half of the game table by making a successful Infiltration Roll.",
+        "The user cannot use Infiltration to deploy inside the enemy Deployment Zone",
+        "INFILTRATION ROLL", # FIXME: should be a sub item
+        "An Infiltration Roll is required to infiltrate into the enemy’s half of the table. This is a Normal Roll with PH-3.",
+        "If a Trooper has Infiltration listed in its Unit Profile with a PH value between brackets, any Infiltration Roll is made using that PH value.",
+        "The Infiltration Roll must be made after placing the user on the game table, along with any Deployable Weapon or piece of Equipment they can deploy.",
+        "Failed Infiltration Roll. If the user fails the Roll, they must be placed within their player’s Deployment Zone, in contact with the edge of the game table.",
+        "Additionally, after failing this Roll, the user loses the option to deploy in a Marker State or Hidden Deployment State and is always deployed as a Model. Any Deployable Weapons and Equipment that were deployed alongside them are removed from the game table.", # FIXME: should be a separate paragraph
+    ],
+    important: [
+    ],
+    remember: [
+        "Troopers cannot be deployed in contact with enemy and neutral Models, Markers, or Tokens, or in contact with any mission objective, no matter the Special Skills they have.",
+    ],
+}

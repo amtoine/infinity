@@ -1,0 +1,21 @@
+{
+    name: "FRENZY",
+    type: "AUTOMATIC SKILL",
+    description: "The Trooper’s urge to kill is barely contained. Once he gets a first taste of blood, he will become a whirlwind of death.",
+    labels: ["Obligatory", "States Phase"],
+    requirements: [
+        "Automatic in the States Phase if the user has inflicted at least one Wound on an Enemy Trooper, or caused them to enter Dead State.",
+    ],
+    effects: [
+        "If the user inflicts at least one Wound on an enemy Trooper, or causes them to enter Dead State, then in the next States Phase the Trooper gains the following Special Skills and retains them for the remainder of the game:",
+        [
+            "Impetuous",
+            "Limited Cover",
+        ],
+        "When Frenzy Troopers gain the Impetuous Special Skill, they cancel any Marker State they are in (Camouflaged, Impersonation...), and any other States that say so. These Troopers cannot re-enter those States.",
+    ],
+    important: [
+    ],
+    remember: [
+    ],
+}

@@ -1,0 +1,25 @@
+{
+    name: "LIEUTENANT",
+    type: "AUTOMATIC SKILL",
+    description: "The user of this Special Skill is the commanding officer of the combat force deployed by the player.",
+    labels: ["Private Information", "Obligatory"],
+    requirements: [
+    ],
+    effects: [
+        "The user of this Special Skill has a Lieutenant Special Order (p. 11).",
+        "If, during the Tactical Phase of the Turn, the Lieutenant is in Isolated State or any Null State (Unconscious, Dead, etc.) or has not been deployed on the gaming table, the Loss of Lieutenant rule will be applied (p. 18).",
+        "This Special Skill remains active even when its owner is in a Null State, until a new Lieutenant is appointed. Once that happens, the owner of this Special Skill loses it.",
+        "When a new Lieutenant is appointed (due to Loss of Lieutenant, Chain of Command...), they gain the Lieutenant Special Skill, with no additional abilities.",
+        "In the Unit Profile, this Special Skill may have additional abilities listed. Some examples are:",
+        [
+            "+1 Command Token. The player that takes this Trooper as their Lieutenant will have one extra Command Token for the match.",
+            "+1 Order. This indicates that this Lieutenant has two Special Lieutenant Orders each Turn instead of one.",
+        ],
+    ],
+    important: [
+        "The presence of a Trooper with the Lieutenant Special Skill in the player’s Army List is obligatory.",
+        "The player’s Army List cannot include more than one Trooper with this Special Skill.",
+    ],
+    remember: [
+    ],
+}

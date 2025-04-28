@@ -1,0 +1,27 @@
+{
+    name: "IMMUNITY",
+    type: "AUTOMATIC SKILL",
+    description: "Troopers with this Special Skill have an extraordinary innate or artificial capacity to withstand specific types of damage. There are several Immunities categories.",
+    labels: ["Obligatory"],
+    requirements: [
+        "This Special Skill is activated when one of the following Requirements is met:", # FIXME: should not be a list item
+        "The Trooper must make a Saving Roll.",
+        "The Trooper is affected by the State indicated in their Immunity.",
+    ],
+    effects: [
+        "This Special Skill has different categories shown between brackets in the Unit’s Profile, which indicates to which type of Ammunition or Effect it is applied. The most common are:",
+        "Immunity (Trait): The Trooper ignores the special effects of the listed Trait.",
+        "Immunity (Ammunition): The Ammunition listed between brackets is treated as Normal (N) Ammunition. Its special effects, and any MODs to the Attribute and number of the Saving Rolls are ignored.",
+        "Immunity (ARM): Any Ammunition that requires a Saving Roll using the ARM Attribute is treated as Normal (N) Ammunition. Its special effects, and any MODs to the Attribute and number of the Saving Rolls are ignored. If the Weapon, Skill, or piece of Equipment used in the Attack has Traits, the Trooper is completely immune to any of those Traits that cause States, refer to inflicting Wounds, or reduce the Attributes of the target. For example, State: Dead, Continuous Damage, or ARM=0.",
+        "Immunity (BTS): Any Ammunition that requires a Saving Roll using the BTS Attribute is treated as Normal (N) Ammunition. Its special effects, and any MODs to the Attribute and number of the Saving Rolls are ignored. If the Weapon, Skill, or piece of Equipment used in the Attack has Traits, the Trooper is completely immune to any of those Traits that cause States, refer to inflicting Wounds, or reduce the Attributes of the target. For example, State: Dead, Continuous Damage, or BTS=0.",
+        "Immunity (Enhanced): A Trooper with this Special Skill has both Immunity (ARM) and Immunity (BTS).",
+        "Immunity (State): the Trooper is completely immune to any Comms Attack effect or special rule effect that causes the listed State, for example Possessed (POS). The Trooper cannot enter that State.",
+        "Immunity (Critical): The Trooper will not make the additional Saving Roll caused by Critical hits.",
+    ],
+    important: [
+        "This Special Skill does not apply against Comms Attacks, with the sole exception of Immunity (State).",
+        "Also, Immunity does not apply against the Non-Lethal and State: Stunned Traits, which are always applied.",
+    ],
+    remember: [
+    ],
+}

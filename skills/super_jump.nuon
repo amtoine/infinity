@@ -1,0 +1,25 @@
+{
+    name: "SUPER-JUMP",
+    type: "AUTOMATIC SKILL",
+    description: "Troopers with Super-Jump have the ability to perform super-human jumping feats thanks to special gear, augmentations, or evolutionary advantages.",
+    labels: ["Movement", "Optional"],
+    requirements: [
+    ],
+    effects: [
+        "With this Special Skill, the Jump Long Skill is turned into a Basic Short Skill if declared as the first Basic Short Skill of the Order.",
+        "The Super-Jump Special Skill allows its user to perform other Basic Short Skills or Short Skills while performing a Jump (for example: Jump + BS Attack) (see Trooper Activation, p. 13).",
+        "Restriction: The Trooper can only declare Jump as a Basic Short Skill once per Order. If the Trooper then declares Move as their second Basic Short Skill, this uses the second value of their MOV Attribute.",
+        "If the user declares Jump as a Long Skill, they can Jump up to their first MOV value plus 4 inches, instead of the usual 2 inches of the Jump Skill.",
+        "Restriction: When they declare Jump, Troopers with Super-Jump cannot benefit from Partial Cover MODs anywhere along their trajectory.",
+        "If the Trooper is or becomes Impetuous (due to having the Frenzy Characteristic or any other effect), they can use Super-Jump in the Impetuous Phase.",
+        "Some Troopers have the Super-Jump Skill listed in their Unit Profile with a distance shown in round brackets. When Jumping, the Trooper can add this distance to their Jump, instead of the usual 2 inches of the Jump Skill.",
+        "Super-Jump (Jet Propulsion): Troopers with this Skill listed in their Unit Profiles are able to control the trajectory of their Jumps, which allows them to change the direction and heading of the jump before they land on a surface (See the examples).",
+    ],
+    important: [
+    ],
+    remember: [
+        "When declaring the use of Super-Jump, the complete and exact trajectory that a Trooper will perform must be specified so the rival player may declare all their AROs.",
+        "During their entire trajectory, Troopers have a 360° LoF.",
+        "When Jump is declared, the Prone State is automatically cancelled.",
+    ],
+}

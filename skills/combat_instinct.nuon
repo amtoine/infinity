@@ -1,0 +1,16 @@
+{
+    name: "COMBAT INSTINCT",
+    type: "AUTOMATIC SKILL",
+    description: "Troopers with this Skill have a special talent for sensing danger, which enables them to react swiftly to any surprise attack.",
+    labels: ["Optional"],
+    requirements: [
+    ],
+    effects: [
+        "The user ignores Surprise Attack MODs from attackers.",
+    ],
+    important: [
+        "The Stealth Special Skill is not effective against Troopers with Combat Instinct.",
+    ],
+    remember: [
+    ],
+}
