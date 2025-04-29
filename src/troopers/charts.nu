@@ -655,7 +655,7 @@ export def gen-charts-page [
         }
         | each { |ss|
             if ($ss.name | str upcase) in $COMMON_SKILLS {
-                log warning $"skipping common skill (ansi cyan)($ss.name)(ansi reset)"
+                log debug $"skipping common skill (ansi cyan)($ss.name)(ansi reset)"
             } else {
                 let s = $skills | where NAME == ($ss.name | str upcase) | into record
                 if $s == {} {
