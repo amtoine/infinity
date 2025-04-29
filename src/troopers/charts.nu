@@ -296,6 +296,16 @@ def generate-equipment-or-skill-card [equipment_or_skill: record]: [
             }
         }
     }
+    let important = $equipment_or_skill.important | each {
+        # FIXME: no idea why this is IO call is required...
+        print --no-newline ""
+        fit-items-in-width ($in | split row " ") ($SKILL_MAX_CHARS - 2) --separator " " | each { str join " " }
+    }
+    let remember = $equipment_or_skill.remember | each {
+        # FIXME: no idea why this is IO call is required...
+        print --no-newline ""
+        fit-items-in-width ($in | split row " ") ($SKILL_MAX_CHARS - 2) --separator " " | each { str join " " }
+    }
 
     let text_x = 10
     let text_y = 10
@@ -318,6 +328,12 @@ def generate-equipment-or-skill-card [equipment_or_skill: record]: [
         $requirements_y + $SKILL_BOLD_FONT.fontsize + ($requirements | each { length } | math sum) * $SKILL_FONT.fontsize + $SKILL_MARGIN
     } else {
         $requirements_y
+    }
+    let important_y = $effects_y + $SKILL_BOLD_FONT.fontsize + ($effects | each { length } | math sum) * $SKILL_FONT.fontsize + $SKILL_MARGIN
+    let remember_y = if not ($important | is-empty) {
+        $important_y + $SKILL_BOLD_FONT.fontsize + ($important | each { length } | math sum) * $SKILL_FONT.fontsize + $SKILL_MARGIN
+    } else {
+        $important_y
     }
 
     let text_transforms = [
@@ -441,8 +457,66 @@ def generate-equipment-or-skill-card [equipment_or_skill: record]: [
                 }
                 | get ts
         ),
-        (if not ($equipment_or_skill.important | is-empty) { log warning $"skipping 'important' for equipment or skill '($equipment_or_skill.name)'" }),
-        (if not ($equipment_or_skill.remember | is-empty) { log warning $"skipping 'remember' for equipment or skill '($equipment_or_skill.name)'" }),
+        (if not ($important | is-empty) {
+            ffmpeg-text "IMPORTANT" { x: ($text_x + 5), y: $"($important_y)-th/2" } $SKILL_BOLD_FONT}
+        ),
+        ...(
+            $important
+                | reduce --fold { y: ($important_y + $SKILL_BOLD_FONT.fontsize), ts: [] } { |it, acc|
+                    # FIXME: no idea why this is IO call is required...
+                    print --no-newline ""
+                    let res = $it
+                        | enumerate
+                        | each { |line|
+                            let pos = {
+                                x: ($text_x + 10),
+                                y: ($acc.y + $line.index * $SKILL_FONT.fontsize),
+                            }
+                            let text = if $line.index == 0 {
+                                $"-\\ ($line.item)"
+                            } else {
+                                $"\\ \\ ($line.item)"
+                            }
+                            ffmpeg-text $text $pos $SKILL_FONT
+                        }
+
+                    {
+                        y: ($acc.y + ($res | length) * $SKILL_FONT.fontsize),
+                        ts: ($acc.ts ++ $res),
+                    }
+                }
+                | get ts
+        ),
+        (if not ($remember | is-empty) {
+            ffmpeg-text "REMEMBER" { x: ($text_x + 5), y: $"($remember_y)-th/2" } $SKILL_BOLD_FONT}
+        ),
+        ...(
+            $remember
+                | reduce --fold { y: ($remember_y + $SKILL_BOLD_FONT.fontsize), ts: [] } { |it, acc|
+                    # FIXME: no idea why this is IO call is required...
+                    print --no-newline ""
+                    let res = $it
+                        | enumerate
+                        | each { |line|
+                            let pos = {
+                                x: ($text_x + 10),
+                                y: ($acc.y + $line.index * $SKILL_FONT.fontsize),
+                            }
+                            let text = if $line.index == 0 {
+                                $"-\\ ($line.item)"
+                            } else {
+                                $"\\ \\ ($line.item)"
+                            }
+                            ffmpeg-text $text $pos $SKILL_FONT
+                        }
+
+                    {
+                        y: ($acc.y + ($res | length) * $SKILL_FONT.fontsize),
+                        ts: ($acc.ts ++ $res),
+                    }
+                }
+                | get ts
+        ),
     ]
     | compact
 
@@ -478,6 +552,28 @@ def generate-equipment-or-skill-card [equipment_or_skill: record]: [
                 w: ($SKILL_WIDTH - 20),
                 h: $SKILL_BOLD_FONT.fontsize,
                 color: "0x666666",
+                t: "fill",
+            },
+        }}),
+        (if not ($important | is-empty) {{
+            kind: "drawbox",
+            options: {
+                x: $"($SKILL_WIDTH)/2-w/2",
+                y: $"($important_y)-h/2",
+                w: ($SKILL_WIDTH - 20),
+                h: $SKILL_BOLD_FONT.fontsize,
+                color: $CORVUS_BELLI_COLORS.red,
+                t: "fill",
+            },
+        }}),
+        (if not ($remember | is-empty) {{
+            kind: "drawbox",
+            options: {
+                x: $"($SKILL_WIDTH)/2-w/2",
+                y: $"($remember_y)-h/2",
+                w: ($SKILL_WIDTH - 20),
+                h: $SKILL_BOLD_FONT.fontsize,
+                color: $CORVUS_BELLI_COLORS.yellow,
                 t: "fill",
             },
         }}),
