@@ -340,7 +340,7 @@ def generate-equipment-or-skill-card [equipment_or_skill: record]: [
         $important_y
     }
 
-    def section [items: list<list<string>>, title: string, y: int, color: string]: [
+    def section [items: list<any>, title: string, y: int, color: string]: [
         nothing -> table<kind: string, options: record>
     ] {
         if ($items | is-empty) {
