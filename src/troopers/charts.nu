@@ -133,7 +133,11 @@ def put-weapons-charts [equipments: table<name: string, stats: record>]: [
         },
     }
 
-    let transforms = $equipments | enumerate | reduce --fold { y: ($RANGES_Y + $RANGES_BACKGROUND.options.h), last_y: 0, ts: [] } { |eq, acc|
+    let transforms = $equipments | enumerate | reduce --fold {
+        y: ($RANGES_Y + $RANGES_BACKGROUND.options.h),
+        last_y: ($RANGES_Y + $RANGES_BACKGROUND.options.h // 2),
+        ts: [],
+    } { |eq, acc|
         # FIXME: no idea why this is IO call is required...
         print --no-newline ""
 
