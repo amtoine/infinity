@@ -39,7 +39,7 @@ const SKILL_MAX_CHARS = 60
 const SKILL_MARGIN = 20
 const SKILL_BORDER = 5
 const SKILL_WIDTH = $SKILL_MAX_CHARS * $SKILL_FONT.fontsize * 6 // 10 + 20 + 2 * $SKILL_BORDER
-const SKILL_CARD_MARGIN = 10
+const SKILL_CARD_MARGIN = 8
 
 const SKILL_START = { x: 10, y: 10 }
 
