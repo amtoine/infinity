@@ -333,7 +333,29 @@ def generate-equipment-or-skill-card [equipment_or_skill: record]: [
     } else {
         $requirements_y
     }
-    let important_y = $effects_y + $SKILL_BOLD_FONT.fontsize + ($effects | each { length } | math sum) * $SKILL_FONT.fontsize + $SKILL_MARGIN
+    let important_y = $effects_y + $SKILL_BOLD_FONT.fontsize + (
+        # TODO: find a better way to flatten these
+        $effects | each { |subline|
+            match ($subline | describe --detailed).type {
+                "string" => 1,
+                "list" => {
+                    $subline | each { |subsubline|
+                        match ($subsubline | describe --detailed).type {
+                            "string" => 1,
+                            "list" => {
+                                $subsubline | each { |subsubsubline|
+                                    match ($subsubsubline | describe --detailed).type {
+                                        "string" => 1,
+                                        "list" => { $subsubsubline | length },
+                                    }
+                                } | math sum
+                            },
+                        }
+                    } | math sum
+                },
+            }
+        } | math sum
+    ) * $SKILL_FONT.fontsize + $SKILL_MARGIN
     let remember_y = if not ($important | is-empty) {
         $important_y + $SKILL_BOLD_FONT.fontsize + ($important | each { length } | math sum) * $SKILL_FONT.fontsize + $SKILL_MARGIN
     } else {
