@@ -336,61 +336,29 @@ def generate-equipment-or-skill-card [equipment_or_skill: record]: [
         $important_y
     }
 
-    let text_transforms = [
-        (ffmpeg-text $equipment_or_skill.name { x: $text_x, y: $text_y } $SKILL_BOLD_FONT),
-        (ffmpeg-text $equipment_or_skill.type {
-            x: $"($SKILL_WIDTH)-($SKILL_BORDER)-tw",
-            y: $"(2 * ($SKILL_FONT.fontsize + $SKILL_MARGIN) - 5)-th",
-        } $SKILL_TYPE_FONT),
-        ...(
-            $description
-                | each { str join " " }
-                | enumerate
-                | each { |line|
-                    let pos = {
-                        x: $text_x,
-                        y: ($description_y + $line.index * $SKILL_FONT.fontsize),
-                    }
-                    ffmpeg-text $line.item $pos $SKILL_FONT
-                }
-        ),
-        (ffmpeg-text ($equipment_or_skill.labels | str join ", ") { x: $text_x, y: $labels_y } $SKILL_FONT),
-        (if not ($requirements | is-empty) {
-            ffmpeg-text "REQUIREMENTS" { x: ($text_x + 5), y: $"($requirements_y)-th/2" } $SKILL_BOLD_FONT}
-        ),
-        ...(
-            $requirements
-                | reduce --fold { y: ($requirements_y + $SKILL_BOLD_FONT.fontsize), ts: [] } { |it, acc|
-                    # FIXME: no idea why this is IO call is required...
-                    print --no-newline ""
-                    let res = $it
-                        | enumerate
-                        | each { |line|
-                            let pos = {
-                                x: ($text_x + 10),
-                                y: ($acc.y + $line.index * $SKILL_FONT.fontsize),
-                            }
-                            let text = if $line.index == 0 {
-                                $"-\\ ($line.item)"
-                            } else {
-                                $"\\ \\ ($line.item)"
-                            }
-                            ffmpeg-text $text $pos $SKILL_FONT
-                        }
+    def section [items: list<list<string>>, title: string, y: int, color: string]: [
+        nothing -> table<kind: string, options: record>
+    ] {
+        if ($items | is-empty) {
+            return []
+        }
 
-                    {
-                        y: ($acc.y + ($res | length) * $SKILL_FONT.fontsize),
-                        ts: ($acc.ts ++ $res),
-                    }
-                }
-                | get ts
-        ),
-        (if not ($effects | is-empty) {
-            ffmpeg-text "EFFECTS" { x: ($text_x + 5), y: $"($effects_y)-th/2" } $SKILL_BOLD_FONT}
-        ),
-        ...(
-            $effects
-                | reduce --fold { y: ($effects_y + $SKILL_BOLD_FONT.fontsize), ts: [] } { |it, acc|
+        let title_transform = ffmpeg-text $title { x: ($text_x + 5), y: $"($y)-th/2" } $SKILL_BOLD_FONT
+
+        let box_transform = {
+            kind: "drawbox",
+            options: {
+                x: $"($SKILL_WIDTH)/2-w/2",
+                y: $"($y)-h/2",
+                w: ($SKILL_WIDTH - 20),
+                h: $SKILL_BOLD_FONT.fontsize,
+                color: $color,
+                t: "fill",
+            },
+        }
+
+        let transforms = $items
+                | reduce --fold { y: ($y + $SKILL_BOLD_FONT.fontsize), ts: [] } { |it, acc|
                     # FIXME: no idea why this is IO call is required...
                     print --no-newline ""
                     let res = $it
@@ -456,67 +424,33 @@ def generate-equipment-or-skill-card [equipment_or_skill: record]: [
                     }
                 }
                 | get ts
-        ),
-        (if not ($important | is-empty) {
-            ffmpeg-text "IMPORTANT" { x: ($text_x + 5), y: $"($important_y)-th/2" } $SKILL_BOLD_FONT}
-        ),
-        ...(
-            $important
-                | reduce --fold { y: ($important_y + $SKILL_BOLD_FONT.fontsize), ts: [] } { |it, acc|
-                    # FIXME: no idea why this is IO call is required...
-                    print --no-newline ""
-                    let res = $it
-                        | enumerate
-                        | each { |line|
-                            let pos = {
-                                x: ($text_x + 10),
-                                y: ($acc.y + $line.index * $SKILL_FONT.fontsize),
-                            }
-                            let text = if $line.index == 0 {
-                                $"-\\ ($line.item)"
-                            } else {
-                                $"\\ \\ ($line.item)"
-                            }
-                            ffmpeg-text $text $pos $SKILL_FONT
-                        }
 
-                    {
-                        y: ($acc.y + ($res | length) * $SKILL_FONT.fontsize),
-                        ts: ($acc.ts ++ $res),
-                    }
-                }
-                | get ts
-        ),
-        (if not ($remember | is-empty) {
-            ffmpeg-text "REMEMBER" { x: ($text_x + 5), y: $"($remember_y)-th/2" } $SKILL_BOLD_FONT}
-        ),
-        ...(
-            $remember
-                | reduce --fold { y: ($remember_y + $SKILL_BOLD_FONT.fontsize), ts: [] } { |it, acc|
-                    # FIXME: no idea why this is IO call is required...
-                    print --no-newline ""
-                    let res = $it
-                        | enumerate
-                        | each { |line|
-                            let pos = {
-                                x: ($text_x + 10),
-                                y: ($acc.y + $line.index * $SKILL_FONT.fontsize),
-                            }
-                            let text = if $line.index == 0 {
-                                $"-\\ ($line.item)"
-                            } else {
-                                $"\\ \\ ($line.item)"
-                            }
-                            ffmpeg-text $text $pos $SKILL_FONT
-                        }
+        [ $box_transform, $title_transform ] ++ $transforms
+    }
 
-                    {
-                        y: ($acc.y + ($res | length) * $SKILL_FONT.fontsize),
-                        ts: ($acc.ts ++ $res),
+    let transforms = [
+        (ffmpeg-text $equipment_or_skill.name { x: $text_x, y: $text_y } $SKILL_BOLD_FONT),
+        (ffmpeg-text $equipment_or_skill.type {
+            x: $"($SKILL_WIDTH)-($SKILL_BORDER)-tw",
+            y: $"(2 * ($SKILL_FONT.fontsize + $SKILL_MARGIN) - 5)-th",
+        } $SKILL_TYPE_FONT),
+        ...(
+            $description
+                | each { str join " " }
+                | enumerate
+                | each { |line|
+                    let pos = {
+                        x: $text_x,
+                        y: ($description_y + $line.index * $SKILL_FONT.fontsize),
                     }
+                    ffmpeg-text $line.item $pos $SKILL_FONT
                 }
-                | get ts
         ),
+        (ffmpeg-text ($equipment_or_skill.labels | str join ", ") { x: $text_x, y: $labels_y } $SKILL_FONT),
+        ...(section $requirements "REQUIREMENTS" $requirements_y "0x333333"),
+        ...(section $effects      "EFFECTS"      $effects_y      "0x666666"),
+        ...(section $important    "IMPORTANT"    $important_y    $CORVUS_BELLI_COLORS.red),
+        ...(section $remember     "REMEMBER"     $remember_y     $CORVUS_BELLI_COLORS.yellow),
     ]
     | compact
 
@@ -526,74 +460,26 @@ def generate-equipment-or-skill-card [equipment_or_skill: record]: [
             x: 0,
             y: 0,
             w: $SKILL_WIDTH,
-            h: (($text_transforms | last).options.y + $SKILL_FONT.fontsize + 10),
+            h: (($transforms | last).options.y + $SKILL_FONT.fontsize + 10),
             color: $color,
             t: $"($SKILL_BORDER)",
         },
     }
 
-    let boxes = [
-        (if not ($requirements | is-empty) {{
-            kind: "drawbox",
-            options: {
-                x: $"($SKILL_WIDTH)/2-w/2",
-                y: $"($requirements_y)-h/2",
-                w: ($SKILL_WIDTH - 20),
-                h: $SKILL_BOLD_FONT.fontsize,
-                color: "0x333333",
-                t: "fill",
-            },
-        }}),
-        (if not ($effects| is-empty) {{
-            kind: "drawbox",
-            options: {
-                x: $"($SKILL_WIDTH )/2-w/2",
-                y: $"($effects_y)-h/2",
-                w: ($SKILL_WIDTH - 20),
-                h: $SKILL_BOLD_FONT.fontsize,
-                color: "0x666666",
-                t: "fill",
-            },
-        }}),
-        (if not ($important | is-empty) {{
-            kind: "drawbox",
-            options: {
-                x: $"($SKILL_WIDTH)/2-w/2",
-                y: $"($important_y)-h/2",
-                w: ($SKILL_WIDTH - 20),
-                h: $SKILL_BOLD_FONT.fontsize,
-                color: $CORVUS_BELLI_COLORS.red,
-                t: "fill",
-            },
-        }}),
-        (if not ($remember | is-empty) {{
-            kind: "drawbox",
-            options: {
-                x: $"($SKILL_WIDTH)/2-w/2",
-                y: $"($remember_y)-h/2",
-                w: ($SKILL_WIDTH - 20),
-                h: $SKILL_BOLD_FONT.fontsize,
-                color: $CORVUS_BELLI_COLORS.yellow,
-                t: "fill",
-            },
-        }}),
-        $border,
-        {
-            kind: "drawbox",
-            options: {
-                x: 0,
-                y: 0,
-                w: $SKILL_WIDTH,
-                h: (2 * ($SKILL_FONT.fontsize + $SKILL_MARGIN)),
-                color: $color,
-                t: "fill",
-            },
+    let header_box = {
+        kind: "drawbox",
+        options: {
+            x: 0,
+            y: 0,
+            w: $SKILL_WIDTH,
+            h: (2 * ($SKILL_FONT.fontsize + $SKILL_MARGIN)),
+            color: $color,
+            t: "fill",
         },
-    ]
-    | compact
+    }
 
     ffmpeg create ($BASE_IMAGE | update options.s $"($border.options.w)x($border.options.h)" | ffmpeg options) --output (mktemp --tmpdir infinity-XXXXXXX.png)
-        | ffmpeg mapply ($boxes ++ $text_transforms | each { ffmpeg options }) --output $output
+        | ffmpeg mapply ([$border, $header_box] ++ $transforms | each { ffmpeg options }) --output $output
 }
 
 export def gen-charts-page [
