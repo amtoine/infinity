@@ -35,10 +35,13 @@ const SKILL_FONT = { fontfile: $REGULAR_FONT, fontcolor: "black", fontsize: 10 }
 const SKILL_BOLD_FONT = { fontfile: $BOLD_FONT, fontcolor: "white", fontsize: 20 }
 const SKILL_TYPE_FONT = { fontfile: $BOLD_FONT, fontcolor: "white", fontsize: 18 }
 
-const SKILL_MAX_CHARS = 60
+# the charts page is 4 cells wide, i.e. the width of
+# each skill card allows to fit exactly 4 of them horizontally
+const SKILL_CELL_WIDTH = 1
+const SKILL_MAX_CHARS = 60 * $SKILL_CELL_WIDTH + (6 * ($SKILL_CELL_WIDTH - 1))
 const SKILL_MARGIN = 20
 const SKILL_BORDER = 5
-const SKILL_WIDTH = $SKILL_MAX_CHARS * $SKILL_FONT.fontsize * 6 // 10 + 20 + 2 * $SKILL_BORDER
+const SKILL_WIDTH = $SKILL_MAX_CHARS * $SKILL_FONT.fontsize * 6 // 10 + 20 + 2 * $SKILL_BORDER + 2 * ($SKILL_CELL_WIDTH - 1)
 const SKILL_CARD_MARGIN = 8
 
 const SKILL_START = { x: 10, y: 10 }
