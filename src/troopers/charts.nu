@@ -2,6 +2,7 @@ use common.nu [
     BOLD_FONT, REGULAR_FONT, BASE_IMAGE, CANVAS,
     put-version, ffmpeg-text, "parse modifier-from-skill"
 ]
+use ../ffmpeg.nu [ "ffmpeg metadata" ]
 
 const RANGES = ['8"', '16"', '24"', '32"', '40"', '48"', '96"']
 const STATS = [
@@ -670,19 +671,33 @@ export def gen-charts-page [
 
     let equipments_and_skills_transforms = $skills ++ $equipments
         | enumerate
-        | each {
+        | each { |it|
             # FIXME: no idea why this is IO call is required...
             print --no-newline ""
-            {
-                asset: (generate-equipment-or-skill-card $in.item),
+            let res = {
+                asset: (generate-equipment-or-skill-card $it.item),
                 transform: {
                     kind: "overlay",
                     options: {
-                        x: ($SKILL_START.x + $in.index * ($SKILL_WIDTH + $SKILL_CARD_MARGIN)),
+                        x: ($SKILL_START.x + $it.index * ($SKILL_WIDTH + $SKILL_CARD_MARGIN)),
                         y: ($SKILL_START.y + ($weapons_transforms.y | into int)),
                     },
                 },
             }
+
+            let shape = $res.asset | ffmpeg metadata | get streams | select width height
+
+            if $res.transform.options.x > $CANVAS.w or $res.transform.options.y > $CANVAS.h {
+                log warning $"'($it.item.name)' outside for '($troop.name)'"
+            } else if (
+                $res.transform.options.x + $shape.width > $CANVAS.w
+                or
+                $res.transform.options.y + $shape.height > $CANVAS.h
+            ) {
+                log warning $"'($it.item.name)' partially outside for '($troop.name)'"
+            }
+
+            $res
         }
 
     let res = ffmpeg create ($BASE_IMAGE | ffmpeg options) --output (mktemp --tmpdir infinity-XXXXXXX.png)
