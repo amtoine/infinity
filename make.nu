@@ -154,6 +154,39 @@ def "main archive" [] {
     ^zip $"archives/infinity-trooper-assets-(git describe).zip" ...$assets
 }
 
+def "main skill-cards" [] {
+    use . skills-and-equipments
+
+    let equipments = ls equipments/*.nuon | get name
+    let skills = ls skills/*.nuon | get name
+
+    let todo = $equipments ++ $skills
+        | where ($it | path parse).stem != "__blank"
+        | each {
+            open $in
+                | insert pos { w: 4 }
+                | insert stats_name { $in.name | str upcase }
+        }
+
+    let total = $todo | length
+    let width = $todo | each { $in.name | str length } | math max
+
+    $todo
+        | enumerate
+        | each {
+            {
+                current: (
+                    $in.index + 1
+                        | fill --alignment "right" --width ($total | into string | str length) --character ' '
+                ),
+                total: $total,
+                content: ($in.item.name | fill --alignment "left" --width $width --character ' '),
+            } | print --no-newline $"[($in.current) / ($in.total)] ($in.content)\r"
+            skills-and-equipments generate-equipment-or-skill-card $in.item
+        }
+        | get asset
+}
+
 # run all that is required for a release
 def "main release" [] {
     main clean
