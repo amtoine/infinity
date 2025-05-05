@@ -179,6 +179,7 @@ def put-weapons-charts [equipments: table<name: string, stats: record>]: [
 
         let ranges_boxes = $RANGES | enumerate | each { |it|
             let color = match ($eq.item.stats | get $it.item) {
+                "+6" | 6 | "6" => $CORVUS_BELLI_COLORS.purple,
                 "+3" | 3 | "3" => $CORVUS_BELLI_COLORS.green,
                 "0" | 0 => $CORVUS_BELLI_COLORS.blue,
                 "-3" | -3 => $CORVUS_BELLI_COLORS.yellow,
