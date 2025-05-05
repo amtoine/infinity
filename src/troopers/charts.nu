@@ -696,14 +696,19 @@ export def gen-charts-page [
         | each { |it|
             # FIXME: no idea why this is IO call is required...
             print --no-newline ""
-            let skill_card = generate-equipment-or-skill-card $it
+            let s_or_eq = if ($it.effects | describe --detailed).type == "record" {
+                $it | update effects { $in | get $it.item.mod }
+            } else {
+                $it
+            }
+            let skill_card = generate-equipment-or-skill-card $s_or_eq
             let res = {
                 asset: $skill_card.asset,
                 transform: {
                     kind: "overlay",
                     options: {
-                        x: ($SKILL_START.x + $it.pos.c * (390 + $SKILL_CARD_MARGIN)),
-                        y: ($SKILL_START.y + ($weapons_transforms.y | into int) + $it.pos.y),
+                        x: ($SKILL_START.x + $s_or_eq.pos.c * (390 + $SKILL_CARD_MARGIN)),
+                        y: ($SKILL_START.y + ($weapons_transforms.y | into int) + $s_or_eq.pos.y),
                     },
                 },
             }
