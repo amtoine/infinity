@@ -27,10 +27,11 @@ const CORVUS_BELLI_COLORS = {
     purple: "0x5e3198",
 }
 
-const CHART_RANGE_CELL_WIDTH = 72
+const CHART_RANGE_CELL_WIDTH = 50
 
 const FONT = { fontfile: $REGULAR_FONT, fontcolor: "black", fontsize: 22 }
 const HEADER_FONT = { fontfile: $BOLD_FONT, fontcolor: "white", fontsize: 25 }
+const RANGES_FONT = { fontfile: $BOLD_FONT, fontcolor: "white", fontsize: ($HEADER_FONT.fontsize * 0.7) }
 
 const SKILL_FONT = { fontfile: $REGULAR_FONT, fontcolor: "black", fontsize: 10 }
 const SKILL_BOLD_FONT = { fontfile: $BOLD_FONT, fontcolor: "white", fontsize: 20 }
@@ -45,7 +46,7 @@ const SKILL_START = { x: 10, y: 10 }
 const V_SPACE = 20
 
 const HEADER_MAX_CHARS = 10
-const NAME_MAX_CHARS = 15
+const NAME_MAX_CHARS = 25
 const TRAITS_MAX_CHARS = 27
 
 const NAME_X = 95 + 20
@@ -113,12 +114,12 @@ def put-weapons-charts [equipments: table<name: string, stats: record>]: [
         },
     }
 
-    const RANGES_Y = $START_Y + $HEADER_FONT.fontsize + $HEADERS_BACKGROUND.options.h / 2 + ($HEADER_FONT.fontsize + 20) / 2 + 10
+    const RANGES_Y = $START_Y + $HEADER_FONT.fontsize + $HEADERS_BACKGROUND.options.h / 2 + ($RANGES_FONT.fontsize + 20) / 2 + 10
     let ranges_transforms = $RANGES | enumerate | each { |r|
         ffmpeg-text $r.item {
             x: $"($RANGE_X + $CHART_RANGE_CELL_WIDTH / 2 + $r.index * $CHART_RANGE_CELL_WIDTH)-tw/2",
             y: $"($RANGES_Y)-th/2",
-        } $HEADER_FONT
+        } $RANGES_FONT
     }
     const RANGES_BACKGROUND = {
         kind: "drawbox",
@@ -126,7 +127,7 @@ def put-weapons-charts [equipments: table<name: string, stats: record>]: [
             x: 0,
             y: $"($RANGES_Y)-h/2",
             w: $CANVAS.w,
-            h: ($HEADER_FONT.fontsize + 20),
+            h: ($RANGES_FONT.fontsize + 20),
             color: "0x555555",
             t: "fill",
         },
