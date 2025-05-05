@@ -48,6 +48,7 @@ export def build-trooper-card [
     --output: path = "output.png",
     --stats,
     --charts,
+    --no-equipments-or-skills,
 ] {
     let modifiers = $troop.special_skills | each { |skill|
         let skill = if ($skill | describe --detailed).type == "record" {
@@ -71,13 +72,13 @@ export def build-trooper-card [
     match [$stats, $charts] {
         [true, true] | [false, false] => {
             gen-stats-page $troop $color $output $modifiers
-            gen-charts-page $troop $output $modifiers
+            gen-charts-page $troop $output $modifiers --no-equipments-or-skills=$no_equipments_or_skills
         },
         [true, false] => {
             gen-stats-page $troop $color $output $modifiers
         },
         [false, true] => {
-            gen-charts-page $troop $output $modifiers
+            gen-charts-page $troop $output $modifiers --no-equipments-or-skills=$no_equipments_or_skills
         },
     }
 }
