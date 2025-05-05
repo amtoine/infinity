@@ -1,6 +1,6 @@
 use common.nu [
     BOLD_FONT, REGULAR_FONT, BASE_IMAGE, CANVAS, CORVUS_BELLI_COLORS,
-    put-version, ffmpeg-text, "parse modifier-from-skill"
+    put-version, ffmpeg-text, "parse modifier-from-skill", fit-items-in-width,
 ]
 
 const CACHE =  "~/.cache/infinity/" | path expand

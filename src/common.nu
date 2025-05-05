@@ -140,3 +140,29 @@ export def "parse modifier-from-skill" []: [ record<name: string, mod: any> -> r
     }
     return null
 }
+
+export def fit-items-in-width [
+    items: list<string>, h_space: int, --separator: string = ", "
+]: [
+    nothing -> list<list<string>>
+] {
+    generate { |var|
+        let res = $var
+            | skip 1
+            | reduce --fold [$var.0] { |it, acc|
+                $acc ++ [$"($acc | last)($separator)($it)"]
+            }
+            | where ($it | str length) <= $h_space
+            | last
+            | split row $separator
+
+        let next = $var | skip ($res | length)
+
+        if ($next | is-empty) {
+            { out: $res }
+        } else {
+            { out: $res, next: $next }
+        }
+    } $items
+}
+

@@ -1,6 +1,6 @@
 use ../common.nu [
     BOLD_FONT, REGULAR_FONT, BASE_IMAGE, CANVAS, CORVUS_BELLI_COLORS,
-    put-version, ffmpeg-text, "parse modifier-from-skill"
+    put-version, ffmpeg-text, "parse modifier-from-skill", fit-items-in-width,
 ]
 use ../ffmpeg.nu [ "ffmpeg metadata" ]
 
@@ -36,31 +36,6 @@ const RANGE_X = $NAME_X + $FONT.fontsize * ($NAME_MAX_CHARS * 0.33)
 const TRAITS_X = $CANVAS.w - 165 - 20
 
 const START_Y = 35
-
-def fit-items-in-width [
-    items: list<string>, h_space: int, --separator: string = ", "
-]: [
-    nothing -> list<list<string>>
-] {
-    generate { |var|
-        let res = $var
-            | skip 1
-            | reduce --fold [$var.0] { |it, acc|
-                $acc ++ [$"($acc | last)($separator)($it)"]
-            }
-            | where ($it | str length) <= $h_space
-            | last
-            | split row $separator
-
-        let next = $var | skip ($res | length)
-
-        if ($next | is-empty) {
-            { out: $res }
-        } else {
-            { out: $res, next: $next }
-        }
-    } $items
-}
 
 def put-weapons-charts [equipments: table<name: string, stats: record>]: [
     nothing -> record<y: int, ts: table<kind: string, options: record>>
