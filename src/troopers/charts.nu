@@ -36,13 +36,8 @@ const SKILL_FONT = { fontfile: $REGULAR_FONT, fontcolor: "black", fontsize: 10 }
 const SKILL_BOLD_FONT = { fontfile: $BOLD_FONT, fontcolor: "white", fontsize: 20 }
 const SKILL_TYPE_FONT = { fontfile: $BOLD_FONT, fontcolor: "white", fontsize: 18 }
 
-# the charts page is 4 cells wide, i.e. the width of
-# each skill card allows to fit exactly 4 of them horizontally
-const SKILL_CELL_WIDTH = 1
-const SKILL_MAX_CHARS = 60 * $SKILL_CELL_WIDTH + (6 * ($SKILL_CELL_WIDTH - 1))
 const SKILL_MARGIN = 20
 const SKILL_BORDER = 5
-const SKILL_WIDTH = $SKILL_MAX_CHARS * $SKILL_FONT.fontsize * 6 // 10 + 20 + 2 * $SKILL_BORDER + 2 * ($SKILL_CELL_WIDTH - 1)
 const SKILL_CARD_MARGIN = 8
 
 const SKILL_START = { x: 10, y: 10 }
@@ -247,18 +242,28 @@ const COMMON_SKILLS = [
     "SUPPRESSIVE FIRE",
 ]
 
-def generate-equipment-or-skill-card [equipment_or_skill: record]: [
-    nothing -> path
+def generate-equipment-or-skill-card [equipment_or_skill: record, width: int]: [
+    nothing -> record<asset: path, width: int>
 ]  {
+    # the charts page is 4 cells wide, i.e. the width of
+    # each skill card allows to fit exactly 4 of them horizontally
+    let skill_max_chars = 60 * $width + (6 * ($width - 1))
+    let skill_width = (
+        $skill_max_chars * $SKILL_FONT.fontsize * 6 // 10 +
+        20 +
+        2 * $SKILL_BORDER +
+        2 * ($width - 1)
+    )
+
     let hash = [
         ($equipment_or_skill | to nuon),
         $SKILL_FONT,
         $SKILL_BOLD_FONT,
         $SKILL_TYPE_FONT,
-        $SKILL_MAX_CHARS,
+        $skill_max_chars,
         $SKILL_MARGIN,
         $SKILL_BORDER,
-        $SKILL_WIDTH,
+        $skill_width,
     ]
     | str join ''
     | hash sha256
@@ -266,23 +271,23 @@ def generate-equipment-or-skill-card [equipment_or_skill: record]: [
 
     if ($output | path exists) {
         log debug $"getting asset for '($equipment_or_skill.name)' from (ansi purple)($output | path parse | get stem)(ansi reset)"
-        return $output
+        return { asset: $output, width: $skill_width }
     }
 
     mkdir ($output | path dirname)
 
-    let description = fit-items-in-width ($equipment_or_skill.description | split row " ") $SKILL_MAX_CHARS --separator " "
+    let description = fit-items-in-width ($equipment_or_skill.description | split row " ") $skill_max_chars --separator " "
     let requirements = $equipment_or_skill.requirements | each {
         # FIXME: no idea why this is IO call is required...
         print --no-newline ""
-        fit-items-in-width ($in | split row " ") ($SKILL_MAX_CHARS - 2) --separator " " | each { str join " " }
+        fit-items-in-width ($in | split row " ") ($skill_max_chars - 2) --separator " " | each { str join " " }
     }
     let effects = $equipment_or_skill.effects | each { |it|
         # FIXME: no idea why this is IO call is required...
         print --no-newline ""
         match ($it | describe --detailed).type {
             "string" => {
-                fit-items-in-width ($it | split row " ") ($SKILL_MAX_CHARS - 2) --separator " " | each { str join " " }
+                fit-items-in-width ($it | split row " ") ($skill_max_chars - 2) --separator " " | each { str join " " }
             },
             "list" => {
                 $it | each { |it_2|
@@ -290,13 +295,13 @@ def generate-equipment-or-skill-card [equipment_or_skill: record]: [
                     print --no-newline ""
                     match ($it_2 | describe --detailed).type {
                         "string" => {
-                            fit-items-in-width ($it_2 | split row " ") ($SKILL_MAX_CHARS - 4) --separator " " | each { str join " " }
+                            fit-items-in-width ($it_2 | split row " ") ($skill_max_chars - 4) --separator " " | each { str join " " }
                         },
                         "list" => {
                             $it_2 | each { |it_3|
                                 # FIXME: no idea why this is IO call is required...
                                 print --no-newline ""
-                                fit-items-in-width ($it_3 | split row " ") ($SKILL_MAX_CHARS - 6) --separator " " | each { str join " " }
+                                fit-items-in-width ($it_3 | split row " ") ($skill_max_chars - 6) --separator " " | each { str join " " }
                             }
                         }
                     }
@@ -307,12 +312,12 @@ def generate-equipment-or-skill-card [equipment_or_skill: record]: [
     let important = $equipment_or_skill.important | each {
         # FIXME: no idea why this is IO call is required...
         print --no-newline ""
-        fit-items-in-width ($in | split row " ") ($SKILL_MAX_CHARS - 2) --separator " " | each { str join " " }
+        fit-items-in-width ($in | split row " ") ($skill_max_chars - 2) --separator " " | each { str join " " }
     }
     let remember = $equipment_or_skill.remember | each {
         # FIXME: no idea why this is IO call is required...
         print --no-newline ""
-        fit-items-in-width ($in | split row " ") ($SKILL_MAX_CHARS - 2) --separator " " | each { str join " " }
+        fit-items-in-width ($in | split row " ") ($skill_max_chars - 2) --separator " " | each { str join " " }
     }
 
     let text_x = 10
@@ -380,9 +385,9 @@ def generate-equipment-or-skill-card [equipment_or_skill: record]: [
         let box_transform = {
             kind: "drawbox",
             options: {
-                x: $"($SKILL_WIDTH)/2-w/2",
+                x: $"($skill_width)/2-w/2",
                 y: $"($y)-h/2",
-                w: ($SKILL_WIDTH - 20),
+                w: ($skill_width - 20),
                 h: $SKILL_BOLD_FONT.fontsize,
                 color: $color,
                 t: "fill",
@@ -463,7 +468,7 @@ def generate-equipment-or-skill-card [equipment_or_skill: record]: [
     let transforms = [
         (ffmpeg-text $equipment_or_skill.name { x: $text_x, y: $text_y } $SKILL_BOLD_FONT),
         (ffmpeg-text $equipment_or_skill.type {
-            x: $"($SKILL_WIDTH)-($SKILL_BORDER)-tw",
+            x: $"($skill_width)-($SKILL_BORDER)-tw",
             y: $"(2 * ($SKILL_FONT.fontsize + $SKILL_MARGIN) - 5)-th",
         } $SKILL_TYPE_FONT),
         ...(
@@ -491,7 +496,7 @@ def generate-equipment-or-skill-card [equipment_or_skill: record]: [
         options: {
             x: 0,
             y: 0,
-            w: $SKILL_WIDTH,
+            w: $skill_width,
             h: (($transforms | last).options.y + $SKILL_FONT.fontsize + 10),
             color: $color,
             t: $"($SKILL_BORDER)",
@@ -503,15 +508,23 @@ def generate-equipment-or-skill-card [equipment_or_skill: record]: [
         options: {
             x: 0,
             y: 0,
-            w: $SKILL_WIDTH,
+            w: $skill_width,
             h: (2 * ($SKILL_FONT.fontsize + $SKILL_MARGIN)),
             color: $color,
             t: "fill",
         },
     }
 
-    ffmpeg create ($BASE_IMAGE | update options.s $"($border.options.w)x($border.options.h)" | ffmpeg options) --output (mktemp --tmpdir infinity-XXXXXXX.png)
-        | ffmpeg mapply ([$border, $header_box] ++ $transforms | each { ffmpeg options }) --output $output
+    let asset = ffmpeg create (
+            $BASE_IMAGE
+                | update options.s $"($border.options.w)x($border.options.h)"
+                | ffmpeg options
+        ) --output (mktemp --tmpdir infinity-XXXXXXX.png)
+        | ffmpeg mapply (
+            [$border, $header_box] ++ $transforms | each { ffmpeg options }
+        ) --output $output
+
+    { asset: $asset, width: $skill_width }
 }
 
 export def gen-charts-page [
@@ -682,12 +695,13 @@ export def gen-charts-page [
         | each { |it|
             # FIXME: no idea why this is IO call is required...
             print --no-newline ""
+            let skill_card = generate-equipment-or-skill-card $it.item 1
             let res = {
-                asset: (generate-equipment-or-skill-card $it.item),
+                asset: $skill_card.asset,
                 transform: {
                     kind: "overlay",
                     options: {
-                        x: ($SKILL_START.x + $it.index * ($SKILL_WIDTH + $SKILL_CARD_MARGIN)),
+                        x: ($SKILL_START.x + $it.index * ($skill_card.width + $SKILL_CARD_MARGIN)),
                         y: ($SKILL_START.y + ($weapons_transforms.y | into int)),
                     },
                 },
