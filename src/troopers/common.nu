@@ -10,7 +10,7 @@ export const DIRS = {
 }
 
 export const CANVAS = { w: 1600, h: 1000 }
-export const BASE_IMAGE = { kind: "color", options: { c: "0xDDDDDD", s: $"($CANVAS.w)x($CANVAS.h)", d: 1 } }
+export const BASE_IMAGE = { kind: "color", options: { c: "0xffffff", s: $"($CANVAS.w)x($CANVAS.h)", d: 1 } }
 
 export const BOLD_FONT = "./adwaita-fonts-48.2/mono/AdwaitaMono-Bold.ttf"
 export const REGULAR_FONT = "./adwaita-fonts-48.2/mono/AdwaitaMono-Regular.ttf"
