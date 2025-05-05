@@ -26,16 +26,21 @@
         AVA:   3,
     }
     special_skills: [
-        "Climbing Plus",
-        "Courage",
-        { name: "Dodge", mod: '+1"' },
-        { name: "Immunity", mod: "Enhanced" },
-        { name: "Martial Arts", mod: "L1" },
-        { name: "Terrain", mod: "Zero-G" },
-        { name: "Paramedic", spec: true },
+        [ name,            mod,        pos                      ];
+        [ "Climbing Plus", null,       { y: 340, c:  1, w:  2 } ],
+        [ "Courage",       null,       { y:   0, c:  0, w:  1 } ],
+        [ "Dodge",         '+1"',      { y:  -1, c: -1, w: -1 } ],
+        [ "Immunity",      "Enhanced", { y:   0, c:  1, w:  2 } ],
+        [ "Martial Arts",  "L1",       { y: 240, c:  0, w:  1 } ],
+        [ "Terrain",       "Zero-G",   { y:   0, c:  3, w:  1 } ],
+        [ "Paramedic",     null,       { y: 560, c:  3, w:  1 } ],
+    ],
+    equipment: [
+        [ name,            mod,        pos                      ];
+        [ "360° Visor",    null,       { y: 370, c:  3, w:  1 } ],
+        [ "Medikit",       null,       { y:  -1, c: -1, w: -1 } ],
     ],
     weaponry: ["Heavy Shotgun", "Akrylat-Kanone"],
-    equipment: ["360° Visor", "Medikit"],
     peripheral: [],
     melee_weapons: ["Pistol", { name: "E/M CCW", mod: "PS=7" }, { name: "PARA CCW", mod: "-6" }],
     SWC: 0,
