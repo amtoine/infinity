@@ -34,7 +34,7 @@
         { name: "Terrain", mod: "Zero-G" },
     ],
     weaponry: [{ name: "Red Fury", mod: "PS=6" }],
-    equipment: ["360* Visor"],
+    equipment: ["360° Visor"],
     peripheral: [],
     melee_weapons: ["Pistol", { name: "E/M CCW", mod: "PS=7" }, { name: "PARA CCW", mod: "-6" }],
     SWC: 1,
