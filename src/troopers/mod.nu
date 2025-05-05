@@ -66,6 +66,7 @@ export def build-trooper-card [
     }
     | upsert mod { |it| $it | parse modifier-from-skill }
     | where $it.mod != null
+    | reject pos
 
     match [$stats, $charts] {
         [true, true] | [false, false] => {
