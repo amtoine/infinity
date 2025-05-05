@@ -699,7 +699,7 @@ export def gen-charts-page [
             # FIXME: no idea why this is IO call is required...
             print --no-newline ""
             let s_or_eq = if ($it.effects | describe --detailed).type == "record" {
-                $it | update effects { $in | get $it.mod }
+                $it | update name { |it| $"($it.name) \(($it.mod)\)" } | update effects { $in | get $it.mod }
             } else {
                 $it
             }
