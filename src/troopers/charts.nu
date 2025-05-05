@@ -242,17 +242,17 @@ const COMMON_SKILLS = [
     "SUPPRESSIVE FIRE",
 ]
 
-def generate-equipment-or-skill-card [equipment_or_skill: record, width: int]: [
+def generate-equipment-or-skill-card [equipment_or_skill: record]: [
     nothing -> record<asset: path, width: int>
 ]  {
     # the charts page is 4 cells wide, i.e. the width of
     # each skill card allows to fit exactly 4 of them horizontally
-    let skill_max_chars = 60 * $width + (6 * ($width - 1))
+    let skill_max_chars = 60 * $equipment_or_skill.pos.w + (6 * ($equipment_or_skill.pos.w - 1))
     let skill_width = (
         $skill_max_chars * $SKILL_FONT.fontsize * 6 // 10 +
         20 +
         2 * $SKILL_BORDER +
-        2 * ($width - 1)
+        2 * ($equipment_or_skill.pos.w - 1)
     )
 
     let hash = [
@@ -267,7 +267,7 @@ def generate-equipment-or-skill-card [equipment_or_skill: record, width: int]: [
     ]
     | str join ''
     | hash sha256
-    let output = $CACHE | path join "assets/" $"($equipment_or_skill.name | str replace --all ' ' '_')-($hash).png"
+    let output = $CACHE | path join "assets/" $"($equipment_or_skill.stats_name | str replace --all ' ' '_')-($hash).png"
 
     if ($output | path exists) {
         log debug $"getting asset for '($equipment_or_skill.name)' from (ansi purple)($output | path parse | get stem)(ansi reset)"
@@ -669,7 +669,7 @@ export def gen-charts-page [
                 "record" => $it,
             }
         }
-        | each { |ss|
+        | insert stats { |ss|
             let name = $ss.name | str upcase
 
             if $name in $COMMON_SKILLS {
@@ -687,22 +687,23 @@ export def gen-charts-page [
                 }
             }
         }
+        | where $it.stats != null
+        | flatten stats
 
     let weapons_transforms = put-weapons-charts $weapons
 
     let equipments_and_skills_transforms = $skills ++ $equipments
-        | enumerate
         | each { |it|
             # FIXME: no idea why this is IO call is required...
             print --no-newline ""
-            let skill_card = generate-equipment-or-skill-card $it.item 1
+            let skill_card = generate-equipment-or-skill-card $it
             let res = {
                 asset: $skill_card.asset,
                 transform: {
                     kind: "overlay",
                     options: {
-                        x: ($SKILL_START.x + $it.index * ($skill_card.width + $SKILL_CARD_MARGIN)),
-                        y: ($SKILL_START.y + ($weapons_transforms.y | into int)),
+                        x: ($SKILL_START.x + $it.pos.c * (390 + $SKILL_CARD_MARGIN)),
+                        y: ($SKILL_START.y + ($weapons_transforms.y | into int) + $it.pos.y),
                     },
                 },
             }
