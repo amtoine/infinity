@@ -319,14 +319,16 @@ def generate-equipment-or-skill-card [equipment_or_skill: record]: [
     let text_y = 10
 
     let color = match $equipment_or_skill.type {
-        "AUTOMATIC SKILL" | "AUTOMATIC EQUIPMENT"  => $CORVUS_BELLI_COLORS.black,
-        "BASIC SHORT SKILL"                        => $CORVUS_BELLI_COLORS.blue,
-        "DEPLOYMENT SKILL"                         => $CORVUS_BELLI_COLORS.purple,
-        "LONG SKILL"                               => $CORVUS_BELLI_COLORS.red,
-        "ARO"                                      => $CORVUS_BELLI_COLORS.yellow,
-        "SHORT SKILL"                              => $CORVUS_BELLI_COLORS.green,
-        "SHORT SKILL / ARO"                        => $CORVUS_BELLI_COLORS.yellow_green,
-        _                                          => "0xffffff",
+        "AUTOMATIC SKILL"
+         | "AUTOMATIC EQUIPMENT"
+         | "EQUIPMENT"           => $CORVUS_BELLI_COLORS.black,
+        "BASIC SHORT SKILL"      => $CORVUS_BELLI_COLORS.blue,
+        "DEPLOYMENT SKILL"       => $CORVUS_BELLI_COLORS.purple,
+        "LONG SKILL"             => $CORVUS_BELLI_COLORS.red,
+        "ARO"                    => $CORVUS_BELLI_COLORS.yellow,
+        "SHORT SKILL"            => $CORVUS_BELLI_COLORS.green,
+        "SHORT SKILL / ARO"      => $CORVUS_BELLI_COLORS.yellow_green,
+        _                        => "0xffffff",
     }
 
     let description_y = $text_y + 2 * $SKILL_BOLD_FONT.fontsize + $SKILL_MARGIN
