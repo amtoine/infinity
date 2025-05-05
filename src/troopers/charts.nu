@@ -697,7 +697,7 @@ export def gen-charts-page [
             # FIXME: no idea why this is IO call is required...
             print --no-newline ""
             let s_or_eq = if ($it.effects | describe --detailed).type == "record" {
-                $it | update effects { $in | get $it.item.mod }
+                $it | update effects { $in | get $it.mod }
             } else {
                 $it
             }
@@ -716,13 +716,13 @@ export def gen-charts-page [
             let shape = $res.asset | ffmpeg metadata | get streams | select width height
 
             if $res.transform.options.x > $CANVAS.w or $res.transform.options.y > $CANVAS.h {
-                log warning $"'($it.item.name)' outside for '($troop.name)'"
+                log warning $"'($it.name)' outside for '($troop.name)'"
             } else if (
                 $res.transform.options.x + $shape.width > $CANVAS.w
                 or
                 $res.transform.options.y + $shape.height > $CANVAS.h
             ) {
-                log warning $"'($it.item.name)' partially outside for '($troop.name)'"
+                log warning $"'($it.name)' partially outside for '($troop.name)'"
             }
 
             $res
