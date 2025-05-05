@@ -16,9 +16,20 @@ export def generate-equipment-or-skill-card [equipment_or_skill: record]: [
     nothing -> record<asset: path, width: int>
 ]  {
     let eq_or_s = if ($equipment_or_skill.effects | describe --detailed).type == "record" {
-        $equipment_or_skill
-            | update name { |it| $"($it.name) \(($it.mod)\)" }
-            | update effects { $in | get $equipment_or_skill.mod }
+        if $equipment_or_skill.mod? == null {
+            $equipment_or_skill
+                | update effects { items { |k, v| $"($k): ($v | str join ' ')" } }
+        } else {
+            $equipment_or_skill
+                | update name { |it| $"($it.name) \(($it.mod)\)" }
+                | update effects {
+                    if $equipment_or_skill.mod in $in {
+                        $in | get $equipment_or_skill.mod
+                    } else {
+                        $in.Trait
+                    }
+                }
+        }
     } else {
         $equipment_or_skill
     }
