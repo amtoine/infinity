@@ -1,4 +1,4 @@
-use ../log.nu [ "log warning", "log error" ]
+use log.nu [ "log warning", "log error" ]
 
 const ASSETS_DIR = "./troops/assets/"
 export const DIRS = {
@@ -17,6 +17,18 @@ export const REGULAR_FONT = "./adwaita-fonts-48.2/mono/AdwaitaMono-Regular.ttf"
 
 const VERSION_POS = { x: $"($CANVAS.w)-tw-2", y: $"($CANVAS.h)-th-2" }
 const VERSION_FONT = { fontfile: $REGULAR_FONT, fontsize: 15, fontcolor: "black"}
+
+export const CORVUS_BELLI_COLORS = {
+    green:  "0x76ac5d",
+    blue:   "0x59b9d1",
+    yellow: "0xea9931",
+    yellow_green: "0xbaff25",
+    red:    "0xdc3e4c",
+    black:  "0x231f20",
+    gray:   "0xcdd5de",
+    purple: "0x5e3198",
+}
+
 
 export def "ffmpeg-text" [
     text: string, position: record<x: any, y: any>, options: record

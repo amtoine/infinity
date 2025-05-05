@@ -1,7 +1,7 @@
 use ../ffmpeg.nu *
 use ../log.nu [ "log info", "log warning", "log error", "log debug" ]
 
-use common.nu [
+use ../common.nu [
     BOLD_FONT, REGULAR_FONT, BASE_IMAGE,
     put-version, ffmpeg-text, "parse modifier-from-skill",
 ]

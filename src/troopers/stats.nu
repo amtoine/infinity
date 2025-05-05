@@ -1,4 +1,4 @@
-use common.nu [
+use ../common.nu [
     BOLD_FONT, REGULAR_FONT, BASE_IMAGE, CANVAS, DIRS,
     put-version, ffmpeg-text,
 ]
