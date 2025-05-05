@@ -655,10 +655,16 @@ export def gen-charts-page [
             }
         }
         | each { |ss|
-            if ($ss.name | str upcase) in $COMMON_SKILLS {
+            let name = $ss.name | str upcase
+
+            if $name in $COMMON_SKILLS {
                 log debug $"skipping common skill (ansi cyan)($ss.name)(ansi reset)"
             } else {
-                let s = $skills | where NAME == ($ss.name | str upcase) | into record
+                let name = match $ss.name {
+                    "Martial Arts" => { $"($name) ($ss.mod | str replace 'L' 'LEVEL ')" | str upcase },
+                    _ => $name,
+                }
+                let s = $skills | where NAME == $name | into record
                 if $s == {} {
                     log error $"(ansi cyan)($ss.name)(ansi reset) not found in skills"
                 } else {
