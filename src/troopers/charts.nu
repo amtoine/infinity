@@ -167,7 +167,7 @@ def put-weapons-charts [equipments: table<name: string, stats: record>]: [
             ffmpeg-text $t.item { x: $"($TRAITS_X)-tw/2", y: $"($y.traits)+($t.index * $FONT.fontsize)-th/2" } $FONT
         }
 
-        let range_y = $"($y.name + (($name | length) - 1) / 2 * $FONT.fontsize)"
+        let range_y = $y.name + (($name | length) - 1) / 2 * $FONT.fontsize
         let range_h = ([($name | length), ($traits | length)] | math max) * $FONT.fontsize + $V_SPACE * 0.75
 
         let background = {
@@ -215,7 +215,7 @@ def put-weapons-charts [equipments: table<name: string, stats: record>]: [
 
         {
             y: ($acc.y + $V_SPACE + ([($name | length), ($traits | length)] | math max) * $FONT.fontsize),
-            last_y: ($acc.y + $range_h // 2),
+            last_y: ($range_y + $range_h // 2),
             ts: ($acc.ts ++ [$background] ++ $name_lines ++ $ranges_boxes ++ $stats_boxes ++ $trait_lines),
         }
     }
