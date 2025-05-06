@@ -1,0 +1,16 @@
+{
+    name: "X-VISOR",
+    type: "AUTOMATIC EQUIPMENT",
+    description: "This piece of Equipment increases its user’s accuracy at difficult ranges.",
+    labels: ["Obligatory"],
+    requirements: [
+    ],
+    effects: [
+        "This piece of Equipment alters the Range MODs of the user’s BS Weapons, Special Skills, and Equipment from -3 to 0 and from -6 to -3.",
+        "X-Visor benefits also apply to Common Skills with Range bands, such as Discover and Suppressive Fire.",
+    ],
+    important: [
+    ],
+    remember: [
+    ],
+}

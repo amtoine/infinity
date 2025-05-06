@@ -1,0 +1,15 @@
+{
+    name: "EVO HACKING DEVICE",
+    type: "EQUIPMENT",
+    description: "Hacking Devices are the tools used during cybercombat. Multipurpose and versatile, these devices can be useful as support elements or to perform powerful cyberattacks, depending on the Device.",
+    labels: ["Comms Equipment"],
+    requirements: [
+    ],
+    effects: [
+        "Allows the use of the Assisted Fire, Controlled Jump, Enhanced Reaction, and Fairy Dust Hacking Programs.",
+    ],
+    important: [
+    ],
+    remember: [
+    ],
+}

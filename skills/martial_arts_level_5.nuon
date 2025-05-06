@@ -1,0 +1,19 @@
+{
+    name: "MARTIAL ARTS LEVEL 5",
+    type: "AUTOMATIC SKILL",
+    description: "Thanks to intense training, Troopers with this Special Skill have superior hand- to- hand skills that translate into advantages to their Close Combat abilities.",
+    labels: ["CC Special Skill", "Optional"],
+    requirements: [
+        "In the Active or Reactive Turn, the Trooper must reach or be in Silhouette contact with the target and declare a CC Attack.",
+    ],
+    effects: [
+        "Attack MOD: CC+3",
+        "Opponent MOD: ATTR-3",
+        "Burst MOD: +1B, +1 SD",
+    ],
+    important: [
+        "The MODs in the Martial Arts Chart are applied in both the Active Turn and the Reactive Turn.",
+    ],
+    remember: [
+    ],
+}

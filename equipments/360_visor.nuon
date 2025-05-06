@@ -1,0 +1,15 @@
+{
+    name: "360° VISOR",
+    type: "AUTOMATIC EQUIPMENT",
+    description: "This piece of Equipment expands the user’s LoF arc.",
+    labels: ["Obligatory"],
+    requirements: [
+    ],
+    effects: [
+        "This type of Visor provides its user with a 360 ̊ LoF arc, rather than the usual 180 ̊ arc.",
+    ],
+    important: [
+    ],
+    remember: [
+    ],
+}

@@ -1,0 +1,15 @@
+{
+    name: "HACKING DEVICE PLUS",
+    type: "EQUIPMENT",
+    description: "Hacking Devices are the tools used during cybercombat. Multipurpose and versatile, these devices can be useful as support elements or to perform powerful cyberattacks, depending on the Device.",
+    labels: ["Comms Equipment"],
+    requirements: [
+    ],
+    effects: [
+        "Allows the use of the Carbonite, Cybermask, Oblivion, Spotlight, Total Control, and White Noise Hacking Programs.",
+    ],
+    important: [
+    ],
+    remember: [
+    ],
+}
