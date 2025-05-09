@@ -5,14 +5,17 @@ use common.nu [
 
 const CACHE =  "~/.cache/infinity/" | path expand
 
-const SKILL_FONT = { fontfile: $REGULAR_FONT, fontcolor: "black", fontsize: 10 }
-const SKILL_BOLD_FONT = { fontfile: $BOLD_FONT, fontcolor: "white", fontsize: 20 }
-const SKILL_TYPE_FONT = { fontfile: $BOLD_FONT, fontcolor: "white", fontsize: 18 }
+const PARAMETERS = {
+    font: { fontfile: $REGULAR_FONT, fontcolor: "black", fontsize: 10 },
+    bold_font: { fontfile: $BOLD_FONT, fontcolor: "white", fontsize: 20 },
+    type_font: { fontfile: $BOLD_FONT, fontcolor: "white", fontsize: 18 },
+    margin: 20,
+    border: 5,
+    text: { x: 10, y: 10 },
+    max_chars: 60,
+}
 
-const SKILL_MARGIN = 20
-const SKILL_BORDER = 5
-
-export def generate-equipment-or-skill-card [equipment_or_skill: record]: [
+export def generate-equipment-or-skill-card [equipment_or_skill: record, parameters = $PARAMETERS]: [
     nothing -> record<asset: path, width: int>
 ]  {
     let eq_or_s = if ($equipment_or_skill.effects | describe --detailed).type == "record" {
@@ -34,49 +37,34 @@ export def generate-equipment-or-skill-card [equipment_or_skill: record]: [
         $equipment_or_skill
     }
 
-    # the charts page is 4 cells wide, i.e. the width of
-    # each skill card allows to fit exactly 4 of them horizontally
-    let skill_max_chars = 60 * $eq_or_s.pos.w + (6 * ($eq_or_s.pos.w - 1))
-    let skill_width = (
-        $skill_max_chars * $SKILL_FONT.fontsize * 6 // 10 +
+    let width = (
+        $parameters.max_chars * $parameters.font.fontsize * 6 // 10 +
         20 +
-        2 * $SKILL_BORDER +
-        2 * ($eq_or_s.pos.w - 1)
+        2 * $parameters.border
     )
 
-    let hash = [
-        ($eq_or_s | to nuon),
-        $SKILL_FONT,
-        $SKILL_BOLD_FONT,
-        $SKILL_TYPE_FONT,
-        $skill_max_chars,
-        $SKILL_MARGIN,
-        $SKILL_BORDER,
-        $skill_width,
-    ]
-    | str join ''
-    | hash sha256
+    let hash = [ ($eq_or_s | to nuon), ($parameters | to nuon), $width, ] | str join '' | hash sha256
     let output = $CACHE | path join "assets/" $"($eq_or_s.stats_name | str replace --all ' ' '_')-($hash).png"
 
     if ($output | path exists) {
         log debug $"getting asset for '($eq_or_s.name)' from (ansi purple)($output | path parse | get stem)(ansi reset)"
-        return { asset: $output, width: $skill_width }
+        return { asset: $output, width: $width }
     }
 
     mkdir ($output | path dirname)
 
-    let description = fit-items-in-width ($eq_or_s.description | split row " ") $skill_max_chars --separator " "
+    let description = fit-items-in-width ($eq_or_s.description | split row " ") $parameters.max_chars --separator " "
     let requirements = $eq_or_s.requirements | each {
         # FIXME: no idea why this is IO call is required...
         print --no-newline ""
-        fit-items-in-width ($in | split row " ") ($skill_max_chars - 2) --separator " " | each { str join " " }
+        fit-items-in-width ($in | split row " ") ($parameters.max_chars - 2) --separator " " | each { str join " " }
     }
     let effects = $eq_or_s.effects | each { |it|
         # FIXME: no idea why this is IO call is required...
         print --no-newline ""
         match ($it | describe --detailed).type {
             "string" => {
-                fit-items-in-width ($it | split row " ") ($skill_max_chars - 2) --separator " " | each { str join " " }
+                fit-items-in-width ($it | split row " ") ($parameters.max_chars - 2) --separator " " | each { str join " " }
             },
             "list" => {
                 $it | each { |it_2|
@@ -84,13 +72,13 @@ export def generate-equipment-or-skill-card [equipment_or_skill: record]: [
                     print --no-newline ""
                     match ($it_2 | describe --detailed).type {
                         "string" => {
-                            fit-items-in-width ($it_2 | split row " ") ($skill_max_chars - 4) --separator " " | each { str join " " }
+                            fit-items-in-width ($it_2 | split row " ") ($parameters.max_chars - 4) --separator " " | each { str join " " }
                         },
                         "list" => {
                             $it_2 | each { |it_3|
                                 # FIXME: no idea why this is IO call is required...
                                 print --no-newline ""
-                                fit-items-in-width ($it_3 | split row " ") ($skill_max_chars - 6) --separator " " | each { str join " " }
+                                fit-items-in-width ($it_3 | split row " ") ($parameters.max_chars - 6) --separator " " | each { str join " " }
                             }
                         }
                     }
@@ -101,16 +89,13 @@ export def generate-equipment-or-skill-card [equipment_or_skill: record]: [
     let important = $eq_or_s.important | each {
         # FIXME: no idea why this is IO call is required...
         print --no-newline ""
-        fit-items-in-width ($in | split row " ") ($skill_max_chars - 2) --separator " " | each { str join " " }
+        fit-items-in-width ($in | split row " ") ($parameters.max_chars - 2) --separator " " | each { str join " " }
     }
     let remember = $eq_or_s.remember | each {
         # FIXME: no idea why this is IO call is required...
         print --no-newline ""
-        fit-items-in-width ($in | split row " ") ($skill_max_chars - 2) --separator " " | each { str join " " }
+        fit-items-in-width ($in | split row " ") ($parameters.max_chars - 2) --separator " " | each { str join " " }
     }
-
-    let text_x = 10
-    let text_y = 10
 
     let color = match $eq_or_s.type {
         "AUTOMATIC SKILL"
@@ -125,15 +110,15 @@ export def generate-equipment-or-skill-card [equipment_or_skill: record]: [
         _                        => "0xffffff",
     }
 
-    let description_y = $text_y + 2 * $SKILL_BOLD_FONT.fontsize + $SKILL_MARGIN
-    let labels_y = $description_y + ($description | length) * $SKILL_FONT.fontsize + $SKILL_MARGIN // 2
-    let requirements_y = $labels_y + ($SKILL_FONT.fontsize + $SKILL_MARGIN)
+    let description_y = $parameters.text.y + 2 * $parameters.bold_font.fontsize + $parameters.margin
+    let labels_y = $description_y + ($description | length) * $parameters.font.fontsize + $parameters.margin // 2
+    let requirements_y = $labels_y + ($parameters.font.fontsize + $parameters.margin)
     let effects_y = if not ($requirements | is-empty) {
-        $requirements_y + $SKILL_BOLD_FONT.fontsize + ($requirements | each { length } | math sum) * $SKILL_FONT.fontsize + $SKILL_MARGIN
+        $requirements_y + $parameters.bold_font.fontsize + ($requirements | each { length } | math sum) * $parameters.font.fontsize + $parameters.margin
     } else {
         $requirements_y
     }
-    let important_y = $effects_y + $SKILL_BOLD_FONT.fontsize + (
+    let important_y = $effects_y + $parameters.bold_font.fontsize + (
         # TODO: find a better way to flatten these
         $effects | each { |subline|
             match ($subline | describe --detailed).type {
@@ -155,9 +140,9 @@ export def generate-equipment-or-skill-card [equipment_or_skill: record]: [
                 },
             }
         } | math sum
-    ) * $SKILL_FONT.fontsize + $SKILL_MARGIN
+    ) * $parameters.font.fontsize + $parameters.margin
     let remember_y = if not ($important | is-empty) {
-        $important_y + $SKILL_BOLD_FONT.fontsize + ($important | each { length } | math sum) * $SKILL_FONT.fontsize + $SKILL_MARGIN
+        $important_y + $parameters.bold_font.fontsize + ($important | each { length } | math sum) * $parameters.font.fontsize + $parameters.margin
     } else {
         $important_y
     }
@@ -169,22 +154,22 @@ export def generate-equipment-or-skill-card [equipment_or_skill: record]: [
             return []
         }
 
-        let title_transform = ffmpeg-text $title { x: ($text_x + 5), y: $"($y)-th/2" } $SKILL_BOLD_FONT
+        let title_transform = ffmpeg-text $title { x: (1.5 * $parameters.text.x), y: $"($y)-th/2" } $parameters.bold_font
 
         let box_transform = {
             kind: "drawbox",
             options: {
-                x: $"($skill_width)/2-w/2",
+                x: $"($width)/2-w/2",
                 y: $"($y)-h/2",
-                w: ($skill_width - 20),
-                h: $SKILL_BOLD_FONT.fontsize,
+                w: ($width - 20),
+                h: $parameters.bold_font.fontsize,
                 color: $color,
                 t: "fill",
             },
         }
 
         let transforms = $items
-                | reduce --fold { y: ($y + $SKILL_BOLD_FONT.fontsize), ts: [] } { |it, acc|
+                | reduce --fold { y: ($y + $parameters.bold_font.fontsize), ts: [] } { |it, acc|
                     # FIXME: no idea why this is IO call is required...
                     print --no-newline ""
                     let res = $it
@@ -238,14 +223,14 @@ export def generate-equipment-or-skill-card [equipment_or_skill: record]: [
                     | enumerate
                     | each {
                         let pos = {
-                            x: ($text_x + 10),
-                            y: ($acc.y + $in.index * $SKILL_FONT.fontsize),
+                            x: ($parameters.text.x + 10),
+                            y: ($acc.y + $in.index * $parameters.font.fontsize),
                         }
-                        ffmpeg-text $in.item $pos $SKILL_FONT
+                        ffmpeg-text $in.item $pos $parameters.font
                     }
 
                     {
-                        y: ($acc.y + ($res | length) * $SKILL_FONT.fontsize),
+                        y: ($acc.y + ($res | length) * $parameters.font.fontsize),
                         ts: ($acc.ts ++ $res),
                     }
                 }
@@ -255,24 +240,24 @@ export def generate-equipment-or-skill-card [equipment_or_skill: record]: [
     }
 
     let transforms = [
-        (ffmpeg-text $eq_or_s.name { x: $text_x, y: $text_y } $SKILL_BOLD_FONT),
+        (ffmpeg-text $eq_or_s.name { x: $parameters.text.x, y: $parameters.text.y } $parameters.bold_font),
         (ffmpeg-text $eq_or_s.type {
-            x: $"($skill_width)-($SKILL_BORDER)-tw",
-            y: $"(2 * ($SKILL_FONT.fontsize + $SKILL_MARGIN) - 5)-th",
-        } $SKILL_TYPE_FONT),
+            x: $"($width)-($parameters.border)-tw",
+            y: $"(2 * ($parameters.font.fontsize + $parameters.margin) - 5)-th",
+        } $parameters.type_font),
         ...(
             $description
                 | each { str join " " }
                 | enumerate
                 | each { |line|
                     let pos = {
-                        x: $text_x,
-                        y: ($description_y + $line.index * $SKILL_FONT.fontsize),
+                        x: $parameters.text.x,
+                        y: ($description_y + $line.index * $parameters.font.fontsize),
                     }
-                    ffmpeg-text $line.item $pos $SKILL_FONT
+                    ffmpeg-text $line.item $pos $parameters.font
                 }
         ),
-        (ffmpeg-text ($eq_or_s.labels | str join ", ") { x: $text_x, y: $labels_y } $SKILL_FONT),
+        (ffmpeg-text ($eq_or_s.labels | str join ", ") { x: $parameters.text.x, y: $labels_y } $parameters.font),
         ...(section $requirements "REQUIREMENTS" $requirements_y "0x333333"),
         ...(section $effects      "EFFECTS"      $effects_y      "0x666666"),
         ...(section $important    "IMPORTANT"    $important_y    $CORVUS_BELLI_COLORS.red),
@@ -285,10 +270,10 @@ export def generate-equipment-or-skill-card [equipment_or_skill: record]: [
         options: {
             x: 0,
             y: 0,
-            w: $skill_width,
-            h: (($transforms | last).options.y + $SKILL_FONT.fontsize + 10),
+            w: $width,
+            h: (($transforms | last).options.y + $parameters.font.fontsize + 10),
             color: $color,
-            t: $"($SKILL_BORDER)",
+            t: $"($parameters.border)",
         },
     }
 
@@ -297,8 +282,8 @@ export def generate-equipment-or-skill-card [equipment_or_skill: record]: [
         options: {
             x: 0,
             y: 0,
-            w: $skill_width,
-            h: (2 * ($SKILL_FONT.fontsize + $SKILL_MARGIN)),
+            w: $width,
+            h: (2 * ($parameters.font.fontsize + $parameters.margin)),
             color: $color,
             t: "fill",
         },
@@ -313,5 +298,5 @@ export def generate-equipment-or-skill-card [equipment_or_skill: record]: [
             [$border, $header_box] ++ $transforms | each { ffmpeg options }
         ) --output $output
 
-    { asset: $asset, width: $skill_width }
+    { asset: $asset, width: $width }
 }
