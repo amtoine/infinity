@@ -161,7 +161,7 @@ export def generate-equipment-or-skill-card [equipment_or_skill: record, paramet
             options: {
                 x: $"($width)/2-w/2",
                 y: $"($y)-h/2",
-                w: ($width - 20),
+                w: ($width - $parameters.margin),
                 h: $parameters.bold_font.fontsize,
                 color: $color,
                 t: "fill",
@@ -271,7 +271,7 @@ export def generate-equipment-or-skill-card [equipment_or_skill: record, paramet
             x: 0,
             y: 0,
             w: $width,
-            h: (($transforms | last).options.y + $parameters.font.fontsize + 10),
+            h: (($transforms | last).options.y + $parameters.font.fontsize + $parameters.margin // 2),
             color: $color,
             t: $"($parameters.border)",
         },
