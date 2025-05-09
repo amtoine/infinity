@@ -1,41 +1,79 @@
 use ../common.nu [
-    BOLD_FONT, REGULAR_FONT, BASE_IMAGE, CANVAS, CORVUS_BELLI_COLORS,
+    BOLD_FONT, REGULAR_FONT, BASE_COLOR, CANVAS, SCALE, CORVUS_BELLI_COLORS,
     put-version, ffmpeg-text, "parse modifier-from-skill", fit-items-in-width,
 ]
 use ../ffmpeg.nu [ "ffmpeg metadata" ]
 
 use ../skills-and-equipments.nu [ "generate-equipment-or-skill-card" ]
 
+const BASE_IMAGE = { kind: "color", options: {
+    c: $BASE_COLOR,
+    s: $"($CANVAS.w * $SCALE)x($CANVAS.h * $SCALE)",
+    d: 1,
+} }
+
 const RANGES = ['8"', '16"', '24"', '32"', '40"', '48"', '96"']
 const STATS = [
-    [field,                    short,  x   ];
-    [PS,                       PS,     750 ],
-    [B,                        B,      805 ],
-    [AMMUNITION,               AMMO,   905 ],
-    ["SAVING ROLL ATTRIBUTE",  ATTR,   1060],
-    ["NUMBER OF SAVING ROLLS", SR,     1200],
+    [field,                    short,  x              ];
+    [PS,                       PS,     (750  * $SCALE)],
+    [B,                        B,      (805  * $SCALE)],
+    [AMMUNITION,               AMMO,   (905  * $SCALE)],
+    ["SAVING ROLL ATTRIBUTE",  ATTR,   (1060 * $SCALE)],
+    ["NUMBER OF SAVING ROLLS", SR,     (1200 * $SCALE)],
 ]
 
-const CHART_RANGE_CELL_WIDTH = 50
+const CHART_RANGE_CELL_WIDTH = 50 * $SCALE
 
-const FONT = { fontfile: $REGULAR_FONT, fontcolor: "black", fontsize: 22 }
-const HEADER_FONT = { fontfile: $BOLD_FONT, fontcolor: "white", fontsize: 25 }
-const RANGES_FONT = { fontfile: $BOLD_FONT, fontcolor: "white", fontsize: ($HEADER_FONT.fontsize * 0.7) }
+const FONT =        { fontfile: $REGULAR_FONT, fontcolor: "black", fontsize: (22 * $SCALE) }
+const HEADER_FONT = { fontfile: $BOLD_FONT,    fontcolor: "white", fontsize: (25 * $SCALE) }
+const RANGES_FONT = { fontfile: $BOLD_FONT,    fontcolor: "white", fontsize: ($HEADER_FONT.fontsize * 0.7) }
 
-const SKILL_CARD_MARGIN = 8
-const SKILL_START = { x: 10, y: 10 }
+const SKILL_CARD_MARGIN = 8 * $SCALE
+const SKILL_START = { x: (10 * $SCALE), y: (10 * $SCALE) }
 
-const V_SPACE = 20
+const V_SPACE = 20 * $SCALE
 
 const HEADER_MAX_CHARS = 10
 const NAME_MAX_CHARS = 25
 const TRAITS_MAX_CHARS = 27
 
-const NAME_X = 140 + 20
+const NAME_X = (140 + 20) * $SCALE
 const RANGE_X = $NAME_X + $FONT.fontsize * ($NAME_MAX_CHARS * 0.33)
-const TRAITS_X = $CANVAS.w - 165 - 20
+const TRAITS_X = ($CANVAS.w - 165 - 20) * $SCALE
 
-const START_Y = 35
+const START_Y = 35 * $SCALE
+
+const HEADERS_BACKGROUND = {
+    kind: "drawbox",
+    options: {
+        x: 0,
+        y: $"($START_Y)+($HEADER_FONT.fontsize)-h/2",
+        w: ($CANVAS.w * $SCALE),
+        h: (3 * $HEADER_FONT.fontsize + 20 * $SCALE),
+        color: "0x333333",
+        t: "fill",
+    },
+}
+
+const RANGES_Y = (
+    $START_Y +
+    $HEADER_FONT.fontsize +
+    $HEADERS_BACKGROUND.options.h / 2 +
+    ($RANGES_FONT.fontsize + 20 * $SCALE) / 2 +
+    10 * $SCALE
+)
+
+const RANGES_BACKGROUND = {
+    kind: "drawbox",
+    options: {
+        x: 0,
+        y: $"($RANGES_Y)-h/2",
+        w: ($CANVAS.w * $SCALE),
+        h: ($RANGES_FONT.fontsize + 20 * $SCALE),
+        color: "0x555555",
+        t: "fill",
+    },
+}
 
 def put-weapons-charts [equipments: table<name: string, stats: record>]: [
     nothing -> record<y: int, ts: table<kind: string, options: record>>
@@ -59,35 +97,11 @@ def put-weapons-charts [equipments: table<name: string, stats: record>]: [
         }
     }
     | flatten
-    const HEADERS_BACKGROUND = {
-        kind: "drawbox",
-        options: {
-            x: 0,
-            y: $"($START_Y)+($HEADER_FONT.fontsize)-h/2",
-            w: $CANVAS.w,
-            h: (3 * $HEADER_FONT.fontsize + 20),
-            color: "0x333333",
-            t: "fill",
-        },
-    }
-
-    const RANGES_Y = $START_Y + $HEADER_FONT.fontsize + $HEADERS_BACKGROUND.options.h / 2 + ($RANGES_FONT.fontsize + 20) / 2 + 10
     let ranges_transforms = $RANGES | enumerate | each { |r|
         ffmpeg-text $r.item {
             x: $"($RANGE_X + $CHART_RANGE_CELL_WIDTH / 2 + $r.index * $CHART_RANGE_CELL_WIDTH)-tw/2",
             y: $"($RANGES_Y)-th/2",
         } $RANGES_FONT
-    }
-    const RANGES_BACKGROUND = {
-        kind: "drawbox",
-        options: {
-            x: 0,
-            y: $"($RANGES_Y)-h/2",
-            w: $CANVAS.w,
-            h: ($RANGES_FONT.fontsize + 20),
-            color: "0x555555",
-            t: "fill",
-        },
     }
 
     let transforms = $equipments | enumerate | reduce --fold {
@@ -128,7 +142,7 @@ def put-weapons-charts [equipments: table<name: string, stats: record>]: [
             options: {
                 x: 0,
                 y: $"($range_y)-h/2",
-                w: $CANVAS.w,
+                w: ($CANVAS.w * $SCALE),
                 h: $range_h,
                 color: (if ($eq.index mod 2) == 0 { "0xd0d0d0" } else { "0xc2c2c2" }),
                 t: "fill",

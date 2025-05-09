@@ -2,8 +2,7 @@ use ../ffmpeg.nu *
 use ../log.nu [ "log info", "log warning", "log error", "log debug" ]
 
 use ../common.nu [
-    BOLD_FONT, REGULAR_FONT, BASE_IMAGE,
-    put-version, ffmpeg-text, "parse modifier-from-skill",
+    BOLD_FONT, REGULAR_FONT, put-version, ffmpeg-text, "parse modifier-from-skill",
 ]
 use charts.nu gen-charts-page
 use stats.nu gen-stats-page

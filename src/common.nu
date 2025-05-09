@@ -9,14 +9,15 @@ export const DIRS = {
     icons:            ($ASSETS_DIR | path join "icons"),
 }
 
+export const SCALE = 1.00
 export const CANVAS = { w: 1600, h: 1000 }
-export const BASE_IMAGE = { kind: "color", options: { c: "0xffffff", s: $"($CANVAS.w)x($CANVAS.h)", d: 1 } }
+export const BASE_COLOR = "0xffffff"
 
 export const BOLD_FONT = "./adwaita-fonts-48.2/mono/AdwaitaMono-Bold.ttf"
 export const REGULAR_FONT = "./adwaita-fonts-48.2/mono/AdwaitaMono-Regular.ttf"
 
-const VERSION_POS = { x: $"($CANVAS.w)-tw-2", y: $"($CANVAS.h)-th-2" }
-const VERSION_FONT = { fontfile: $REGULAR_FONT, fontsize: 15, fontcolor: "black"}
+const VERSION_POS = { x: $"($CANVAS.w * $SCALE)-tw-2", y: $"($CANVAS.h * $SCALE)-th-2" }
+const VERSION_FONT = { fontfile: $REGULAR_FONT, fontsize: (15 * $SCALE), fontcolor: "black"}
 
 export const CORVUS_BELLI_COLORS = {
     green:  "0x76ac5d",

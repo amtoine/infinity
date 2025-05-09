@@ -1,5 +1,5 @@
 use common.nu [
-    BOLD_FONT, REGULAR_FONT, BASE_IMAGE, CANVAS, CORVUS_BELLI_COLORS,
+    BOLD_FONT, REGULAR_FONT, BASE_COLOR, CORVUS_BELLI_COLORS,
     put-version, ffmpeg-text, "parse modifier-from-skill", fit-items-in-width,
 ]
 
@@ -289,11 +289,11 @@ export def generate-equipment-or-skill-card [equipment_or_skill: record, paramet
         },
     }
 
-    let asset = ffmpeg create (
-            $BASE_IMAGE
-                | update options.s $"($border.options.w)x($border.options.h)"
-                | ffmpeg options
-        ) --output (mktemp --tmpdir infinity-XXXXXXX.png)
+    let asset = ffmpeg create ({ kind: "color", options: {
+        c: $BASE_COLOR,
+        s: $"($border.options.w)x($border.options.h)",
+        d: 1,
+    } } | ffmpeg options) --output (mktemp --tmpdir infinity-XXXXXXX.png)
         | ffmpeg mapply (
             [$border, $header_box] ++ $transforms | each { ffmpeg options }
         ) --output $output

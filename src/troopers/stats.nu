@@ -1,16 +1,30 @@
 use ../common.nu [
-    BOLD_FONT, REGULAR_FONT, BASE_IMAGE, CANVAS, DIRS,
+    BOLD_FONT, REGULAR_FONT, BASE_COLOR, CANVAS, DIRS, SCALE
     put-version, ffmpeg-text,
 ]
 
 use std iter
 
-const CANVAS_MARGINS = { top: 35, left: 35, right: 1560, bottom: 960 }
+const CANVAS_MARGINS = {
+    top: (35 * $SCALE),
+    left: (35 * $SCALE),
+    right: (($CANVAS.w - 40) * $SCALE),
+    bottom: (($CANVAS.h - 40) * $SCALE),
+}
 
-const FACTION_POS = { x: ($CANVAS_MARGINS.right - 105), y: ($CANVAS.h // 2) }
+const BASE_IMAGE = { kind: "color", options: {
+    c: $BASE_COLOR,
+    s: $"($CANVAS.w * $SCALE)x($CANVAS.h * $SCALE)",
+    d: 1,
+} }
+
+const FACTION_POS = {
+    x: ($CANVAS_MARGINS.right - 105 * $SCALE),
+    y: ($CANVAS.h * $SCALE // 2),
+}
 const MINI_OVERLAY = { kind: "overlay",  options: {
-    x: "320-w/2",
-    y: $"($CANVAS.h)-50-h",
+    x: $"(320 * $SCALE)-w/2",
+    y: $"($CANVAS.h * $SCALE)-(50 * $SCALE)-h",
 } }
 
 ################################################################################
@@ -19,172 +33,178 @@ const MINI_OVERLAY = { kind: "overlay",  options: {
 const ICON_BOX = {
     x: $CANVAS_MARGINS.left,
     y: $CANVAS_MARGINS.top,
-    w: (155 - $CANVAS_MARGINS.left),
-    h: (155 - $CANVAS_MARGINS.top),
+    w: (155 * $SCALE - $CANVAS_MARGINS.left),
+    h: (155 * $SCALE - $CANVAS_MARGINS.top),
 }
 
 const CHARACTERISTICS_BOX = {
     x: $CANVAS_MARGINS.left,
-    y: ($ICON_BOX.y + $ICON_BOX.h + 20),
-    w: (120 - $CANVAS_MARGINS.left),
+    y: ($ICON_BOX.y + $ICON_BOX.h + 20 * $SCALE),
+    w: (120 * $SCALE - $CANVAS_MARGINS.left),
     h: null,
 }
 # space between the trooper type and the first characteristics asset
-const CHARACTERISTICS_V_SPACE = 5
+const CHARACTERISTICS_V_SPACE = 5 * $SCALE
 # size of a characteristics asset
-const CHARACTERISTICS_IMAGE_SIZE = 70
+const CHARACTERISTICS_IMAGE_SIZE = 70 * $SCALE
 const CHARACTERISTICS_TYPE_POS = {
     x: $"($CHARACTERISTICS_BOX.x + $CHARACTERISTICS_BOX.w // 2)-tw/2",
-    y: $"($CHARACTERISTICS_BOX.y + 25)-th/2",
+    y: $"($CHARACTERISTICS_BOX.y + 25 * $SCALE)-th/2",
 }
-const CHARACTERISTICS_TYPE_FONT = { fontfile: $BOLD_FONT, fontcolor: "white", fontsize: 30 }
+const CHARACTERISTICS_TYPE_FONT = { fontfile: $BOLD_FONT, fontcolor: "white", fontsize: (30 * $SCALE) }
 ################################################################################
 
 ################################################################################
 ###### TOP #####################################################################
 ################################################################################
 const NAME_BOX = {
-    x: 480,
-    y: ($CANVAS_MARGINS.top + 45),
-    w: ($CANVAS_MARGINS.right - 480),
-    h: (160 - ($CANVAS_MARGINS.top + 45)),
+    x: (480 * $SCALE),
+    y: ($CANVAS_MARGINS.top + 45 * $SCALE),
+    w: ($CANVAS_MARGINS.right - 480 * $SCALE),
+    h: (160 * $SCALE - ($CANVAS_MARGINS.top + 45 * $SCALE)),
 }
-const NAME_OFFSET_X = 28
+const NAME_OFFSET_X = 28 * $SCALE
 const NAME_POS = { x: $"($NAME_BOX.x)+($NAME_OFFSET_X)", y: $"($NAME_BOX.y)+($NAME_BOX.h / 2)-th/2" }
-const NAME_FONT = { fontfile: $BOLD_FONT, fontcolor: "white", fontsize: 45 }
+const NAME_FONT = { fontfile: $BOLD_FONT, fontcolor: "white", fontsize: (45 * $SCALE) }
 
-const ISC_FONT = { fontfile: $REGULAR_FONT, fontcolor: "black", fontsize: 30 }
+const ISC_FONT = { fontfile: $REGULAR_FONT, fontcolor: "black", fontsize: (30 * $SCALE) }
 const ISC_POS = { x: ($NAME_BOX.x + $NAME_OFFSET_X), y: ($NAME_BOX.y - $ISC_FONT.fontsize) }
 const CLASSIFICATION_POS = { x: $"($NAME_BOX.x + $NAME_BOX.w - $NAME_OFFSET_X)-tw", y: $ISC_POS.y }
 
 const STAT_KEYS_BOX = {
     x: $NAME_BOX.x,
-    y: ($NAME_BOX.y + $NAME_BOX.h + 20),
+    y: ($NAME_BOX.y + $NAME_BOX.h + 20 * $SCALE),
     w: ($CANVAS_MARGINS.right - $NAME_BOX.x),
-    h: (245 - ($NAME_BOX.y + $NAME_BOX.h + 20)),
+    h: (245 * $SCALE - ($NAME_BOX.y + $NAME_BOX.h + 20 * $SCALE)),
 }
 const STAT_VALS_BOX = {
     x: $STAT_KEYS_BOX.x,
-    y: ($STAT_KEYS_BOX.y + $STAT_KEYS_BOX.h + 20),
+    y: ($STAT_KEYS_BOX.y + $STAT_KEYS_BOX.h + 20 * $SCALE),
     w: $STAT_KEYS_BOX.w,
     h: $STAT_KEYS_BOX.h,
 }
 # horizontal space between stats
-const STAT_H_SPACE = 108
+const STAT_H_SPACE = 108 * $SCALE
 # horizontal offset for the first stat (MOV)
-const STAT_OFFSET_X = 60
-const STAT_FONT = { fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: 30 }
+const STAT_OFFSET_X = 60 * $SCALE
+const STAT_FONT = { fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: (30 * $SCALE) }
 
 # offset to the bottom-left corner of the "stat values" box
-const ALLOWED_FACTIONS_OFFSET = { x: 50, y: 50 }
-const ALLOWED_FACTIONS_IMAGE_SIZE = 70
-const ALLOWED_FACTIONS_IMAGE_H_SPACE = 10
+const ALLOWED_FACTIONS_OFFSET = {
+    x: (50 * $SCALE),
+    y: (50 * $SCALE),
+}
+const ALLOWED_FACTIONS_IMAGE_SIZE = 70 * $SCALE
+const ALLOWED_FACTIONS_IMAGE_H_SPACE = 10 * $SCALE
 
 const SPECIAL_SKILLS_BOX = {
-    x: ($CANVAS_MARGINS.right - 425),
-    y: ($STAT_VALS_BOX.y + $STAT_VALS_BOX.h + 20),
-    w: 425,
+    x: ($CANVAS_MARGINS.right - 425 * $SCALE),
+    y: ($STAT_VALS_BOX.y + $STAT_VALS_BOX.h + 20 * $SCALE),
+    w: (425 * $SCALE),
     h: null,
 }
 # offset for the first special skill
-const SPECIAL_SKILLS_OFFSET = { x: 10, y: 80 }
+const SPECIAL_SKILLS_OFFSET = {
+    x: (10 * $SCALE),
+    y: (80 * $SCALE),
+}
 # the base height for the "special skill" box
-const SPECIAL_SKILLS_V_BASE = 100
+const SPECIAL_SKILLS_V_BASE = 100 * $SCALE
 # the vertical space between two special skills
-const SPECIAL_SKILLS_V_SPACE = 30
+const SPECIAL_SKILLS_V_SPACE = 30 * $SCALE
 const SPECIAL_SKILLS_TITLE_POS = {
     x: $"($SPECIAL_SKILLS_BOX.x)+($SPECIAL_SKILLS_OFFSET.x)",
-    y: $"($SPECIAL_SKILLS_BOX.y)+30-th/2",
+    y: $"($SPECIAL_SKILLS_BOX.y)+(30 * $SCALE)-th/2",
 }
-const SPECIAL_SKILLS_TITLE_FONT = { fontfile: $BOLD_FONT,    fontcolor: "white", fontsize: 32 }
-const SPECIAL_SKILLS_FONT       = { fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: 18 }
+const SPECIAL_SKILLS_TITLE_FONT = { fontfile: $BOLD_FONT,    fontcolor: "white", fontsize: (32 * $SCALE) }
+const SPECIAL_SKILLS_FONT       = { fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: (18 * $SCALE) }
 ###### END TOP #################################################################
 
 ################################################################################
 ###### BOTTOM ##################################################################
 ################################################################################
-const EQUIPMENT_BOXES_V_SPACE = 20
-const EMPTY_EQUIPMENT_BOX_HEIGHT = 60
-const FULL_EQUIPMENT_BOX_HEIGHT = 105
+const EQUIPMENT_BOXES_V_SPACE = 20 * $SCALE
+const EMPTY_EQUIPMENT_BOX_HEIGHT = 60 * $SCALE
+const FULL_EQUIPMENT_BOX_HEIGHT = 105 * $SCALE
 
 # the most bottom "equipment" box, i.e. the "peripheral" one, used as a base for
 # the other "equipment" boxes
 const EQUIPMENT_BOX = {
     x: $CANVAS_MARGINS.left,
     y: ($CANVAS_MARGINS.bottom - $FULL_EQUIPMENT_BOX_HEIGHT),
-    w: (790 - $CANVAS_MARGINS.left),
+    w: (790 * $SCALE - $CANVAS_MARGINS.left),
     h: null,
 }
 # the horizontal offset of text in "equipment" boxes
-const EQUIPMENT_OFFSET_X = 10
+const EQUIPMENT_OFFSET_X = 10 * $SCALE
 const EQUIPMENT_TITLE_POS = { x: $"($EQUIPMENT_BOX.x)+($EQUIPMENT_OFFSET_X)", y: $"($EQUIPMENT_BOX.y +  4 / 15 * $FULL_EQUIPMENT_BOX_HEIGHT)-th/2" }
 const EQUIPMENT_POS =       { x: $"($EQUIPMENT_BOX.x)+($EQUIPMENT_OFFSET_X)", y: $"($EQUIPMENT_BOX.y + 11 / 15 * $FULL_EQUIPMENT_BOX_HEIGHT)-th/2" }
-const EQUIPMENT_FONT_SIZE = 22
-const EQUIPMENT_TITLE_FONT = { fontfile: $BOLD_FONT, fontcolor: "white", fontsize: ($EQUIPMENT_FONT_SIZE + 6) }
+const EQUIPMENT_FONT_SIZE = 22 * $SCALE
+const EQUIPMENT_TITLE_FONT = { fontfile: $BOLD_FONT, fontcolor: "white", fontsize: ($EQUIPMENT_FONT_SIZE + 6 * $SCALE) }
 const EQUIPMENT_FONT = { fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: $EQUIPMENT_FONT_SIZE }
 
 # used to build lists of things dynamically
 const LIST_SEPARATOR = ", "
-const LIST_SEPARATOR_V_OFFSET = 10
+const LIST_SEPARATOR_V_OFFSET = 10 * $SCALE
 # the horizontal space a character takes in the "equipment" lists
 const EQUIPMENT_CHAR_SIZE = $EQUIPMENT_FONT.fontsize * 0.6
 
 # the vertical row positions in the bottom base "equipment" box, i.e. the "peripheral" box
-const BOTTOM_FIRST_ROW_Y = 885
-const BOTTOM_SECOND_ROW_Y = 930
+const BOTTOM_FIRST_ROW_Y = 885 * $SCALE
+const BOTTOM_SECOND_ROW_Y = 930 * $SCALE
 
 const MELEE_BOX = {
-    x: ($EQUIPMENT_BOX.x + $EQUIPMENT_BOX.w + 20),
+    x: ($EQUIPMENT_BOX.x + $EQUIPMENT_BOX.w + 20 * $SCALE),
     y: ($CANVAS_MARGINS.bottom - $FULL_EQUIPMENT_BOX_HEIGHT),
-    w: (1335 - ($EQUIPMENT_BOX.x + $EQUIPMENT_BOX.w + 20)),
+    w: (1335 * $SCALE - ($EQUIPMENT_BOX.x + $EQUIPMENT_BOX.w + 20 * $SCALE)),
     h: $FULL_EQUIPMENT_BOX_HEIGHT,
 }
 # the horizontal offset of text in "melee" box
-const MELEE_OFFSET_X = 10
+const MELEE_OFFSET_X = 10 * $SCALE
 const MELEE_WEAPONS_TITLE_POS = { x: $"($MELEE_BOX.x)+($MELEE_OFFSET_X)", y: $"($MELEE_BOX.y +  4 / 15 * $FULL_EQUIPMENT_BOX_HEIGHT)-th/2" }
 const MELEE_WEAPONS_POS =       { x: $"($MELEE_BOX.x)+($MELEE_OFFSET_X)", y: $"($MELEE_BOX.y + 11 / 15 * $FULL_EQUIPMENT_BOX_HEIGHT)-th/2" }
-const MELEE_FONT_SIZE = 22
-const MELEE_WEAPONS_TITLE_FONT  = { fontfile: $BOLD_FONT, fontcolor: "white", fontsize: ($MELEE_FONT_SIZE + 6) }
+const MELEE_FONT_SIZE = 22 * $SCALE
+const MELEE_WEAPONS_TITLE_FONT  = { fontfile: $BOLD_FONT, fontcolor: "white", fontsize: ($MELEE_FONT_SIZE + 6 * $SCALE) }
 const MELEE_WEAPONS_FONT = { fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: $MELEE_FONT_SIZE }
 
 const SWC_BOX = {
-    x: ($MELEE_BOX.x + $MELEE_BOX.w + 20),
+    x: ($MELEE_BOX.x + $MELEE_BOX.w + 20 * $SCALE),
     y: ($CANVAS_MARGINS.bottom - $FULL_EQUIPMENT_BOX_HEIGHT),
-    w: (1445 - ($MELEE_BOX.x + $MELEE_BOX.w + 20)),
+    w: (1445 * $SCALE - ($MELEE_BOX.x + $MELEE_BOX.w + 20 * $SCALE)),
     h: $FULL_EQUIPMENT_BOX_HEIGHT,
 }
 const SWC_TITLE_POS = { x: $"($SWC_BOX.x)+($SWC_BOX.w // 2)-tw/2", y: $"($SWC_BOX.y +  4 / 15 * $FULL_EQUIPMENT_BOX_HEIGHT)-th/2" }
 const SWC_POS =       { x: $"($SWC_BOX.x)+($SWC_BOX.w // 2)-tw/2", y: $"($SWC_BOX.y + 11 / 15 * $FULL_EQUIPMENT_BOX_HEIGHT)-th/2" }
-const SWC_FONT_SIZE = 30
+const SWC_FONT_SIZE = 30 * $SCALE
 const SWC_TITLE_FONT = { fontfile: $BOLD_FONT, fontcolor: "white", fontsize: $SWC_FONT_SIZE }
 const SWC_FONT = { fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: $SWC_FONT_SIZE }
 
 const C_BOX = {
-    x: ($SWC_BOX.x + $SWC_BOX.w + 15),
+    x: ($SWC_BOX.x + $SWC_BOX.w + 15 * $SCALE),
     y: ($CANVAS_MARGINS.bottom - $FULL_EQUIPMENT_BOX_HEIGHT),
-    w: ($CANVAS_MARGINS.right - ($SWC_BOX.x + $SWC_BOX.w + 15)),
+    w: ($CANVAS_MARGINS.right - ($SWC_BOX.x + $SWC_BOX.w + 15 * $SCALE)),
     h: $FULL_EQUIPMENT_BOX_HEIGHT,
 }
 const C_TITLE_POS = { x: $"($C_BOX.x)+($C_BOX.w // 2)-tw/2", y: $"($C_BOX.y +  4 / 15 * $FULL_EQUIPMENT_BOX_HEIGHT)-th/2" }
 const C_POS =       { x: $"($C_BOX.x)+($C_BOX.w // 2)-tw/2", y: $"($C_BOX.y + 11 / 15 * $FULL_EQUIPMENT_BOX_HEIGHT)-th/2" }
-const C_FONT_SIZE = 30
+const C_FONT_SIZE = 30 * $SCALE
 const C_TITLE_FONT = { fontfile: $BOLD_FONT, fontcolor: "white", fontsize: $C_FONT_SIZE }
 const C_FONT = { fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: $C_FONT_SIZE }
 
-const QR_CODE_SIZE = 4     # passed to --size
-const QR_CODE_MARGIN = 1   # passed to --margin
-const QR_CODE_WIDTH = 105  # the final width of the QR code
+const QR_CODE_SIZE = 4              # passed to --size
+const QR_CODE_MARGIN = 1            # passed to --margin
+const QR_CODE_WIDTH = 105 * $SCALE  # the final width of the QR code
 
 const NAME_2_BOX = {
-    x: ($EQUIPMENT_BOX.x + $EQUIPMENT_BOX.w + 20),
-    y: ($MELEE_BOX.y - 15 - 55),
-    w: ($CANVAS_MARGINS.right - ($QR_CODE_WIDTH + 10) - ($EQUIPMENT_BOX.x + $EQUIPMENT_BOX.w + 20)),
-    h: 55,
+    x: ($EQUIPMENT_BOX.x + $EQUIPMENT_BOX.w + 20 * $SCALE),
+    y: ($MELEE_BOX.y - 15 * $SCALE - 55 * $SCALE),
+    w: ($CANVAS_MARGINS.right - ($QR_CODE_WIDTH + 10 * $SCALE) - ($EQUIPMENT_BOX.x + $EQUIPMENT_BOX.w + 20 * $SCALE)),
+    h: (55 * $SCALE),
 }
 # the horizontal offset of text in "name 2" box
-const NAME_2_OFFSET_X = 10
+const NAME_2_OFFSET_X = 10 * $SCALE
 const NAME_2_POS = { x: $"($NAME_2_BOX.x)+($NAME_2_OFFSET_X)", y: $"($NAME_2_BOX.y)+($NAME_2_BOX.h / 2)-th/2" }
-const NAME_2_FONT = { fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: 30 }
+const NAME_2_FONT = { fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: (30 * $SCALE) }
 
 const QR_CODE_OVERLAY = { kind: "overlay",  options: {
     x: $"($CANVAS_MARGINS.right)-w",
@@ -195,7 +215,7 @@ const QR_CODE_OVERLAY = { kind: "overlay",  options: {
 # marks "spec" equipments or skill in bold
 def equipment-or-skill-to-text [
     equipment_or_skill,  # string | record<name: string, mod?: string, spec?: bool>
-    base_font: record<fontfile: path, fontcolor: string, fontsize: int>,
+    base_font: record<fontfile: path, fontcolor: string, fontsize: number>,
     pos: record<x: any, y: any>,
 ]: [ nothing -> record<transform: record, text: string> ] {
     let equipment_or_skill = match ($equipment_or_skill | describe --detailed).type {
@@ -220,7 +240,7 @@ def equipment-or-skill-to-text [
 def equipments-to-text [
     x: record<
         equipments: list<any>,
-        box: record<x: int, y: int, w: int, h: int>,
+        box: record<x: number, y: number, w: number, h: number>,
         title_pos: record<x: any, y: any>,
         text_pos: record<x: any, y: any>,
     >
