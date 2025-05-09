@@ -26,18 +26,18 @@
         AVA:   3,
     }
     special_skills: [
-        [ name,                   mod,        pos                      ];
-        [ "Climbing Plus",        null,       { y: 340, c:  1, w:  2 } ],
-        [ "Courage",              null,       { y:   0, c:  0, w:  1 } ],
-        [ "Dodge",                '+1"',      { y:  -1, c: -1, w: -1 } ],
-        [ "Immunity",             "Enhanced", { y:   0, c:  1, w:  2 } ],
-        [ "Martial Arts",         "L1",       { y: 240, c:  0, w:  1 } ],
-        [ "Terrain",              "Zero-G",   { y:   0, c:  3, w:  1 } ],
-        [ "Specialist Operative", null,       { y: 560, c:  3, w:  1 } ],
+        [ name,                   mod,        ];
+        [ "Climbing Plus",        null,       ],
+        [ "Courage",              null,       ],
+        [ "Dodge",                '+1"',      ],
+        [ "Immunity",             "Enhanced", ],
+        [ "Martial Arts",         "L1",       ],
+        [ "Terrain",              "Zero-G",   ],
+        [ "Specialist Operative", null,       ],
     ],
     equipment: [
-        [ name,                   mod,        pos                      ];
-        [ "360° Visor",           null,       { y: 370, c:  3, w:  1 } ],
+        [ name,                   mod,  ];
+        [ "360° Visor",           null, ],
     ],
     weaponry: ["MULTI Rifle", "Heavy Riotstopper"],
     peripheral: [],
