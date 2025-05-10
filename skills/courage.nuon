@@ -6,9 +6,9 @@
     requirements: [
     ],
     effects: [
-        "Courage allows its user to choose to automatically pass any Guts Rolls.",
-        "Troopers with the Courage Special Skill are unaffected by Retreat! situations, so they cannot enter Retreat! State and act normally until the end of the game.",
-        "However, even in a Retreat! situation, Troops possessing Courage are affected by Loss of Lieutenant.",
+            "Choose to automatically pass Guts Rolls.",
+            "Unaffected by Retreat!; cannot enter Retreat! State and act normally.",
+            "Affected by Loss of Lieutenant in a Retreat! situation."
     ],
     important: [
     ],

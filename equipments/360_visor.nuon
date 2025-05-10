@@ -6,7 +6,7 @@
     requirements: [
     ],
     effects: [
-        "This type of Visor provides its user with a 360 ̊ LoF arc, rather than the usual 180 ̊ arc.",
+        "Provides a 360° LoF arc instead of the usual 180°.",
     ],
     important: [
     ],
