@@ -381,8 +381,48 @@ export def gen-charts-page [
 
     let weapons_transforms = put-weapons-charts $weapons
 
+    let equipments_and_skills_transforms = if $no_equipments_or_skills {
+        []
+    } else {
+        $skills ++ $equipments
+            | each { |it|
+                # FIXME: no idea why this is IO call is required...
+                print --no-newline ""
+                let skill_card = generate-equipment-or-skill-card $it
+                let res = {
+                    asset: $skill_card.asset,
+                    transform: {
+                        kind: "overlay",
+                        options: {
+                            x: ($SKILL_START.x + $it.pos.c * (390 + $SKILL_CARD_MARGIN)),
+                            y: ($SKILL_START.y + ($weapons_transforms.y | into int) + $it.pos.y),
+                        },
+                    },
+                }
+
+                let shape = $res.asset | ffmpeg metadata | get streams | select width height
+
+                if $res.transform.options.x > $CANVAS.w or $res.transform.options.y > $CANVAS.h {
+                    log warning $"'($it.name)' outside for '($troop.name)'"
+                } else if (
+                    $res.transform.options.x + $shape.width > $CANVAS.w
+                    or
+                    $res.transform.options.y + $shape.height > $CANVAS.h
+                ) {
+                    log warning $"'($it.name)' partially outside for '($troop.name)'"
+                }
+
+                $res
+            }
+    }
+
     let res = ffmpeg create ($BASE_IMAGE | ffmpeg options) --output (mktemp --tmpdir infinity-XXXXXXX.png)
         | ffmpeg mapply ($weapons_transforms.ts | each { ffmpeg options }) --output (mktemp --tmpdir infinity-XXXXXXX.png)
+
+    let res = $equipments_and_skills_transforms
+        | reduce --fold $res { |it, acc|
+            [$acc, $it.asset] | ffmpeg combine ($it.transform | ffmpeg options) --output (mktemp --tmpdir infinity-XXXXXXX.png)
+        }
         | put-version
 
     let out = $output | path parse | update stem { $in ++ ".2" } | path join
