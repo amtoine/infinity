@@ -18,24 +18,25 @@ export const PARAMETERS = {
 export def generate-equipment-or-skill-card [equipment_or_skill: record, parameters = $PARAMETERS]: [
     nothing -> record<asset: path, width: int>
 ]  {
-    let eq_or_s = if ($equipment_or_skill.effects | describe --detailed).type == "record" {
-        if $equipment_or_skill.mod? == null {
-            $equipment_or_skill
-                | update effects { items { |k, v| $"($k): ($v | str join ' ')" } }
-        } else {
-            $equipment_or_skill
-                | update name { |it| $"($it.name) \(($it.mod)\)" }
-                | update effects {
-                    if $equipment_or_skill.mod in $in {
-                        $in | get $equipment_or_skill.mod
-                    } else {
-                        $in.Trait
-                    }
+    let eq_or_s = $equipment_or_skill
+        | if ($in.effects | describe --detailed).type == "record" {
+            if $in.mod? == null {
+                update effects { items { |k, v| $"($k): ($v | str join ' ')" } }
+            } else {
+                update effects { |it|
+                    $it.effects
+                        | get --ignore-errors $equipment_or_skill.mod
+                        | default $it.effects.Trait
                 }
+            }
+        } else {
+            $in
         }
-    } else {
-        $equipment_or_skill
-    }
+        | if $in.mod? != null {
+            update name { |it| $"($it.name) \(($it.mod)\)" }
+        } else {
+            $in
+        }
 
     let width = (
         $parameters.max_chars * $parameters.font.fontsize * 6 // 10 +
