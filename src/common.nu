@@ -45,9 +45,10 @@ export def "ffmpeg-text" [
     { kind: "drawtext", options: { text: $text, ...$position, ...$options } }
 }
 
-export def "put-version" []: [ path -> path ] {
+export def "put-version" [trooper: record]: [ path -> path ] {
+    let trooper_hash = $trooper | to nuon | hash sha256 | str substring 0..7
     let versions = open versions.json
-    let version_text = $"(git describe) [Army: ($versions.army), Rules: ($versions.rules)]"
+    let version_text = $"(git describe) [Army: ($versions.army), Rules: ($versions.rules), Trooper: ($trooper_hash)]"
     let out = mktemp --tmpdir infinity-XXXXXXX.png
     $in | ffmpeg apply ((ffmpeg-text $version_text $VERSION_POS $VERSION_FONT) | ffmpeg options) --output $out
 }

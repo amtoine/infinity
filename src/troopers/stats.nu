@@ -545,7 +545,7 @@ export def gen-stats-page [
             } | ffmpeg options) --output (mktemp --tmpdir infinity-XXXXXXX.png)
         }
 
-    let tmp = $tmp | put-version
+    let tmp = $tmp | put-version $troop
 
     let out = $output | path parse | update stem { $in ++ ".1" } | path join
     cp $tmp $out

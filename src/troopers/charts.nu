@@ -383,7 +383,7 @@ export def gen-charts-page [
 
     let res = ffmpeg create ($BASE_IMAGE | ffmpeg options) --output (mktemp --tmpdir infinity-XXXXXXX.png)
         | ffmpeg mapply ($weapons_transforms.ts | each { ffmpeg options }) --output (mktemp --tmpdir infinity-XXXXXXX.png)
-        | put-version
+        | put-version $troop
 
     let out = $output | path parse | update stem { $in ++ ".2" } | path join
     cp $res $out
