@@ -5,7 +5,7 @@ use common.nu [
 
 const CACHE =  "~/.cache/infinity/" | path expand
 
-const PARAMETERS = {
+export const PARAMETERS = {
     font: { fontfile: $REGULAR_FONT, fontcolor: "black", fontsize: 10 },
     bold_font: { fontfile: $BOLD_FONT, fontcolor: "white", fontsize: 20 },
     type_font: { fontfile: $BOLD_FONT, fontcolor: "white", fontsize: 18 },

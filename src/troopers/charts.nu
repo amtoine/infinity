@@ -5,6 +5,7 @@ use ../common.nu [
 use ../ffmpeg.nu [ "ffmpeg metadata" ]
 
 use ../skills-and-equipments.nu [ "generate-equipment-or-skill-card" ]
+use ../skills-and-equipments.nu
 
 const BASE_IMAGE = { kind: "color", options: {
     c: $BASE_COLOR,
@@ -388,7 +389,11 @@ export def gen-charts-page [
             | each { |it|
                 # FIXME: no idea why this is IO call is required...
                 print --no-newline ""
-                let skill_card = generate-equipment-or-skill-card $it
+                let skill_card = generate-equipment-or-skill-card $it (
+                    $skills_and_equipments.PARAMETERS | update max_chars {
+                        60 * $it.pos.w + (6 * ($it.pos.w - 1))
+                    }
+                )
                 let res = {
                     asset: $skill_card.asset,
                     transform: {
