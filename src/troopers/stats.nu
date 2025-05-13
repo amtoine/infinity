@@ -12,46 +12,46 @@ def get-options [options: record] {
     let icon_box = {
         x: ($options.margins.left + $options.margin),
         y: ($options.margins.top + $options.margin),
-        w: (155 * $options.scale.x - $options.margins.left),
-        h: (155 * $options.scale.y - $options.margins.top),
+        w: (0.096875 * $options.canvas.w - $options.margins.left),
+        h: (0.155000 * $options.canvas.h - $options.margins.top),
     }
 
     let characteristics_box = {
         x: ($options.margins.left + $options.margin),
-        y: ($icon_box.y + $icon_box.h + 20 * $options.scale.x + $options.margin),
-        w: (120 * $options.scale.x - $options.margins.left),
+        y: ($icon_box.y + $icon_box.h + 0.0125 * $options.canvas.w + $options.margin),
+        w: (0.075 * $options.canvas.w - $options.margins.left),
         h: null,
     }
     # space between the trooper type and the first characteristics asset
-    let characteristics_v_space = 5 * $options.scale.y
+    let characteristics_v_space = 0.005 * $options.canvas.h
     # size of a characteristics asset
-    let characteristics_image_size = 70 * $options.scale.x
+    let characteristics_image_size = 0.04375 * $options.canvas.w
     let characteristics_type_pos = {
         x: ($characteristics_box.x + $characteristics_box.w // 2),
-        y: ($characteristics_box.y + 25 * $options.scale.y),
+        y: ($characteristics_box.y + 0.025 * $options.canvas.h),
         alignment: $TEXT_ALIGNMENT.center,
     }
-    let characteristics_type_font = { fontfile: $BOLD_FONT, fontcolor: "white", fontsize: (30 * $options.scale.x) }
+    let characteristics_type_font = { fontfile: $BOLD_FONT, fontcolor: "white", fontsize: (0.01875 * $options.canvas.w) }
     ################################################################################
 
     ################################################################################
     ###### top #####################################################################
     ################################################################################
     let name_box = {
-        x: (480 * $options.scale.x + $options.margin),
-        y: ($options.margins.top + 45 * $options.scale.y + $options.margin),
-        w: ($options.margins.right - 480 * $options.scale.x),
-        h: (160 * $options.scale.y - ($options.margins.top + 45 * $options.scale.y)),
+        x: (0.3 * $options.canvas.w + $options.margin),
+        y: ($options.margins.top + 0.045 * $options.canvas.h + $options.margin),
+        w: ($options.margins.right - 0.3 * $options.canvas.w),
+        h: (0.160 * $options.canvas.h - ($options.margins.top + 0.045 * $options.canvas.h)),
     }
-    let name_offset_x = 28 * $options.scale.x
+    let name_offset_x = 0.0175 * $options.canvas.w
     let name_pos = {
         x: ($name_box.x + $name_offset_x)
         y: ($name_box.y + $name_box.h / 2),
         alignment: $TEXT_ALIGNMENT.left,
     }
-    let name_font = { fontfile: $BOLD_FONT, fontcolor: "white", fontsize: (45 * $options.scale.x) }
+    let name_font = { fontfile: $BOLD_FONT, fontcolor: "white", fontsize: (0.028125 * $options.canvas.w) }
 
-    let isc_font = { fontfile: $REGULAR_FONT, fontcolor: "black", fontsize: (30 * $options.scale.x) }
+    let isc_font = { fontfile: $REGULAR_FONT, fontcolor: "black", fontsize: (0.01875 * $options.canvas.w) }
     let isc_pos = {
         x: ($name_box.x + $name_offset_x),
         y: ($name_box.y - $isc_font.fontsize),
@@ -65,71 +65,71 @@ def get-options [options: record] {
 
     let stat_keys_box = {
         x: $name_box.x,
-        y: ($name_box.y + $name_box.h + 20 * $options.scale.y),
+        y: ($name_box.y + $name_box.h + 0.020 * $options.canvas.h),
         w: ($options.margins.right - $name_box.x + $options.margin),
-        h: (245 * $options.scale.y - ($name_box.y + $name_box.h + 20 * $options.scale.y - $options.margin)),
+        h: (0.245 * $options.canvas.h - ($name_box.y + $name_box.h + 0.020 * $options.canvas.h - $options.margin)),
     }
     let stat_vals_box = {
         x: $stat_keys_box.x,
-        y: ($stat_keys_box.y + $stat_keys_box.h + 20 * $options.scale.y),
+        y: ($stat_keys_box.y + $stat_keys_box.h + 0.020 * $options.canvas.h),
         w: $stat_keys_box.w,
         h: $stat_keys_box.h,
     }
     # horizontal space between stats
-    let stat_h_space = 108 * $options.scale.x
+    let stat_h_space = 0.0675 * $options.canvas.w
     # horizontal offset for the first stat (mov)
-    let stat_offset_x = 60 * $options.scale.x
-    let stat_font = { fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: (30 * $options.scale.x) }
+    let stat_offset_x = 0.0375 * $options.canvas.w
+    let stat_font = { fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: (0.01875 * $options.canvas.w) }
 
     # offset to the bottom-left corner of the "stat values" box
     let allowed_factions_offset = {
-        x: (50 * $options.scale.x),
-        y: (50 * $options.scale.y),
+        x: (0.03125 * $options.canvas.w),
+        y: (0.05000 * $options.canvas.h),
     }
-    let allowed_factions_image_size = 70 * $options.scale.x
-    let allowed_factions_image_h_space = 10 * $options.scale.x
+    let allowed_factions_image_size = 0.04375 * $options.canvas.w
+    let allowed_factions_image_h_space = 0.00625 * $options.canvas.w
 
     let special_skills_box = {
-        x: ($options.margins.right - 425 * $options.scale.x + $options.margin),
-        y: ($stat_vals_box.y + $stat_vals_box.h + 20 * $options.scale.y),
-        w: (425 * $options.scale.x),
+        x: ($options.margins.right - 0.265625 * $options.canvas.w + $options.margin),
+        y: ($stat_vals_box.y + $stat_vals_box.h + 0.020 * $options.canvas.h),
+        w: (0.265625 * $options.canvas.w),
         h: null,
     }
     # offset for the first special skill
     let special_skills_offset = {
-        x: (10 * $options.scale.x),
-        y: (80 * $options.scale.y),
+        x: (0.00625 * $options.canvas.w),
+        y: (0.080 * $options.canvas.h),
     }
     # the base height for the "special skill" box
-    let special_skills_v_base = 100 * $options.scale.y
+    let special_skills_v_base = 0.100 * $options.canvas.h
     # the vertical space between two special skills
-    let special_skills_v_space = 30 * $options.scale.y
+    let special_skills_v_space = 0.030 * $options.canvas.h
     let special_skills_title_pos = {
         x: ($special_skills_box.x + $special_skills_offset.x),
-        y: ($special_skills_box.y + 30 * $options.scale.y),
+        y: ($special_skills_box.y + 0.030 * $options.canvas.h),
         alignment: $TEXT_ALIGNMENT.left,
     }
-    let special_skills_title_font = { fontfile: $BOLD_FONT,    fontcolor: "white", fontsize: (32 * $options.scale.x) }
-    let special_skills_font       = { fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: (18 * $options.scale.x) }
+    let special_skills_title_font = { fontfile: $BOLD_FONT,    fontcolor: "white", fontsize: (0.02 * $options.canvas.w) }
+    let special_skills_font       = { fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: (0.01125 * $options.canvas.w) }
     ###### end top #################################################################
 
     ################################################################################
     ###### bottom ##################################################################
     ################################################################################
-    let equipment_boxes_v_space = 20 * $options.scale.y
-    let empty_equipment_box_height = 60 * $options.scale.y
-    let full_equipment_box_height = 105 * $options.scale.y
+    let equipment_boxes_v_space = 0.020 * $options.canvas.h
+    let empty_equipment_box_height = 0.060 * $options.canvas.h
+    let full_equipment_box_height = 0.105 * $options.canvas.h
 
     # the most bottom "equipment" box, i.e. the "peripheral" one, used as a base for
     # the other "equipment" boxes
     let equipment_box = {
         x: ($options.margins.left + $options.margin),
         y: ($options.margins.bottom - $full_equipment_box_height + $options.margin),
-        w: (790 * $options.scale.x - $options.margins.left),
+        w: (0.49375 * $options.canvas.w - $options.margins.left),
         h: null,
     }
     # the horizontal offset of text in "equipment" boxes
-    let equipment_offset_x = 10 * $options.scale.x
+    let equipment_offset_x = 0.00625 * $options.canvas.w
     let equipment_title_pos = {
         x: ($equipment_box.x + $equipment_offset_x),
         y: ($equipment_box.y +  4 / 15 * $full_equipment_box_height),
@@ -140,28 +140,28 @@ def get-options [options: record] {
         y: ($equipment_box.y + 11 / 15 * $full_equipment_box_height),
         alignment: $TEXT_ALIGNMENT.left,
     }
-    let equipment_font_size = 22 * $options.scale.x
-    let equipment_title_font = { fontfile: $BOLD_FONT, fontcolor: "white", fontsize: ($equipment_font_size + 6 * $options.scale.x) }
+    let equipment_font_size = 0.01375 * $options.canvas.w
+    let equipment_title_font = { fontfile: $BOLD_FONT, fontcolor: "white", fontsize: ($equipment_font_size + 0.00375 * $options.canvas.w) }
     let equipment_font = { fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: $equipment_font_size }
 
     # used to build lists of things dynamically
     let list_separator = ", "
-    let list_separator_v_offset = 10 * $options.scale.y
+    let list_separator_v_offset = 0.010 * $options.canvas.h
     # the horizontal space a character takes in the "equipment" lists
     let equipment_char_size = $equipment_font.fontsize * 0.6
 
     # the vertical row positions in the bottom base "equipment" box, i.e. the "peripheral" box
-    let bottom_first_row_y = 885 * $options.scale.y
-    let bottom_second_row_y = 930 * $options.scale.y
+    let bottom_first_row_y = 0.885 * $options.canvas.h
+    let bottom_second_row_y = 0.930 * $options.canvas.h
 
     let melee_box = {
-        x: ($equipment_box.x + $equipment_box.w + 20 * $options.scale.x),
+        x: ($equipment_box.x + $equipment_box.w + 0.0125 * $options.canvas.w),
         y: ($options.margins.bottom - $full_equipment_box_height + $options.margin),
-        w: (1335 * $options.scale.x - ($equipment_box.x + $equipment_box.w + 20 * $options.scale.x) + $options.margin),
+        w: (0.834375 * $options.canvas.w - ($equipment_box.x + $equipment_box.w + 0.0125 * $options.canvas.w) + $options.margin),
         h: $full_equipment_box_height,
     }
     # the horizontal offset of text in "melee" box
-    let melee_offset_x = 10 * $options.scale.x
+    let melee_offset_x = 0.00625 * $options.canvas.w
     let melee_weapons_title_pos = {
         x: ($melee_box.x + $melee_offset_x),
         y: ($melee_box.y +  4 / 15 * $full_equipment_box_height),
@@ -172,14 +172,14 @@ def get-options [options: record] {
         y: ($melee_box.y + 11 / 15 * $full_equipment_box_height),
         alignment: $TEXT_ALIGNMENT.left,
     }
-    let melee_font_size = 22 * $options.scale.x
-    let melee_weapons_title_font  = { fontfile: $BOLD_FONT, fontcolor: "white", fontsize: ($melee_font_size + 6 * $options.scale.x) }
+    let melee_font_size = 0.01375 * $options.canvas.w
+    let melee_weapons_title_font  = { fontfile: $BOLD_FONT, fontcolor: "white", fontsize: ($melee_font_size + 0.00375 * $options.canvas.w) }
     let melee_weapons_font = { fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: $melee_font_size }
 
     let swc_box = {
-        x: ($melee_box.x + $melee_box.w + 20 * $options.scale.x),
+        x: ($melee_box.x + $melee_box.w + 0.0125 * $options.canvas.w),
         y: ($options.margins.bottom - $full_equipment_box_height + $options.margin),
-        w: (1445 * $options.scale.x - ($melee_box.x + $melee_box.w + 15 * $options.scale.x) + $options.margin),
+        w: (0.903125 * $options.canvas.w - ($melee_box.x + $melee_box.w + 0.009375 * $options.canvas.w) + $options.margin),
         h: $full_equipment_box_height,
     }
     let swc_title_pos = {
@@ -192,14 +192,14 @@ def get-options [options: record] {
         y: ($swc_box.y + 11 / 15 * $full_equipment_box_height),
         alignment: $TEXT_ALIGNMENT.center,
     }
-    let swc_font_size = 30 * $options.scale.x
+    let swc_font_size = 0.01875 * $options.canvas.w
     let swc_title_font = { fontfile: $BOLD_FONT, fontcolor: "white", fontsize: $swc_font_size }
     let swc_font = { fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: $swc_font_size }
 
     let c_box = {
-        x: ($swc_box.x + $swc_box.w + 15 * $options.scale.x),
+        x: ($swc_box.x + $swc_box.w + 0.009375 * $options.canvas.w),
         y: ($options.margins.bottom - $full_equipment_box_height + $options.margin),
-        w: ($options.margins.right - ($swc_box.x + $swc_box.w + 15 * $options.scale.x - $options.margin)),
+        w: ($options.margins.right - ($swc_box.x + $swc_box.w + 0.009375 * $options.canvas.w - $options.margin)),
         h: $full_equipment_box_height,
     }
     let c_title_pos = {
@@ -212,28 +212,28 @@ def get-options [options: record] {
         y: ($c_box.y + 11 / 15 * $full_equipment_box_height),
         alignment: $TEXT_ALIGNMENT.center,
 }
-    let c_font_size = 30 * $options.scale.x
+    let c_font_size = 0.01875 * $options.canvas.w
     let c_title_font = { fontfile: $BOLD_FONT, fontcolor: "white", fontsize: $c_font_size }
     let c_font = { fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: $c_font_size }
 
     let qr_code_size = 4              # passed to --size
     let qr_code_margin = 1            # passed to --margin
-    let qr_code_width = 105 * $options.scale.x  # the final width of the qr code
+    let qr_code_width = 0.065625 * $options.canvas.w  # the final width of the qr code
 
     let name_2_box = {
-        x: ($equipment_box.x + $equipment_box.w + 20 * $options.scale.x),
-        y: ($melee_box.y - 15 * $options.scale.y - 55 * $options.scale.y),
-        w: ($options.margins.right - ($qr_code_width + 10 * $options.scale.x) - ($equipment_box.x + $equipment_box.w + 20 * $options.scale.x) + $options.margin),
-        h: (55 * $options.scale.y),
+        x: ($equipment_box.x + $equipment_box.w + 0.0125 * $options.canvas.w),
+        y: ($melee_box.y - 0.015 * $options.canvas.h - 0.055 * $options.canvas.h),
+        w: ($options.margins.right - ($qr_code_width + 0.00625 * $options.canvas.w) - ($equipment_box.x + $equipment_box.w + 0.0125 * $options.canvas.w) + $options.margin),
+        h: (0.055 * $options.canvas.h),
     }
     # the horizontal offset of text in "name 2" box
-    let name_2_offset_x = 10 * $options.scale.x
+    let name_2_offset_x = 0.00625 * $options.canvas.w
     let name_2_pos = {
         x: ($name_2_box.x + $name_2_offset_x),
         y: ($name_2_box.y + $name_2_box.h / 2),
         alignment: $TEXT_ALIGNMENT.left,
     }
-    let name_2_font = { fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: (30 * $options.scale.x) }
+    let name_2_font = { fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: (0.01875 * $options.canvas.w) }
 
     let qr_code_overlay = { kind: "overlay",  options: {
         x: $"($options.margins.right + $options.margin)-w",
@@ -251,17 +251,17 @@ def get-options [options: record] {
             },
         },
         faction_pos: {
-            x: ($options.margins.right - 105 * $options.scale.x + $options.margin),
+            x: ($options.margins.right - 0.065625 * $options.canvas.w + $options.margin),
             y: ($options.canvas.h / 2 + $options.margin),
         },
         mini_overlay: {
             kind: "overlay",
             options: {
-                x: $"(320 * $options.scale.x + $options.margin)-w/2",
-                y: $"($options.canvas.h - 50 * $options.scale.y + $options.margin)-h",
+                x: $"(0.2 * $options.canvas.w + $options.margin)-w/2",
+                y: $"($options.canvas.h - 0.050 * $options.canvas.h + $options.margin)-h",
             },
         },
-        box_border: (5 * $options.scale.x),
+        box_border: (0.003125 * $options.canvas.w),
         icon_box: $icon_box,
         characteristics_box: $characteristics_box,
         characteristics_v_space: $characteristics_v_space,
