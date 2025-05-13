@@ -13,6 +13,13 @@ export const SCALE = 1.00
 export const CANVAS = { w: 1600, h: 1000 }
 export const BASE_COLOR = "0xffffff"
 
+export const CANVAS_MARGINS = {
+    top: (35 * $SCALE),
+    left: (35 * $SCALE),
+    right: (($CANVAS.w - 40) * $SCALE),
+    bottom: (($CANVAS.h - 40) * $SCALE),
+}
+
 export const BOLD_FONT = "./adwaita-fonts-48.2/mono/AdwaitaMono-Bold.ttf"
 export const REGULAR_FONT = "./adwaita-fonts-48.2/mono/AdwaitaMono-Regular.ttf"
 

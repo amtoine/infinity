@@ -70,13 +70,13 @@ export def build-trooper-card [
     match [$stats, $charts] {
         [true, true] | [false, false] => {
             gen-stats-page $troop $color $output $modifiers
-            gen-charts-page $troop $output $modifiers
+            gen-charts-page $troop $color $output $modifiers
         },
         [true, false] => {
             gen-stats-page $troop $color $output $modifiers
         },
         [false, true] => {
-            gen-charts-page $troop $output $modifiers
+            gen-charts-page $troop $color $output $modifiers
         },
     }
 }

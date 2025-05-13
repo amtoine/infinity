@@ -1,16 +1,9 @@
 use ../common.nu [
-    BOLD_FONT, REGULAR_FONT, BASE_COLOR, CANVAS, DIRS, SCALE
+    BOLD_FONT, REGULAR_FONT, BASE_COLOR, CANVAS, DIRS, SCALE, CANVAS_MARGINS,
     put-version, ffmpeg-text,
 ]
 
 use std iter
-
-const CANVAS_MARGINS = {
-    top: (35 * $SCALE),
-    left: (35 * $SCALE),
-    right: (($CANVAS.w - 40) * $SCALE),
-    bottom: (($CANVAS.h - 40) * $SCALE),
-}
 
 const BASE_IMAGE = { kind: "color", options: {
     c: $BASE_COLOR,

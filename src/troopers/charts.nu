@@ -1,5 +1,6 @@
 use ../common.nu [
     BOLD_FONT, REGULAR_FONT, BASE_COLOR, CANVAS, SCALE, CORVUS_BELLI_COLORS,
+    CANVAS_MARGINS,
     put-version, ffmpeg-text, "parse modifier-from-skill", fit-items-in-width,
 ]
 use ../ffmpeg.nu [ "ffmpeg metadata" ]
@@ -11,6 +12,17 @@ const BASE_IMAGE = { kind: "color", options: {
     s: $"($CANVAS.w * $SCALE)x($CANVAS.h * $SCALE)",
     d: 1,
 } }
+
+const NAME_BOX = {
+    x: $CANVAS_MARGINS.left,
+    y: $CANVAS_MARGINS.top,
+    w: ($CANVAS_MARGINS.right - $CANVAS_MARGINS.left),
+    h: (55 * $SCALE),
+}
+const NAME_OFFSET_X = 28 * $SCALE
+const NAME_POS = { x: $"($NAME_BOX.x)+($NAME_OFFSET_X)", y: $"($NAME_BOX.y)+($NAME_BOX.h / 2)-th/2" }
+const NAME_FONT = { fontfile: $BOLD_FONT, fontcolor: "white", fontsize: (45 * $SCALE) }
+const BOX_BORDER = 5 * $SCALE
 
 const RANGES = ['8"', '16"', '24"', '32"', '40"', '48"', '96"']
 const STATS = [
@@ -41,7 +53,11 @@ const NAME_X = (140 + 20) * $SCALE
 const RANGE_X = $NAME_X + $FONT.fontsize * ($NAME_MAX_CHARS * 0.33)
 const TRAITS_X = ($CANVAS.w - 165 - 20) * $SCALE
 
-const START_Y = 35 * $SCALE
+const START_Y = (
+    $NAME_BOX.y +
+    $NAME_BOX.h +
+    $CANVAS_MARGINS.top
+)
 
 const HEADERS_BACKGROUND = {
     kind: "drawbox",
@@ -236,6 +252,7 @@ export def gen-charts-page [
         SWC: number,
         C: int
     >,
+    color: string,
     output: path,
     modifiers: table<name: string, mod: record>,
 ] {
@@ -380,8 +397,15 @@ export def gen-charts-page [
 
     let weapons_transforms = put-weapons-charts $weapons
 
+    let name_box_transforms = [
+        { kind: "drawbox",  options: { ...$NAME_BOX, color: $"($color)@1.0", t: "fill" } },
+        { kind: "drawbox",  options: { ...$NAME_BOX, color: "black@0.4",     t: $"($BOX_BORDER)" } },
+        (ffmpeg-text $troop.short_name $NAME_POS $NAME_FONT),
+    ]
+
     let res = ffmpeg create ($BASE_IMAGE | ffmpeg options) --output (mktemp --tmpdir infinity-XXXXXXX.png)
         | ffmpeg mapply ($weapons_transforms.ts | each { ffmpeg options }) --output (mktemp --tmpdir infinity-XXXXXXX.png)
+        | ffmpeg mapply ($name_box_transforms | each { ffmpeg options }) --output (mktemp --tmpdir infinity-XXXXXXX.png)
         | put-version $troop
 
     let out = $output | path parse | update stem { $in ++ ".2" } | path join
