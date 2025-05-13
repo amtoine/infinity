@@ -10,15 +10,15 @@ def get-options [options: record] {
     ###### icon and characteristics boxes ##########################################
     ################################################################################
     let icon_box = {
-        x: $options.margins.left,
-        y: $options.margins.top,
+        x: ($options.margins.left + $options.margin),
+        y: ($options.margins.top + $options.margin),
         w: (155 * $options.scale.x - $options.margins.left),
         h: (155 * $options.scale.y - $options.margins.top),
     }
 
     let characteristics_box = {
-        x: $options.margins.left,
-        y: ($icon_box.y + $icon_box.h + 20 * $options.scale.x),
+        x: ($options.margins.left + $options.margin),
+        y: ($icon_box.y + $icon_box.h + 20 * $options.scale.x + $options.margin),
         w: (120 * $options.scale.x - $options.margins.left),
         h: null,
     }
@@ -38,8 +38,8 @@ def get-options [options: record] {
     ###### top #####################################################################
     ################################################################################
     let name_box = {
-        x: (480 * $options.scale.x),
-        y: ($options.margins.top + 45 * $options.scale.y),
+        x: (480 * $options.scale.x + $options.margin),
+        y: ($options.margins.top + 45 * $options.scale.y + $options.margin),
         w: ($options.margins.right - 480 * $options.scale.x),
         h: (160 * $options.scale.y - ($options.margins.top + 45 * $options.scale.y)),
     }
@@ -66,8 +66,8 @@ def get-options [options: record] {
     let stat_keys_box = {
         x: $name_box.x,
         y: ($name_box.y + $name_box.h + 20 * $options.scale.y),
-        w: ($options.margins.right - $name_box.x),
-        h: (245 * $options.scale.y - ($name_box.y + $name_box.h + 20 * $options.scale.y)),
+        w: ($options.margins.right - $name_box.x + $options.margin),
+        h: (245 * $options.scale.y - ($name_box.y + $name_box.h + 20 * $options.scale.y - $options.margin)),
     }
     let stat_vals_box = {
         x: $stat_keys_box.x,
@@ -90,7 +90,7 @@ def get-options [options: record] {
     let allowed_factions_image_h_space = 10 * $options.scale.x
 
     let special_skills_box = {
-        x: ($options.margins.right - 425 * $options.scale.x),
+        x: ($options.margins.right - 425 * $options.scale.x + $options.margin),
         y: ($stat_vals_box.y + $stat_vals_box.h + 20 * $options.scale.y),
         w: (425 * $options.scale.x),
         h: null,
@@ -123,8 +123,8 @@ def get-options [options: record] {
     # the most bottom "equipment" box, i.e. the "peripheral" one, used as a base for
     # the other "equipment" boxes
     let equipment_box = {
-        x: $options.margins.left,
-        y: ($options.margins.bottom - $full_equipment_box_height),
+        x: ($options.margins.left + $options.margin),
+        y: ($options.margins.bottom - $full_equipment_box_height + $options.margin),
         w: (790 * $options.scale.x - $options.margins.left),
         h: null,
     }
@@ -156,8 +156,8 @@ def get-options [options: record] {
 
     let melee_box = {
         x: ($equipment_box.x + $equipment_box.w + 20 * $options.scale.x),
-        y: ($options.margins.bottom - $full_equipment_box_height),
-        w: (1335 * $options.scale.x - ($equipment_box.x + $equipment_box.w + 20 * $options.scale.x)),
+        y: ($options.margins.bottom - $full_equipment_box_height + $options.margin),
+        w: (1335 * $options.scale.x - ($equipment_box.x + $equipment_box.w + 20 * $options.scale.x) + $options.margin),
         h: $full_equipment_box_height,
     }
     # the horizontal offset of text in "melee" box
@@ -178,8 +178,8 @@ def get-options [options: record] {
 
     let swc_box = {
         x: ($melee_box.x + $melee_box.w + 20 * $options.scale.x),
-        y: ($options.margins.bottom - $full_equipment_box_height),
-        w: (1445 * $options.scale.x - ($melee_box.x + $melee_box.w + 20 * $options.scale.x)),
+        y: ($options.margins.bottom - $full_equipment_box_height + $options.margin),
+        w: (1445 * $options.scale.x - ($melee_box.x + $melee_box.w + 15 * $options.scale.x) + $options.margin),
         h: $full_equipment_box_height,
     }
     let swc_title_pos = {
@@ -198,8 +198,8 @@ def get-options [options: record] {
 
     let c_box = {
         x: ($swc_box.x + $swc_box.w + 15 * $options.scale.x),
-        y: ($options.margins.bottom - $full_equipment_box_height),
-        w: ($options.margins.right - ($swc_box.x + $swc_box.w + 15 * $options.scale.x)),
+        y: ($options.margins.bottom - $full_equipment_box_height + $options.margin),
+        w: ($options.margins.right - ($swc_box.x + $swc_box.w + 15 * $options.scale.x - $options.margin)),
         h: $full_equipment_box_height,
     }
     let c_title_pos = {
@@ -223,7 +223,7 @@ def get-options [options: record] {
     let name_2_box = {
         x: ($equipment_box.x + $equipment_box.w + 20 * $options.scale.x),
         y: ($melee_box.y - 15 * $options.scale.y - 55 * $options.scale.y),
-        w: ($options.margins.right - ($qr_code_width + 10 * $options.scale.x) - ($equipment_box.x + $equipment_box.w + 20 * $options.scale.x)),
+        w: ($options.margins.right - ($qr_code_width + 10 * $options.scale.x) - ($equipment_box.x + $equipment_box.w + 20 * $options.scale.x) + $options.margin),
         h: (55 * $options.scale.y),
     }
     # the horizontal offset of text in "name 2" box
@@ -236,7 +236,7 @@ def get-options [options: record] {
     let name_2_font = { fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: (30 * $options.scale.x) }
 
     let qr_code_overlay = { kind: "overlay",  options: {
-        x: $"($options.margins.right)-w",
+        x: $"($options.margins.right + $options.margin)-w",
         y: $"($name_2_box.y + $name_2_box.h)-h",
     } }
     ###### end bottom ##############################################################
@@ -245,20 +245,20 @@ def get-options [options: record] {
         base_image: {
             kind: "color",
             options: {
-                c: $BASE_COLOR,
-                s: $"($options.canvas.w)x($options.canvas.h)",
+                c: "0xaa3333",
+                s: $"($options.canvas.w + 2 * $options.margin)x($options.canvas.h + 2 * $options.margin)",
                 d: 1,
             },
         },
         faction_pos: {
-            x: ($options.margins.right - 105 * $options.scale.x),
-            y: ($options.canvas.h / 2),
+            x: ($options.margins.right - 105 * $options.scale.x + $options.margin),
+            y: ($options.canvas.h / 2 + $options.margin),
         },
         mini_overlay: {
             kind: "overlay",
             options: {
-                x: $"(320 * $options.scale.x)-w/2",
-                y: $"($options.canvas.h - 50 * $options.scale.y)-h",
+                x: $"(320 * $options.scale.x + $options.margin)-w/2",
+                y: $"($options.canvas.h - 50 * $options.scale.y + $options.margin)-h",
             },
         },
         box_border: (5 * $options.scale.x),
