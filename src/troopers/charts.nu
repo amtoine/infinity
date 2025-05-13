@@ -238,7 +238,6 @@ export def gen-charts-page [
     >,
     output: path,
     modifiers: table<name: string, mod: record>,
-    --no-equipments-or-skills,
 ] {
     let charts = ls charts/weapons/*.csv | reduce --fold [] { |it, acc|
         $acc ++ (open $it.name)
