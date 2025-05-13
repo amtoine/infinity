@@ -37,7 +37,7 @@ def get-options [options: record] {
         base_image: {
             kind: "color",
             options: {
-                c: $BASE_COLOR,
+                c:  "0xaa3333",
                 s: $"($options.canvas.w + 2 * $options.margin)x($options.canvas.h + 2 * $options.margin)",
                 d: 1,
             },
@@ -467,7 +467,14 @@ export def gen-charts-page [
         (ffmpeg-text $troop.short_name $options.name.text.pos $options.name.text.font),
     ]
 
+    let box = {
+        x: $options.margin,
+        y: $options.margin,
+        w: $options.canvas.w,
+        h: $options.canvas.h,
+    }
     let res = ffmpeg create ($options.base_image | ffmpeg options) --output (mktemp --tmpdir infinity-XXXXXXX.png)
+        | ffmpeg apply ({ kind: "drawbox",  options: { ...$box, color: $"0xffffff@1.0", t: "fill" } } | ffmpeg options) --output (mktemp --tmpdir infinity-XXXXXXX.png)
         | ffmpeg mapply ($weapons_transforms.ts | each { ffmpeg options }) --output (mktemp --tmpdir infinity-XXXXXXX.png)
         | ffmpeg mapply ($name_box_transforms | each { ffmpeg options }) --output (mktemp --tmpdir infinity-XXXXXXX.png)
         | put-version $troop $version
