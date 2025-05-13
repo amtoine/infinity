@@ -9,22 +9,60 @@ export const DIRS = {
     icons:            ($ASSETS_DIR | path join "icons"),
 }
 
-export const SCALE = 1.00
-export const CANVAS = { w: 1600, h: 1000 }
 export const BASE_COLOR = "0xffffff"
-
-export const CANVAS_MARGINS = {
-    top: (35 * $SCALE),
-    left: (35 * $SCALE),
-    right: (($CANVAS.w - 40) * $SCALE),
-    bottom: (($CANVAS.h - 40) * $SCALE),
-}
 
 export const BOLD_FONT = "./adwaita-fonts-48.2/mono/AdwaitaMono-Bold.ttf"
 export const REGULAR_FONT = "./adwaita-fonts-48.2/mono/AdwaitaMono-Regular.ttf"
 
-const VERSION_POS = { x: $"($CANVAS.w * $SCALE)-tw-2", y: $"($CANVAS.h * $SCALE)-th-2" }
-const VERSION_FONT = { fontfile: $REGULAR_FONT, fontsize: (15 * $SCALE), fontcolor: "black"}
+export const TEXT_ALIGNMENT = {
+    top_left     : { x:     "", y:     "" },
+    top          : { x: "tw/2", y:     "" },
+    top_right    : { x:   "tw", y:     "" },
+    left         : { x:     "", y: "th/2" },
+    center       : { x: "tw/2", y: "th/2" },
+    right        : { x:   "tw", y: "th/2" },
+    bottom_left  : { x:     "", y:   "th" },
+    bottom       : { x: "tw/2", y:   "th" },
+    bottom_right : { x:   "tw", y:   "th" },
+}
+
+export def get-options [w: int, h: int]: [
+    nothing -> record<
+        canvas: record<w: int, h: int>,
+        scale: record<x: float, y: float>,
+        margins: record<top: float, bottom: float, left: float, right: float>,
+        version: record<
+            pos: record<
+                x: float,
+                y: float,
+                alignment: record<x: string, y: string>,
+            >,
+            font: record<fontfile: path, fontsize: float, fontcolor: string>,
+        >,
+    >
+] { {
+    canvas: { w: $w, h: $h },
+    scale: { x: ($w / 1600), y: ($h / 1000) },
+    margins: {
+        top    : (0.035 * $h),
+        bottom : (0.965 * $h),
+        left   : (0.035 * $w),
+        right  : (0.965 * $w),
+    },
+    version: {
+        pos: {
+            x: ((1 - 2 / 1600) * $w),
+            y: ((1 - 2 / 1000) * $h),
+            alignment: $TEXT_ALIGNMENT.bottom_right,
+        },
+        font: { fontfile: $REGULAR_FONT, fontsize: (15 / 1600 * $w), fontcolor: "black" },
+    }
+} }
+
+export const BASE_COLOR = "0xffffff"
+
+export const BOLD_FONT = "./adwaita-fonts-48.2/mono/AdwaitaMono-Bold.ttf"
+export const REGULAR_FONT = "./adwaita-fonts-48.2/mono/AdwaitaMono-Regular.ttf"
 
 export const CORVUS_BELLI_COLORS = {
     green:  "0x76ac5d",
@@ -39,7 +77,13 @@ export const CORVUS_BELLI_COLORS = {
 
 
 export def "ffmpeg-text" [
-    text: string, position: record<x: any, y: any>, options: record
+    text: string,
+    position: record<
+        x: number,
+        y: number,
+        alignment: record<x: string, y: string>,
+    >,
+    options: record,
 ]: [
     nothing -> record<kind: string, options: record<text: string, x: string, y: string>>
 ] {
@@ -49,15 +93,34 @@ export def "ffmpeg-text" [
         | str replace --all "[" "\\["
         | str replace --all "]" "\\]"
         | $"'($in)'"
-    { kind: "drawtext", options: { text: $text, ...$position, ...$options } }
+    let alignment = if $position.alignment == null {
+        { x: "", y: "", }
+    } else {{
+        x: (if $position.alignment.x == "" { "" } else { $"-($position.alignment.x)" }),
+        y: (if $position.alignment.y == "" { "" } else { $"-($position.alignment.y)" }),
+    }}
+    let pos = {
+        x: $"($position.x)($alignment.x)",
+        y: $"($position.y)($alignment.y)",
+    }
+
+    { kind: "drawtext", options: { text: $text, ...$pos, ...$options } }
 }
 
-export def "put-version" [trooper: record]: [ path -> path ] {
-    let trooper_hash = $trooper | to nuon | hash sha256 | str substring 0..7
+export def "put-version" [
+    trooper: record,
+    version: record<
+        pos: record<x: float, y: float, alignment: record>,
+        font: record<fontfile: path, fontsize: float, fontcolor: string>,
+    >,
+]: [ path -> path ] {
     let versions = open versions.json
-    let version_text = $"(git describe) [Army: ($versions.army), Rules: ($versions.rules), Trooper: ($trooper_hash)]"
+        | insert trooper { $trooper | to nuon | hash sha256 | str substring 0..7 }
+        | items { |k, v| $"($k | str title-case): ($v)" }
+    let version_text = $"(git describe) [($versions | str join ', ')]"
+
     let out = mktemp --tmpdir infinity-XXXXXXX.png
-    $in | ffmpeg apply ((ffmpeg-text $version_text $VERSION_POS $VERSION_FONT) | ffmpeg options) --output $out
+    $in | ffmpeg apply ((ffmpeg-text $version_text $version.pos $version.font) | ffmpeg options) --output $out
 }
 
 const KV_MODIFIER_FMT           = '^(?<k>.*)=(?<v>.*)$'

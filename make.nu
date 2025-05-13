@@ -55,7 +55,12 @@ def list-troops []: [ nothing -> table<name: string, color: string> ] {
         }
 }
 
-def run [troops: table<name: string, color: string>, --stats, --charts] {
+def run [
+    troops: table<name: string, color: string>,
+    --canvas: record<w: int, h: int>,
+    --stats,
+    --charts,
+] {
     use . troopers build-trooper-card
 
     if ($troops | is-empty) {
@@ -79,21 +84,21 @@ def run [troops: table<name: string, color: string>, --stats, --charts] {
             total: $total,
             content: $t.item.name,
         } | log info $"\(($in.current) / ($in.total)\) ($in.content)"
-        build-trooper-card (open $troop_file) --color $t.item.color --output $output --stats=$stats --charts=$charts
+        build-trooper-card (open $troop_file) --canvas $canvas --color $t.item.color --output $output --stats=$stats --charts=$charts
     }
 }
 
 # build the "showcase" cards and copy them to the the `assets/` directory
-def "main showcase" [--stats, --charts] {
-    run $SHOWCASE --stats=$stats --charts=$charts
+def "main showcase" [--width (-w): int, --height (-h): int, --stats, --charts] {
+    run $SHOWCASE --canvas { w: $width, h: $height } --stats=$stats --charts=$charts
     for s in $SHOWCASE {
         cp --verbose ($"($OUT_DIR)/($s.name | str replace '/' '-').*" | into glob) assets/
     }
 }
 
 # build the "troops" cards from NUON "trooper" files in the `troops/stats/` directory
-def "main troops" [name: string = "", --stats, --charts] {
-    run (list-troops | where name =~ $name) --stats=$stats --charts=$charts
+def "main troops" [name: string = "", --width (-w): int, --height (-h): int, --stats, --charts] {
+    run (list-troops | where name =~ $name) --canvas { w: $width, h: $height } --stats=$stats --charts=$charts
 }
 
 # clean all PNG building files

@@ -2,7 +2,8 @@ use ../ffmpeg.nu *
 use ../log.nu [ "log info", "log warning", "log error", "log debug" ]
 
 use ../common.nu [
-    BOLD_FONT, REGULAR_FONT, put-version, ffmpeg-text, "parse modifier-from-skill",
+    BOLD_FONT, REGULAR_FONT, put-version, ffmpeg-text,
+    "parse modifier-from-skill", get-options
 ]
 use charts.nu gen-charts-page
 use stats.nu gen-stats-page
@@ -43,6 +44,7 @@ export def build-trooper-card [
         SWC: number,
         C: int
     >,
+    --canvas: record<w: int, h: int>,
     --color: string,
     --output: path = "output.png",
     --stats,
@@ -67,16 +69,18 @@ export def build-trooper-card [
     | where $it.mod != null
     | reject pos?
 
+    let options = get-options $canvas.w $canvas.h
+
     match [$stats, $charts] {
         [true, true] | [false, false] => {
-            gen-stats-page $troop $color $output $modifiers
-            gen-charts-page $troop $color $output $modifiers
+            gen-stats-page $troop $color $output $modifiers $options
+            gen-charts-page $troop $color $output $modifiers $options
         },
         [true, false] => {
-            gen-stats-page $troop $color $output $modifiers
+            gen-stats-page $troop $color $output $modifiers $options
         },
         [false, true] => {
-            gen-charts-page $troop $color $output $modifiers
+            gen-charts-page $troop $color $output $modifiers $options
         },
     }
 }

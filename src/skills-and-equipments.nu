@@ -1,7 +1,10 @@
 use common.nu [
-    BOLD_FONT, REGULAR_FONT, BASE_COLOR, CORVUS_BELLI_COLORS,
+    BOLD_FONT, REGULAR_FONT, BASE_COLOR, CORVUS_BELLI_COLORS, TEXT_ALIGNMENT,
     put-version, ffmpeg-text, "parse modifier-from-skill", fit-items-in-width,
 ]
+
+use log.nu [ "log debug" ]
+use ffmpeg.nu [ "ffmpeg create", "ffmpeg options", "ffmpeg mapply" ]
 
 const CACHE =  "~/.cache/infinity/" | path expand
 
@@ -154,7 +157,11 @@ export def generate-equipment-or-skill-card [equipment_or_skill: record, paramet
             return []
         }
 
-        let title_transform = ffmpeg-text $title { x: (1.5 * $parameters.text.x), y: $"($y)-th/2" } $parameters.bold_font
+        let title_transform = ffmpeg-text $title {
+            x: (1.5 * $parameters.text.x),
+            y: $y,
+            alignment: $TEXT_ALIGNMENT.left,
+        } $parameters.bold_font
 
         let box_transform = {
             kind: "drawbox",
@@ -225,6 +232,7 @@ export def generate-equipment-or-skill-card [equipment_or_skill: record, paramet
                         let pos = {
                             x: ($parameters.text.x + 10),
                             y: ($acc.y + $in.index * $parameters.font.fontsize),
+                            alignment: $TEXT_ALIGNMENT.top_left,
                         }
                         ffmpeg-text $in.item $pos $parameters.font
                     }
@@ -240,10 +248,15 @@ export def generate-equipment-or-skill-card [equipment_or_skill: record, paramet
     }
 
     let transforms = [
-        (ffmpeg-text $eq_or_s.name { x: $parameters.text.x, y: $parameters.text.y } $parameters.bold_font),
+        (ffmpeg-text $eq_or_s.name {
+            x: $parameters.text.x,
+            y: $parameters.text.y,
+            alignment: $TEXT_ALIGNMENT.top_left,
+        } $parameters.bold_font),
         (ffmpeg-text $eq_or_s.type {
-            x: $"($width)-($parameters.border)-tw",
-            y: $"(2 * ($parameters.font.fontsize + $parameters.margin) - 5)-th",
+            x: ($width - $parameters.border),
+            y: (2 * ($parameters.font.fontsize + $parameters.margin) - 5),
+            alignment: $TEXT_ALIGNMENT.bottom_right,
         } $parameters.type_font),
         ...(
             $description
@@ -253,11 +266,16 @@ export def generate-equipment-or-skill-card [equipment_or_skill: record, paramet
                     let pos = {
                         x: $parameters.text.x,
                         y: ($description_y + $line.index * $parameters.font.fontsize),
+                        alignment: $TEXT_ALIGNMENT.top_left,
                     }
                     ffmpeg-text $line.item $pos $parameters.font
                 }
         ),
-        (ffmpeg-text ($eq_or_s.labels | str join ", ") { x: $parameters.text.x, y: $labels_y } $parameters.font),
+        (ffmpeg-text ($eq_or_s.labels | str join ", ") {
+            x: $parameters.text.x,
+            y: $labels_y,
+            alignment: $TEXT_ALIGNMENT.top_left,
+        } $parameters.font),
         ...(section $requirements "REQUIREMENTS" $requirements_y "0x333333"),
         ...(section $effects      "EFFECTS"      $effects_y      "0x666666"),
         ...(section $important    "IMPORTANT"    $important_y    $CORVUS_BELLI_COLORS.red),
@@ -271,7 +289,7 @@ export def generate-equipment-or-skill-card [equipment_or_skill: record, paramet
             x: 0,
             y: 0,
             w: $width,
-            h: (($transforms | last).options.y + $parameters.font.fontsize + $parameters.margin // 2),
+            h: (($transforms | last | get options.y | into int) + $parameters.font.fontsize + $parameters.margin // 2),
             color: $color,
             t: $"($parameters.border)",
         },

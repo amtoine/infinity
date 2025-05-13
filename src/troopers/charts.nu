@@ -1,171 +1,212 @@
 use ../common.nu [
-    BOLD_FONT, REGULAR_FONT, BASE_COLOR, CANVAS, SCALE, CORVUS_BELLI_COLORS,
-    CANVAS_MARGINS,
+    BOLD_FONT, REGULAR_FONT, BASE_COLOR, CORVUS_BELLI_COLORS, TEXT_ALIGNMENT,
     put-version, ffmpeg-text, "parse modifier-from-skill", fit-items-in-width,
 ]
 use ../ffmpeg.nu [ "ffmpeg metadata" ]
 
-use ../skills-and-equipments.nu [ "generate-equipment-or-skill-card" ]
+def get-options [options: record] {
+    let box = $options.margins.left | {
+        x: $in,
+        y: $options.margins.top,
+        w: ($options.margins.right - $in),
+        h: (55 * $options.scale.y),
+    }
 
-const BASE_IMAGE = { kind: "color", options: {
-    c: $BASE_COLOR,
-    s: $"($CANVAS.w * $SCALE)x($CANVAS.h * $SCALE)",
-    d: 1,
-} }
+    let header_max_chars = 10
+    let name_max_chars = 25
+    let traits_max_chars = 27
 
-const NAME_BOX = {
-    x: $CANVAS_MARGINS.left,
-    y: $CANVAS_MARGINS.top,
-    w: ($CANVAS_MARGINS.right - $CANVAS_MARGINS.left),
-    h: (55 * $SCALE),
+    let normal_fontsize = 22 * $options.scale.x
+    let header_fontsize = 25 * $options.scale.y
+    let ranges_fontsize = $header_fontsize * 0.7
+
+    let name_x = (140 + 20) * $options.scale.x
+
+    let start_y = $box.y + $box.h + $options.margins.top
+    let headers_background_h = 3 * $header_fontsize + 20 * $options.scale.y
+    let ranges_y = (
+        $start_y +
+        $header_fontsize +
+        $headers_background_h / 2 +
+        ($ranges_fontsize + 20 * $options.scale.y) / 2 +
+        10 * $options.scale.y
+    )
+
+    {
+        base_image: {
+            kind: "color",
+            options: {
+                c: $BASE_COLOR,
+                s: $"($options.canvas.w)x($options.canvas.h)",
+                d: 1,
+            },
+        },
+        name: {
+            box: $box,
+            text: {
+                pos: {
+                    x: ($box.x + 28 * $options.scale.x),
+                    y: ($box.y + $box.h / 2),
+                    alignment: $TEXT_ALIGNMENT.left,
+                },
+                font: {
+                    fontfile: $BOLD_FONT,
+                    fontcolor: "white",
+                    fontsize: (45 * $options.scale.x),
+                },
+            }
+            max_chars: $name_max_chars,
+            x: $name_x,
+        },
+        v_space: (20 * $options.scale.y),
+        box_border: (5 * $options.scale.x),
+        fonts: {
+            normal: { fontfile: $REGULAR_FONT, fontcolor: "black", fontsize: $normal_fontsize },
+            header: { fontfile: $BOLD_FONT,    fontcolor: "white", fontsize: $header_fontsize },
+            ranges: { fontfile: $BOLD_FONT,    fontcolor: "white", fontsize: $ranges_fontsize },
+        },
+        ranges: {
+            cell_width: (50 * $options.scale.x),
+            labels: ['8"', '16"', '24"', '32"', '40"', '48"', '96"'],
+            pos: {
+                x: ($name_x + ($normal_fontsize * 0.33) * $name_max_chars),
+                y: $ranges_y,
+            }
+            background: {
+                kind: "drawbox",
+                options: {
+                    x: 0,
+                    y: $"($ranges_y)-h/2",
+                    w: $options.canvas.w,
+                    h: ($ranges_fontsize + 20 * $options.scale.y),
+                    color: "0x555555",
+                    t: "fill",
+                },
+            },
+        },
+        headers: {
+            labels: [
+                [field,                    short,  x                        ];
+                [PS,                       PS,     (750  * $options.scale.x)],
+                [B,                        B,      (805  * $options.scale.x)],
+                [AMMUNITION,               AMMO,   (905  * $options.scale.x)],
+                ["SAVING ROLL ATTRIBUTE",  ATTR,   (1060 * $options.scale.x)],
+                ["NUMBER OF SAVING ROLLS", SR,     (1200 * $options.scale.x)],
+            ],
+            background: {
+                kind: "drawbox",
+                options: {
+                    x: 0,
+                    y: $"($start_y + $header_fontsize)-h/2",
+                    w: $options.canvas.w,
+                    h: $headers_background_h,
+                    color: "0x333333",
+                    t: "fill",
+                },
+            },
+            max_chars: $header_max_chars,
+        },
+        traits: {
+            x: ($options.canvas.w - (165 + 20) * $options.scale.x),
+            max_chars: $traits_max_chars,
+        },
+        start_y: ($box.y + $box.h + $options.margins.top),
+    }
 }
-const NAME_OFFSET_X = 28 * $SCALE
-const NAME_POS = { x: $"($NAME_BOX.x)+($NAME_OFFSET_X)", y: $"($NAME_BOX.y)+($NAME_BOX.h / 2)-th/2" }
-const NAME_FONT = { fontfile: $BOLD_FONT, fontcolor: "white", fontsize: (45 * $SCALE) }
-const BOX_BORDER = 5 * $SCALE
 
-const RANGES = ['8"', '16"', '24"', '32"', '40"', '48"', '96"']
-const STATS = [
-    [field,                    short,  x              ];
-    [PS,                       PS,     (750  * $SCALE)],
-    [B,                        B,      (805  * $SCALE)],
-    [AMMUNITION,               AMMO,   (905  * $SCALE)],
-    ["SAVING ROLL ATTRIBUTE",  ATTR,   (1060 * $SCALE)],
-    ["NUMBER OF SAVING ROLLS", SR,     (1200 * $SCALE)],
-]
-
-const CHART_RANGE_CELL_WIDTH = 50 * $SCALE
-
-const FONT =        { fontfile: $REGULAR_FONT, fontcolor: "black", fontsize: (22 * $SCALE) }
-const HEADER_FONT = { fontfile: $BOLD_FONT,    fontcolor: "white", fontsize: (25 * $SCALE) }
-const RANGES_FONT = { fontfile: $BOLD_FONT,    fontcolor: "white", fontsize: ($HEADER_FONT.fontsize * 0.7) }
-
-const SKILL_CARD_MARGIN = 8 * $SCALE
-const SKILL_START = { x: (10 * $SCALE), y: (10 * $SCALE) }
-
-const V_SPACE = 20 * $SCALE
-
-const HEADER_MAX_CHARS = 10
-const NAME_MAX_CHARS = 25
-const TRAITS_MAX_CHARS = 27
-
-const NAME_X = (140 + 20) * $SCALE
-const RANGE_X = $NAME_X + $FONT.fontsize * ($NAME_MAX_CHARS * 0.33)
-const TRAITS_X = ($CANVAS.w - 165 - 20) * $SCALE
-
-const START_Y = (
-    $NAME_BOX.y +
-    $NAME_BOX.h +
-    $CANVAS_MARGINS.top
-)
-
-const HEADERS_BACKGROUND = {
-    kind: "drawbox",
-    options: {
-        x: 0,
-        y: $"($START_Y)+($HEADER_FONT.fontsize)-h/2",
-        w: ($CANVAS.w * $SCALE),
-        h: (3 * $HEADER_FONT.fontsize + 20 * $SCALE),
-        color: "0x333333",
-        t: "fill",
-    },
-}
-
-const RANGES_Y = (
-    $START_Y +
-    $HEADER_FONT.fontsize +
-    $HEADERS_BACKGROUND.options.h / 2 +
-    ($RANGES_FONT.fontsize + 20 * $SCALE) / 2 +
-    10 * $SCALE
-)
-
-const RANGES_BACKGROUND = {
-    kind: "drawbox",
-    options: {
-        x: 0,
-        y: $"($RANGES_Y)-h/2",
-        w: ($CANVAS.w * $SCALE),
-        h: ($RANGES_FONT.fontsize + 20 * $SCALE),
-        color: "0x555555",
-        t: "fill",
-    },
-}
-
-def put-weapons-charts [equipments: table<name: string, stats: record>]: [
+def put-weapons-charts [equipments: table<name: string, stats: record>, options: record]: [
     nothing -> record<y: int, ts: table<kind: string, options: record>>
 ] {
     let header_transforms = [
-        { field: "NAME", x: $NAME_X },
-        { field: "RANGE", x: ($RANGE_X + ($RANGES | length) / 2 * $CHART_RANGE_CELL_WIDTH) },
-        ...($STATS | select field x),
-        { field: "TRAITS", x: $TRAITS_X },
+        { field: "NAME", x: $options.name.x },
+        { field: "RANGE", x: ($options.ranges.pos.x + ($options.ranges.labels | length) / 2 * $options.ranges.cell_width) },
+        ...($options.headers.labels | select field x),
+        { field: "TRAITS", x: $options.traits.x },
     ] | each { |h|
         # FIXME: no idea why this is IO call is required...
         print --no-newline ""
-        let header_lines = fit-items-in-width ($h.field | split row " ") $HEADER_MAX_CHARS --separator " "
+        let header_lines = fit-items-in-width ($h.field | split row " ") $options.headers.max_chars --separator " "
             | each { str join " " }
 
         $header_lines | enumerate | each { |l|
             ffmpeg-text $l.item {
-                x: $"($h.x)-tw/2",
-                y: $"($START_Y)+((3 - ($header_lines | length)) / 2 * $HEADER_FONT.fontsize)+($l.index * $HEADER_FONT.fontsize)-th/2"
-            } $HEADER_FONT
+                x: $h.x,
+                y: (
+                    $options.start_y +
+                    (3 - ($header_lines | length)) / 2 * $options.fonts.header.fontsize +
+                    $l.index * $options.fonts.header.fontsize
+                ),
+                alignment: $TEXT_ALIGNMENT.center,
+            } $options.fonts.header
         }
     }
     | flatten
-    let ranges_transforms = $RANGES | enumerate | each { |r|
+    let ranges_transforms = $options.ranges.labels | enumerate | each { |r|
         ffmpeg-text $r.item {
-            x: $"($RANGE_X + $CHART_RANGE_CELL_WIDTH / 2 + $r.index * $CHART_RANGE_CELL_WIDTH)-tw/2",
-            y: $"($RANGES_Y)-th/2",
-        } $RANGES_FONT
+            x: (
+                $options.ranges.pos.x +
+                $options.ranges.cell_width / 2 +
+                $r.index * $options.ranges.cell_width
+            ),
+            y: $options.ranges.pos.y,
+            alignment: $TEXT_ALIGNMENT.center,
+        } $options.fonts.ranges
     }
 
     let transforms = $equipments | enumerate | reduce --fold {
-        y: ($RANGES_Y + $RANGES_BACKGROUND.options.h),
-        last_y: ($RANGES_Y + $RANGES_BACKGROUND.options.h // 2),
+        y: ($options.ranges.pos.y + $options.ranges.background.options.h),
+        last_y: ($options.ranges.pos.y + $options.ranges.background.options.h // 2),
         ts: [],
     } { |eq, acc|
         # FIXME: no idea why this is IO call is required...
         print --no-newline ""
 
-        let name = fit-items-in-width ($eq.item.name | split row " ") $NAME_MAX_CHARS --separator " "
+        let name = fit-items-in-width ($eq.item.name | split row " ") $options.name.max_chars --separator " "
             | each { str join " " }
-        let traits = fit-items-in-width ($eq.item.stats.traits | split row " ") $TRAITS_MAX_CHARS --separator " "
+        let traits = fit-items-in-width ($eq.item.stats.traits | split row " ") $options.traits.max_chars --separator " "
             | each { str join " " }
 
         let y = if ($name | length) == ($traits | length) {
             { name: $acc.y, traits: $acc.y }
         } else if ($name | length) > ($traits | length) {
             let d = ($name | length) - ($traits | length)
-            { name: $acc.y, traits: ($acc.y + $d / 2 * $FONT.fontsize) }
+            { name: $acc.y, traits: ($acc.y + $d / 2 * $options.fonts.normal.fontsize) }
         } else {
             let d = ($traits | length) - ($name | length)
-            { name: ($acc.y + $d / 2 * $FONT.fontsize), traits: $acc.y }
+            { name: ($acc.y + $d / 2 * $options.fonts.normal.fontsize), traits: $acc.y }
         }
 
         let name_lines = $name | enumerate | each { |t|
-            ffmpeg-text $t.item { x: $"($NAME_X)-tw/2", y: $"($y.name)+($t.index * $FONT.fontsize)-th/2" } $FONT
+            ffmpeg-text $t.item {
+                x: $options.name.x,
+                y: ($y.name + $t.index * $options.fonts.normal.fontsize),
+                alignment: $TEXT_ALIGNMENT.center,
+            } $options.fonts.normal
         }
         let trait_lines = $traits | enumerate | each { |t|
-            ffmpeg-text $t.item { x: $"($TRAITS_X)-tw/2", y: $"($y.traits)+($t.index * $FONT.fontsize)-th/2" } $FONT
+            ffmpeg-text $t.item {
+                x: $options.traits.x,
+                y: ($y.traits + $t.index * $options.fonts.normal.fontsize),
+                alignment: $TEXT_ALIGNMENT.center,
+            } $options.fonts.normal
         }
 
-        let range_y = $y.name + (($name | length) - 1) / 2 * $FONT.fontsize
-        let range_h = ([($name | length), ($traits | length)] | math max) * $FONT.fontsize + $V_SPACE * 0.75
+        let range_y = $y.name + (($name | length) - 1) / 2 * $options.fonts.normal.fontsize
+        let range_h = ([($name | length), ($traits | length)] | math max) * $options.fonts.normal.fontsize + $options.v_space * 0.75
 
         let background = {
             kind: "drawbox",
             options: {
                 x: 0,
                 y: $"($range_y)-h/2",
-                w: ($CANVAS.w * $SCALE),
+                w: $options.canvas.w,
                 h: $range_h,
                 color: (if ($eq.index mod 2) == 0 { "0xd0d0d0" } else { "0xc2c2c2" }),
                 t: "fill",
             },
         }
 
-        let ranges_boxes = $RANGES | enumerate | each { |it|
+        let ranges_boxes = $options.ranges.labels | enumerate | each { |it|
             let color = match ($eq.item.stats | get $it.item) {
                 "+6" | 6 | "6" => $CORVUS_BELLI_COLORS.purple,
                 "+3" | 3 | "3" => $CORVUS_BELLI_COLORS.green,
@@ -179,34 +220,52 @@ def put-weapons-charts [equipments: table<name: string, stats: record>]: [
             {
                 kind: "drawbox",
                 options: {
-                    x: ($RANGE_X + $it.index * $CHART_RANGE_CELL_WIDTH),
+                    x: ($options.ranges.pos.x + $it.index * $options.ranges.cell_width),
                     y: $"($range_y)-h/2",
-                    w: $CHART_RANGE_CELL_WIDTH,
+                    w: $options.ranges.cell_width,
                     h: $range_h,
                     color: $color, t: "fill",
                 },
             }
         }
 
-        let stats_boxes = $STATS | each { |s|
+        let stats_boxes = $options.headers.labels | each { |s|
             let pos = {
-                x: $"($s.x)-tw/2",
-                y: $"($range_y)-th/2",
+                x: $s.x,
+                y: $range_y,
+                alignment: $TEXT_ALIGNMENT.center,
             }
             let text = $"($eq.item.stats | get $s.field)"
-            ffmpeg-text $text $pos $FONT
+            ffmpeg-text $text $pos $options.fonts.normal
         }
 
         {
-            y: ($acc.y + $V_SPACE + ([($name | length), ($traits | length)] | math max) * $FONT.fontsize),
+            y: (
+                $acc.y +
+                $options.v_space +
+                ([($name | length), ($traits | length)] | math max) * $options.fonts.normal.fontsize
+            ),
             last_y: ($range_y + $range_h // 2),
-            ts: ($acc.ts ++ [$background] ++ $name_lines ++ $ranges_boxes ++ $stats_boxes ++ $trait_lines),
+            ts: (
+                $acc.ts ++
+                [$background] ++
+                $name_lines ++
+                $ranges_boxes ++
+                $stats_boxes ++
+                $trait_lines
+            ),
         }
     }
 
     {
         y: $transforms.last_y,
-        ts: ([$HEADERS_BACKGROUND] ++ $header_transforms ++ [$RANGES_BACKGROUND] ++ $ranges_transforms ++ $transforms.ts),
+        ts: (
+            [$options.headers.background] ++
+            $header_transforms ++
+            [$options.ranges.background] ++
+            $ranges_transforms ++
+            $transforms.ts
+        ),
     }
 }
 
@@ -255,6 +314,7 @@ export def gen-charts-page [
     color: string,
     output: path,
     modifiers: table<name: string, mod: record>,
+    options: record,
 ] {
     let charts = ls charts/weapons/*.csv | reduce --fold [] { |it, acc|
         $acc ++ (open $it.name)
@@ -395,18 +455,21 @@ export def gen-charts-page [
         | where $it.stats != null
         | flatten stats
 
-    let weapons_transforms = put-weapons-charts $weapons
+    let version = $options.version
+    let options = $options | merge (get-options $options)
+
+    let weapons_transforms = put-weapons-charts $weapons $options
 
     let name_box_transforms = [
-        { kind: "drawbox",  options: { ...$NAME_BOX, color: $"($color)@1.0", t: "fill" } },
-        { kind: "drawbox",  options: { ...$NAME_BOX, color: "black@0.4",     t: $"($BOX_BORDER)" } },
-        (ffmpeg-text $troop.short_name $NAME_POS $NAME_FONT),
+        { kind: "drawbox",  options: { ...$options.name.box, color: $"($color)@1.0", t: "fill" } },
+        { kind: "drawbox",  options: { ...$options.name.box, color: "black@0.4",     t: $"($options.box_border)" } },
+        (ffmpeg-text $troop.short_name $options.name.text.pos $options.name.text.font),
     ]
 
-    let res = ffmpeg create ($BASE_IMAGE | ffmpeg options) --output (mktemp --tmpdir infinity-XXXXXXX.png)
+    let res = ffmpeg create ($options.base_image | ffmpeg options) --output (mktemp --tmpdir infinity-XXXXXXX.png)
         | ffmpeg mapply ($weapons_transforms.ts | each { ffmpeg options }) --output (mktemp --tmpdir infinity-XXXXXXX.png)
         | ffmpeg mapply ($name_box_transforms | each { ffmpeg options }) --output (mktemp --tmpdir infinity-XXXXXXX.png)
-        | put-version $troop
+        | put-version $troop $version
 
     let out = $output | path parse | update stem { $in ++ ".2" } | path join
     cp $res $out

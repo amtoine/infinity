@@ -1,217 +1,345 @@
 use ../common.nu [
-    BOLD_FONT, REGULAR_FONT, BASE_COLOR, CANVAS, DIRS, SCALE, CANVAS_MARGINS,
+    BOLD_FONT, REGULAR_FONT, BASE_COLOR, DIRS, TEXT_ALIGNMENT,
     put-version, ffmpeg-text,
 ]
 
 use std iter
 
-const BASE_IMAGE = { kind: "color", options: {
-    c: $BASE_COLOR,
-    s: $"($CANVAS.w * $SCALE)x($CANVAS.h * $SCALE)",
-    d: 1,
-} }
+def get-options [options: record] {
+    ################################################################################
+    ###### icon and characteristics boxes ##########################################
+    ################################################################################
+    let icon_box = {
+        x: $options.margins.left,
+        y: $options.margins.top,
+        w: (155 * $options.scale.x - $options.margins.left),
+        h: (155 * $options.scale.y - $options.margins.top),
+    }
 
-const FACTION_POS = {
-    x: ($CANVAS_MARGINS.right - 105 * $SCALE),
-    y: ($CANVAS.h * $SCALE // 2),
+    let characteristics_box = {
+        x: $options.margins.left,
+        y: ($icon_box.y + $icon_box.h + 20 * $options.scale.x),
+        w: (120 * $options.scale.x - $options.margins.left),
+        h: null,
+    }
+    # space between the trooper type and the first characteristics asset
+    let characteristics_v_space = 5 * $options.scale.y
+    # size of a characteristics asset
+    let characteristics_image_size = 70 * $options.scale.x
+    let characteristics_type_pos = {
+        x: ($characteristics_box.x + $characteristics_box.w // 2),
+        y: ($characteristics_box.y + 25 * $options.scale.y),
+        alignment: $TEXT_ALIGNMENT.center,
+    }
+    let characteristics_type_font = { fontfile: $BOLD_FONT, fontcolor: "white", fontsize: (30 * $options.scale.x) }
+    ################################################################################
+
+    ################################################################################
+    ###### top #####################################################################
+    ################################################################################
+    let name_box = {
+        x: (480 * $options.scale.x),
+        y: ($options.margins.top + 45 * $options.scale.y),
+        w: ($options.margins.right - 480 * $options.scale.x),
+        h: (160 * $options.scale.y - ($options.margins.top + 45 * $options.scale.y)),
+    }
+    let name_offset_x = 28 * $options.scale.x
+    let name_pos = {
+        x: ($name_box.x + $name_offset_x)
+        y: ($name_box.y + $name_box.h / 2),
+        alignment: $TEXT_ALIGNMENT.left,
+    }
+    let name_font = { fontfile: $BOLD_FONT, fontcolor: "white", fontsize: (45 * $options.scale.x) }
+
+    let isc_font = { fontfile: $REGULAR_FONT, fontcolor: "black", fontsize: (30 * $options.scale.x) }
+    let isc_pos = {
+        x: ($name_box.x + $name_offset_x),
+        y: ($name_box.y - $isc_font.fontsize),
+        alignment: $TEXT_ALIGNMENT.top_left,
+    }
+    let classification_pos = {
+        x: ($name_box.x + $name_box.w - $name_offset_x),
+        y: $isc_pos.y,
+        alignment: $TEXT_ALIGNMENT.top_right,
+    }
+
+    let stat_keys_box = {
+        x: $name_box.x,
+        y: ($name_box.y + $name_box.h + 20 * $options.scale.y),
+        w: ($options.margins.right - $name_box.x),
+        h: (245 * $options.scale.y - ($name_box.y + $name_box.h + 20 * $options.scale.y)),
+    }
+    let stat_vals_box = {
+        x: $stat_keys_box.x,
+        y: ($stat_keys_box.y + $stat_keys_box.h + 20 * $options.scale.y),
+        w: $stat_keys_box.w,
+        h: $stat_keys_box.h,
+    }
+    # horizontal space between stats
+    let stat_h_space = 108 * $options.scale.x
+    # horizontal offset for the first stat (mov)
+    let stat_offset_x = 60 * $options.scale.x
+    let stat_font = { fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: (30 * $options.scale.x) }
+
+    # offset to the bottom-left corner of the "stat values" box
+    let allowed_factions_offset = {
+        x: (50 * $options.scale.x),
+        y: (50 * $options.scale.y),
+    }
+    let allowed_factions_image_size = 70 * $options.scale.x
+    let allowed_factions_image_h_space = 10 * $options.scale.x
+
+    let special_skills_box = {
+        x: ($options.margins.right - 425 * $options.scale.x),
+        y: ($stat_vals_box.y + $stat_vals_box.h + 20 * $options.scale.y),
+        w: (425 * $options.scale.x),
+        h: null,
+    }
+    # offset for the first special skill
+    let special_skills_offset = {
+        x: (10 * $options.scale.x),
+        y: (80 * $options.scale.y),
+    }
+    # the base height for the "special skill" box
+    let special_skills_v_base = 100 * $options.scale.y
+    # the vertical space between two special skills
+    let special_skills_v_space = 30 * $options.scale.y
+    let special_skills_title_pos = {
+        x: ($special_skills_box.x + $special_skills_offset.x),
+        y: ($special_skills_box.y + 30 * $options.scale.y),
+        alignment: $TEXT_ALIGNMENT.left,
+    }
+    let special_skills_title_font = { fontfile: $BOLD_FONT,    fontcolor: "white", fontsize: (32 * $options.scale.x) }
+    let special_skills_font       = { fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: (18 * $options.scale.x) }
+    ###### end top #################################################################
+
+    ################################################################################
+    ###### bottom ##################################################################
+    ################################################################################
+    let equipment_boxes_v_space = 20 * $options.scale.y
+    let empty_equipment_box_height = 60 * $options.scale.y
+    let full_equipment_box_height = 105 * $options.scale.y
+
+    # the most bottom "equipment" box, i.e. the "peripheral" one, used as a base for
+    # the other "equipment" boxes
+    let equipment_box = {
+        x: $options.margins.left,
+        y: ($options.margins.bottom - $full_equipment_box_height),
+        w: (790 * $options.scale.x - $options.margins.left),
+        h: null,
+    }
+    # the horizontal offset of text in "equipment" boxes
+    let equipment_offset_x = 10 * $options.scale.x
+    let equipment_title_pos = {
+        x: ($equipment_box.x + $equipment_offset_x),
+        y: ($equipment_box.y +  4 / 15 * $full_equipment_box_height),
+        alignment: $TEXT_ALIGNMENT.left,
+    }
+    let equipment_pos = {
+        x: ($equipment_box.x + $equipment_offset_x),
+        y: ($equipment_box.y + 11 / 15 * $full_equipment_box_height),
+        alignment: $TEXT_ALIGNMENT.left,
+    }
+    let equipment_font_size = 22 * $options.scale.x
+    let equipment_title_font = { fontfile: $BOLD_FONT, fontcolor: "white", fontsize: ($equipment_font_size + 6 * $options.scale.x) }
+    let equipment_font = { fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: $equipment_font_size }
+
+    # used to build lists of things dynamically
+    let list_separator = ", "
+    let list_separator_v_offset = 10 * $options.scale.y
+    # the horizontal space a character takes in the "equipment" lists
+    let equipment_char_size = $equipment_font.fontsize * 0.6
+
+    # the vertical row positions in the bottom base "equipment" box, i.e. the "peripheral" box
+    let bottom_first_row_y = 885 * $options.scale.y
+    let bottom_second_row_y = 930 * $options.scale.y
+
+    let melee_box = {
+        x: ($equipment_box.x + $equipment_box.w + 20 * $options.scale.x),
+        y: ($options.margins.bottom - $full_equipment_box_height),
+        w: (1335 * $options.scale.x - ($equipment_box.x + $equipment_box.w + 20 * $options.scale.x)),
+        h: $full_equipment_box_height,
+    }
+    # the horizontal offset of text in "melee" box
+    let melee_offset_x = 10 * $options.scale.x
+    let melee_weapons_title_pos = {
+        x: ($melee_box.x + $melee_offset_x),
+        y: ($melee_box.y +  4 / 15 * $full_equipment_box_height),
+        alignment: $TEXT_ALIGNMENT.left,
+    }
+    let melee_weapons_pos = {
+        x: ($melee_box.x + $melee_offset_x),
+        y: ($melee_box.y + 11 / 15 * $full_equipment_box_height),
+        alignment: $TEXT_ALIGNMENT.left,
+    }
+    let melee_font_size = 22 * $options.scale.x
+    let melee_weapons_title_font  = { fontfile: $BOLD_FONT, fontcolor: "white", fontsize: ($melee_font_size + 6 * $options.scale.x) }
+    let melee_weapons_font = { fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: $melee_font_size }
+
+    let swc_box = {
+        x: ($melee_box.x + $melee_box.w + 20 * $options.scale.x),
+        y: ($options.margins.bottom - $full_equipment_box_height),
+        w: (1445 * $options.scale.x - ($melee_box.x + $melee_box.w + 20 * $options.scale.x)),
+        h: $full_equipment_box_height,
+    }
+    let swc_title_pos = {
+        x: ($swc_box.x + $swc_box.w // 2),
+        y: ($swc_box.y +  4 / 15 * $full_equipment_box_height),
+        alignment: $TEXT_ALIGNMENT.center,
+    }
+    let swc_pos = {
+        x: ($swc_box.x + $swc_box.w // 2),
+        y: ($swc_box.y + 11 / 15 * $full_equipment_box_height),
+        alignment: $TEXT_ALIGNMENT.center,
+    }
+    let swc_font_size = 30 * $options.scale.x
+    let swc_title_font = { fontfile: $BOLD_FONT, fontcolor: "white", fontsize: $swc_font_size }
+    let swc_font = { fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: $swc_font_size }
+
+    let c_box = {
+        x: ($swc_box.x + $swc_box.w + 15 * $options.scale.x),
+        y: ($options.margins.bottom - $full_equipment_box_height),
+        w: ($options.margins.right - ($swc_box.x + $swc_box.w + 15 * $options.scale.x)),
+        h: $full_equipment_box_height,
+    }
+    let c_title_pos = {
+        x: ($c_box.x + $c_box.w // 2),
+        y: ($c_box.y +  4 / 15 * $full_equipment_box_height),
+        alignment: $TEXT_ALIGNMENT.center,
+    }
+    let c_pos = {
+        x: ($c_box.x + $c_box.w // 2),
+        y: ($c_box.y + 11 / 15 * $full_equipment_box_height),
+        alignment: $TEXT_ALIGNMENT.center,
 }
-const MINI_OVERLAY = { kind: "overlay",  options: {
-    x: $"(320 * $SCALE)-w/2",
-    y: $"($CANVAS.h * $SCALE)-(50 * $SCALE)-h",
-} }
+    let c_font_size = 30 * $options.scale.x
+    let c_title_font = { fontfile: $BOLD_FONT, fontcolor: "white", fontsize: $c_font_size }
+    let c_font = { fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: $c_font_size }
 
-const BOX_BORDER = 5 * $SCALE
+    let qr_code_size = 4              # passed to --size
+    let qr_code_margin = 1            # passed to --margin
+    let qr_code_width = 105 * $options.scale.x  # the final width of the qr code
 
-################################################################################
-###### ICON and CHARACTERISTICS BOXES ##########################################
-################################################################################
-const ICON_BOX = {
-    x: $CANVAS_MARGINS.left,
-    y: $CANVAS_MARGINS.top,
-    w: (155 * $SCALE - $CANVAS_MARGINS.left),
-    h: (155 * $SCALE - $CANVAS_MARGINS.top),
+    let name_2_box = {
+        x: ($equipment_box.x + $equipment_box.w + 20 * $options.scale.x),
+        y: ($melee_box.y - 15 * $options.scale.y - 55 * $options.scale.y),
+        w: ($options.margins.right - ($qr_code_width + 10 * $options.scale.x) - ($equipment_box.x + $equipment_box.w + 20 * $options.scale.x)),
+        h: (55 * $options.scale.y),
+    }
+    # the horizontal offset of text in "name 2" box
+    let name_2_offset_x = 10 * $options.scale.x
+    let name_2_pos = {
+        x: ($name_2_box.x + $name_2_offset_x),
+        y: ($name_2_box.y + $name_2_box.h / 2),
+        alignment: $TEXT_ALIGNMENT.left,
+    }
+    let name_2_font = { fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: (30 * $options.scale.x) }
+
+    let qr_code_overlay = { kind: "overlay",  options: {
+        x: $"($options.margins.right)-w",
+        y: $"($name_2_box.y + $name_2_box.h)-h",
+    } }
+    ###### end bottom ##############################################################
+
+    {
+        base_image: {
+            kind: "color",
+            options: {
+                c: $BASE_COLOR,
+                s: $"($options.canvas.w)x($options.canvas.h)",
+                d: 1,
+            },
+        },
+        faction_pos: {
+            x: ($options.margins.right - 105 * $options.scale.x),
+            y: ($options.canvas.h / 2),
+        },
+        mini_overlay: {
+            kind: "overlay",
+            options: {
+                x: $"(320 * $options.scale.x)-w/2",
+                y: $"($options.canvas.h - 50 * $options.scale.y)-h",
+            },
+        },
+        box_border: (5 * $options.scale.x),
+        icon_box: $icon_box,
+        characteristics_box: $characteristics_box,
+        characteristics_v_space: $characteristics_v_space,
+        characteristics_image_size: $characteristics_image_size,
+        characteristics_type_pos: $characteristics_type_pos,
+        characteristics_type_font: $characteristics_type_font,
+        name_box: $name_box,
+        name_offset_x: $name_offset_x,
+        name_pos: $name_pos,
+        name_font: $name_font,
+        isc_font: $isc_font,
+        isc_pos: $isc_pos,
+        classification_pos: $classification_pos,
+        stat_keys_box: $stat_keys_box,
+        stat_vals_box: $stat_vals_box,
+        stat_h_space: $stat_h_space,
+        stat_offset_x: $stat_offset_x,
+        stat_font: $stat_font,
+        allowed_factions_offset: $allowed_factions_offset,
+        allowed_factions_image_size: $allowed_factions_image_size,
+        allowed_factions_image_h_space: $allowed_factions_image_h_space,
+        special_skills_box: $special_skills_box,
+        special_skills_offset: $special_skills_offset,
+        special_skills_v_base: $special_skills_v_base,
+        special_skills_v_space: $special_skills_v_space,
+        special_skills_title_pos: $special_skills_title_pos,
+        special_skills_title_font: $special_skills_title_font,
+        special_skills_font      : $special_skills_font      ,
+        equipment_boxes_v_space: $equipment_boxes_v_space,
+        empty_equipment_box_height: $empty_equipment_box_height,
+        full_equipment_box_height: $full_equipment_box_height,
+        equipment_box: $equipment_box,
+        equipment_offset_x: $equipment_offset_x,
+        equipment_title_pos: $equipment_title_pos,
+        equipment_pos: $equipment_pos,
+        equipment_font_size: $equipment_font_size,
+        equipment_title_font: $equipment_title_font,
+        equipment_font: $equipment_font,
+        list_separator: $list_separator,
+        list_separator_v_offset: $list_separator_v_offset,
+        equipment_char_size: $equipment_char_size,
+        bottom_first_row_y: $bottom_first_row_y,
+        bottom_second_row_y: $bottom_second_row_y,
+        melee_box: $melee_box,
+        melee_offset_x: $melee_offset_x,
+        melee_weapons_title_pos: $melee_weapons_title_pos,
+        melee_weapons_pos: $melee_weapons_pos,
+        melee_font_size: $melee_font_size,
+        melee_weapons_title_font : $melee_weapons_title_font ,
+        melee_weapons_font: $melee_weapons_font,
+        swc_box: $swc_box,
+        swc_title_pos: $swc_title_pos,
+        swc_pos: $swc_pos,
+        swc_font_size: $swc_font_size,
+        swc_title_font: $swc_title_font,
+        swc_font: $swc_font,
+        c_box: $c_box,
+        c_title_pos: $c_title_pos,
+        c_pos: $c_pos,
+        c_font_size: $c_font_size,
+        c_title_font: $c_title_font,
+        c_font: $c_font,
+        qr_code_size: $qr_code_size,
+        qr_code_margin: $qr_code_margin,
+        qr_code_width: $qr_code_width,
+        name_2_box: $name_2_box,
+        name_2_offset_x: $name_2_offset_x,
+        name_2_pos: $name_2_pos,
+        name_2_font: $name_2_font,
+        qr_code_overlay: $qr_code_overlay,
+    }
 }
-
-const CHARACTERISTICS_BOX = {
-    x: $CANVAS_MARGINS.left,
-    y: ($ICON_BOX.y + $ICON_BOX.h + 20 * $SCALE),
-    w: (120 * $SCALE - $CANVAS_MARGINS.left),
-    h: null,
-}
-# space between the trooper type and the first characteristics asset
-const CHARACTERISTICS_V_SPACE = 5 * $SCALE
-# size of a characteristics asset
-const CHARACTERISTICS_IMAGE_SIZE = 70 * $SCALE
-const CHARACTERISTICS_TYPE_POS = {
-    x: $"($CHARACTERISTICS_BOX.x + $CHARACTERISTICS_BOX.w // 2)-tw/2",
-    y: $"($CHARACTERISTICS_BOX.y + 25 * $SCALE)-th/2",
-}
-const CHARACTERISTICS_TYPE_FONT = { fontfile: $BOLD_FONT, fontcolor: "white", fontsize: (30 * $SCALE) }
-################################################################################
-
-################################################################################
-###### TOP #####################################################################
-################################################################################
-const NAME_BOX = {
-    x: (480 * $SCALE),
-    y: ($CANVAS_MARGINS.top + 45 * $SCALE),
-    w: ($CANVAS_MARGINS.right - 480 * $SCALE),
-    h: (160 * $SCALE - ($CANVAS_MARGINS.top + 45 * $SCALE)),
-}
-const NAME_OFFSET_X = 28 * $SCALE
-const NAME_POS = { x: $"($NAME_BOX.x)+($NAME_OFFSET_X)", y: $"($NAME_BOX.y)+($NAME_BOX.h / 2)-th/2" }
-const NAME_FONT = { fontfile: $BOLD_FONT, fontcolor: "white", fontsize: (45 * $SCALE) }
-
-const ISC_FONT = { fontfile: $REGULAR_FONT, fontcolor: "black", fontsize: (30 * $SCALE) }
-const ISC_POS = { x: ($NAME_BOX.x + $NAME_OFFSET_X), y: ($NAME_BOX.y - $ISC_FONT.fontsize) }
-const CLASSIFICATION_POS = { x: $"($NAME_BOX.x + $NAME_BOX.w - $NAME_OFFSET_X)-tw", y: $ISC_POS.y }
-
-const STAT_KEYS_BOX = {
-    x: $NAME_BOX.x,
-    y: ($NAME_BOX.y + $NAME_BOX.h + 20 * $SCALE),
-    w: ($CANVAS_MARGINS.right - $NAME_BOX.x),
-    h: (245 * $SCALE - ($NAME_BOX.y + $NAME_BOX.h + 20 * $SCALE)),
-}
-const STAT_VALS_BOX = {
-    x: $STAT_KEYS_BOX.x,
-    y: ($STAT_KEYS_BOX.y + $STAT_KEYS_BOX.h + 20 * $SCALE),
-    w: $STAT_KEYS_BOX.w,
-    h: $STAT_KEYS_BOX.h,
-}
-# horizontal space between stats
-const STAT_H_SPACE = 108 * $SCALE
-# horizontal offset for the first stat (MOV)
-const STAT_OFFSET_X = 60 * $SCALE
-const STAT_FONT = { fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: (30 * $SCALE) }
-
-# offset to the bottom-left corner of the "stat values" box
-const ALLOWED_FACTIONS_OFFSET = {
-    x: (50 * $SCALE),
-    y: (50 * $SCALE),
-}
-const ALLOWED_FACTIONS_IMAGE_SIZE = 70 * $SCALE
-const ALLOWED_FACTIONS_IMAGE_H_SPACE = 10 * $SCALE
-
-const SPECIAL_SKILLS_BOX = {
-    x: ($CANVAS_MARGINS.right - 425 * $SCALE),
-    y: ($STAT_VALS_BOX.y + $STAT_VALS_BOX.h + 20 * $SCALE),
-    w: (425 * $SCALE),
-    h: null,
-}
-# offset for the first special skill
-const SPECIAL_SKILLS_OFFSET = {
-    x: (10 * $SCALE),
-    y: (80 * $SCALE),
-}
-# the base height for the "special skill" box
-const SPECIAL_SKILLS_V_BASE = 100 * $SCALE
-# the vertical space between two special skills
-const SPECIAL_SKILLS_V_SPACE = 30 * $SCALE
-const SPECIAL_SKILLS_TITLE_POS = {
-    x: $"($SPECIAL_SKILLS_BOX.x)+($SPECIAL_SKILLS_OFFSET.x)",
-    y: $"($SPECIAL_SKILLS_BOX.y)+(30 * $SCALE)-th/2",
-}
-const SPECIAL_SKILLS_TITLE_FONT = { fontfile: $BOLD_FONT,    fontcolor: "white", fontsize: (32 * $SCALE) }
-const SPECIAL_SKILLS_FONT       = { fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: (18 * $SCALE) }
-###### END TOP #################################################################
-
-################################################################################
-###### BOTTOM ##################################################################
-################################################################################
-const EQUIPMENT_BOXES_V_SPACE = 20 * $SCALE
-const EMPTY_EQUIPMENT_BOX_HEIGHT = 60 * $SCALE
-const FULL_EQUIPMENT_BOX_HEIGHT = 105 * $SCALE
-
-# the most bottom "equipment" box, i.e. the "peripheral" one, used as a base for
-# the other "equipment" boxes
-const EQUIPMENT_BOX = {
-    x: $CANVAS_MARGINS.left,
-    y: ($CANVAS_MARGINS.bottom - $FULL_EQUIPMENT_BOX_HEIGHT),
-    w: (790 * $SCALE - $CANVAS_MARGINS.left),
-    h: null,
-}
-# the horizontal offset of text in "equipment" boxes
-const EQUIPMENT_OFFSET_X = 10 * $SCALE
-const EQUIPMENT_TITLE_POS = { x: $"($EQUIPMENT_BOX.x)+($EQUIPMENT_OFFSET_X)", y: $"($EQUIPMENT_BOX.y +  4 / 15 * $FULL_EQUIPMENT_BOX_HEIGHT)-th/2" }
-const EQUIPMENT_POS =       { x: $"($EQUIPMENT_BOX.x)+($EQUIPMENT_OFFSET_X)", y: $"($EQUIPMENT_BOX.y + 11 / 15 * $FULL_EQUIPMENT_BOX_HEIGHT)-th/2" }
-const EQUIPMENT_FONT_SIZE = 22 * $SCALE
-const EQUIPMENT_TITLE_FONT = { fontfile: $BOLD_FONT, fontcolor: "white", fontsize: ($EQUIPMENT_FONT_SIZE + 6 * $SCALE) }
-const EQUIPMENT_FONT = { fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: $EQUIPMENT_FONT_SIZE }
-
-# used to build lists of things dynamically
-const LIST_SEPARATOR = ", "
-const LIST_SEPARATOR_V_OFFSET = 10 * $SCALE
-# the horizontal space a character takes in the "equipment" lists
-const EQUIPMENT_CHAR_SIZE = $EQUIPMENT_FONT.fontsize * 0.6
-
-# the vertical row positions in the bottom base "equipment" box, i.e. the "peripheral" box
-const BOTTOM_FIRST_ROW_Y = 885 * $SCALE
-const BOTTOM_SECOND_ROW_Y = 930 * $SCALE
-
-const MELEE_BOX = {
-    x: ($EQUIPMENT_BOX.x + $EQUIPMENT_BOX.w + 20 * $SCALE),
-    y: ($CANVAS_MARGINS.bottom - $FULL_EQUIPMENT_BOX_HEIGHT),
-    w: (1335 * $SCALE - ($EQUIPMENT_BOX.x + $EQUIPMENT_BOX.w + 20 * $SCALE)),
-    h: $FULL_EQUIPMENT_BOX_HEIGHT,
-}
-# the horizontal offset of text in "melee" box
-const MELEE_OFFSET_X = 10 * $SCALE
-const MELEE_WEAPONS_TITLE_POS = { x: $"($MELEE_BOX.x)+($MELEE_OFFSET_X)", y: $"($MELEE_BOX.y +  4 / 15 * $FULL_EQUIPMENT_BOX_HEIGHT)-th/2" }
-const MELEE_WEAPONS_POS =       { x: $"($MELEE_BOX.x)+($MELEE_OFFSET_X)", y: $"($MELEE_BOX.y + 11 / 15 * $FULL_EQUIPMENT_BOX_HEIGHT)-th/2" }
-const MELEE_FONT_SIZE = 22 * $SCALE
-const MELEE_WEAPONS_TITLE_FONT  = { fontfile: $BOLD_FONT, fontcolor: "white", fontsize: ($MELEE_FONT_SIZE + 6 * $SCALE) }
-const MELEE_WEAPONS_FONT = { fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: $MELEE_FONT_SIZE }
-
-const SWC_BOX = {
-    x: ($MELEE_BOX.x + $MELEE_BOX.w + 20 * $SCALE),
-    y: ($CANVAS_MARGINS.bottom - $FULL_EQUIPMENT_BOX_HEIGHT),
-    w: (1445 * $SCALE - ($MELEE_BOX.x + $MELEE_BOX.w + 20 * $SCALE)),
-    h: $FULL_EQUIPMENT_BOX_HEIGHT,
-}
-const SWC_TITLE_POS = { x: $"($SWC_BOX.x)+($SWC_BOX.w // 2)-tw/2", y: $"($SWC_BOX.y +  4 / 15 * $FULL_EQUIPMENT_BOX_HEIGHT)-th/2" }
-const SWC_POS =       { x: $"($SWC_BOX.x)+($SWC_BOX.w // 2)-tw/2", y: $"($SWC_BOX.y + 11 / 15 * $FULL_EQUIPMENT_BOX_HEIGHT)-th/2" }
-const SWC_FONT_SIZE = 30 * $SCALE
-const SWC_TITLE_FONT = { fontfile: $BOLD_FONT, fontcolor: "white", fontsize: $SWC_FONT_SIZE }
-const SWC_FONT = { fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: $SWC_FONT_SIZE }
-
-const C_BOX = {
-    x: ($SWC_BOX.x + $SWC_BOX.w + 15 * $SCALE),
-    y: ($CANVAS_MARGINS.bottom - $FULL_EQUIPMENT_BOX_HEIGHT),
-    w: ($CANVAS_MARGINS.right - ($SWC_BOX.x + $SWC_BOX.w + 15 * $SCALE)),
-    h: $FULL_EQUIPMENT_BOX_HEIGHT,
-}
-const C_TITLE_POS = { x: $"($C_BOX.x)+($C_BOX.w // 2)-tw/2", y: $"($C_BOX.y +  4 / 15 * $FULL_EQUIPMENT_BOX_HEIGHT)-th/2" }
-const C_POS =       { x: $"($C_BOX.x)+($C_BOX.w // 2)-tw/2", y: $"($C_BOX.y + 11 / 15 * $FULL_EQUIPMENT_BOX_HEIGHT)-th/2" }
-const C_FONT_SIZE = 30 * $SCALE
-const C_TITLE_FONT = { fontfile: $BOLD_FONT, fontcolor: "white", fontsize: $C_FONT_SIZE }
-const C_FONT = { fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: $C_FONT_SIZE }
-
-const QR_CODE_SIZE = 4              # passed to --size
-const QR_CODE_MARGIN = 1            # passed to --margin
-const QR_CODE_WIDTH = 105 * $SCALE  # the final width of the QR code
-
-const NAME_2_BOX = {
-    x: ($EQUIPMENT_BOX.x + $EQUIPMENT_BOX.w + 20 * $SCALE),
-    y: ($MELEE_BOX.y - 15 * $SCALE - 55 * $SCALE),
-    w: ($CANVAS_MARGINS.right - ($QR_CODE_WIDTH + 10 * $SCALE) - ($EQUIPMENT_BOX.x + $EQUIPMENT_BOX.w + 20 * $SCALE)),
-    h: (55 * $SCALE),
-}
-# the horizontal offset of text in "name 2" box
-const NAME_2_OFFSET_X = 10 * $SCALE
-const NAME_2_POS = { x: $"($NAME_2_BOX.x)+($NAME_2_OFFSET_X)", y: $"($NAME_2_BOX.y)+($NAME_2_BOX.h / 2)-th/2" }
-const NAME_2_FONT = { fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: (30 * $SCALE) }
-
-const QR_CODE_OVERLAY = { kind: "overlay",  options: {
-    x: $"($CANVAS_MARGINS.right)-w",
-    y: $"($NAME_2_BOX.y + $NAME_2_BOX.h)-h",
-} }
-###### END BOTTOM ##############################################################
 
 # marks "spec" equipments or skill in bold
 def equipment-or-skill-to-text [
     equipment_or_skill,  # string | record<name: string, mod?: string, spec?: bool>
     base_font: record<fontfile: path, fontcolor: string, fontsize: number>,
-    pos: record<x: any, y: any>,
+    pos: record<x: number, y: number, alignment: record<x: string, y: string>>,
 ]: [ nothing -> record<transform: record, text: string> ] {
     let equipment_or_skill = match ($equipment_or_skill | describe --detailed).type {
         "string" => { name: $equipment_or_skill },
@@ -239,22 +367,23 @@ def equipments-to-text [
         title_pos: record<x: any, y: any>,
         text_pos: record<x: any, y: any>,
     >
+    options: record,
 ]: [ nothing -> list<record> ] {
     if $x.equipments == [] {
         return []
     }
 
     $x.equipments
-        | iter intersperse $LIST_SEPARATOR
+        | iter intersperse $options.list_separator
         | reduce --fold { transforms: [], pos: $x.text_pos } { |it, acc|
-            let pos = if $it == $LIST_SEPARATOR {
-                $acc.pos | update y { $"($in)+($LIST_SEPARATOR_V_OFFSET)" }
+            let pos = if $it == $options.list_separator {
+                $acc.pos | update y { $"($in)+($options.list_separator_v_offset)" }
             } else {
                 $acc.pos
             }
-            let res = equipment-or-skill-to-text $it $EQUIPMENT_FONT $pos
+            let res = equipment-or-skill-to-text $it $options.equipment_font $pos
             let next_pos = $acc.pos
-                | update x { $"($in) + (($res.text | str length) * $EQUIPMENT_CHAR_SIZE)" }
+                | update x { $"($in) + (($res.text | str length) * $options.equipment_char_size)" }
 
             { transforms: ($acc.transforms | append $res.transform), pos: $next_pos }
         }
@@ -285,91 +414,94 @@ export def gen-stats-page [
     color: string,
     output: path,
     modifiers: table<name: string, mod: record>,
+    options: record,
 ] {
     # NOTE: this is required because of signature issues in Nushell
     let modifiers = $modifiers | transpose --header-row | into record
 
+    let options = $options | merge (get-options $options)
+
     # NOTE: because we assume the box will be full at the start
-    const EQUIPMENT_BOX_DELTA_HEIGHT = $FULL_EQUIPMENT_BOX_HEIGHT - $EMPTY_EQUIPMENT_BOX_HEIGHT
+    let equipment_box_delta_height = $options.full_equipment_box_height - $options.empty_equipment_box_height
 
     # first "equipment" box from bottom
     let peripheral = $troop.peripheral | if $in == [] {{
         equipments: $in,
-        box: ($EQUIPMENT_BOX | update h $EMPTY_EQUIPMENT_BOX_HEIGHT | update y { $in + $EQUIPMENT_BOX_DELTA_HEIGHT }),
-        title_pos: ($EQUIPMENT_TITLE_POS | update y { $"($in)+($EQUIPMENT_BOX_DELTA_HEIGHT)" }),
-        text_pos: ($EQUIPMENT_POS | update y { $"($in)+($EQUIPMENT_BOX_DELTA_HEIGHT)" }),
+        box: ($options.equipment_box | update h $options.empty_equipment_box_height | update y { $in + $equipment_box_delta_height }),
+        title_pos: ($options.equipment_title_pos | update y { $in + $equipment_box_delta_height }),
+        text_pos: ($options.equipment_pos | update y { $in + $equipment_box_delta_height }),
     }} else {{
         equipments: $in,
-        box: ($EQUIPMENT_BOX | update h $FULL_EQUIPMENT_BOX_HEIGHT),
-        title_pos: $EQUIPMENT_TITLE_POS,
-        text_pos: $EQUIPMENT_POS,
+        box: ($options.equipment_box | update h $options.full_equipment_box_height),
+        title_pos: $options.equipment_title_pos,
+        text_pos: $options.equipment_pos,
     }}
 
     # second "equipment" box from bottom
     let equipment = $troop.equipment | if $in == [] {{
         equipments: $in,
-        box: ($peripheral.box | update y { $in - ($EQUIPMENT_BOXES_V_SPACE + $EMPTY_EQUIPMENT_BOX_HEIGHT) } | update h $EMPTY_EQUIPMENT_BOX_HEIGHT),
-        title_pos: ($peripheral.title_pos | update y { $"($in)-($EQUIPMENT_BOXES_V_SPACE + $EMPTY_EQUIPMENT_BOX_HEIGHT)" }),
-        text_pos: ($peripheral.text_pos | update y { $"($in)-($EQUIPMENT_BOXES_V_SPACE + $EMPTY_EQUIPMENT_BOX_HEIGHT)" }),
+        box: ($peripheral.box | update y { $in - ($options.equipment_boxes_v_space + $options.empty_equipment_box_height) } | update h $options.empty_equipment_box_height),
+        title_pos: ($peripheral.title_pos | update y { $in - $options.equipment_boxes_v_space - $options.empty_equipment_box_height }),
+        text_pos: ($peripheral.text_pos | update y { $in - $options.equipment_boxes_v_space - $options.empty_equipment_box_height }),
     }} else {{
         equipments: $in,
-        box: ($peripheral.box | update y { $in - ($EQUIPMENT_BOXES_V_SPACE + $FULL_EQUIPMENT_BOX_HEIGHT) } | update h $FULL_EQUIPMENT_BOX_HEIGHT),
-        title_pos: ($peripheral.title_pos | update y { $"($in)-($EQUIPMENT_BOXES_V_SPACE + $FULL_EQUIPMENT_BOX_HEIGHT)" }),
-        text_pos: ($peripheral.text_pos | update y { $"($in)-($EQUIPMENT_BOXES_V_SPACE + $FULL_EQUIPMENT_BOX_HEIGHT)" }),
+        box: ($peripheral.box | update y { $in - ($options.equipment_boxes_v_space + $options.full_equipment_box_height) } | update h $options.full_equipment_box_height),
+        title_pos: ($peripheral.title_pos | update y { $in - $options.equipment_boxes_v_space - $options.full_equipment_box_height }),
+        text_pos: ($peripheral.text_pos | update y { $in - $options.equipment_boxes_v_space - $options.full_equipment_box_height }),
     }}
 
     # third and last "equipment" box from bottom
     let weaponry = $troop.weaponry | if $in == [] {{
         equipments: $in,
-        box: ($equipment.box | update y { $in - ($EQUIPMENT_BOXES_V_SPACE + $EMPTY_EQUIPMENT_BOX_HEIGHT) } | update h $EMPTY_EQUIPMENT_BOX_HEIGHT),
-        title_pos: ($equipment.title_pos | update y { $"($in)-($EQUIPMENT_BOXES_V_SPACE + $EMPTY_EQUIPMENT_BOX_HEIGHT)" }),
-        text_pos: ($equipment.text_pos | update y { $"($in)-($EQUIPMENT_BOXES_V_SPACE + $EMPTY_EQUIPMENT_BOX_HEIGHT)" }),
+        box: ($equipment.box | update y { $in - ($options.equipment_boxes_v_space + $options.empty_equipment_box_height) } | update h $options.empty_equipment_box_height),
+        title_pos: ($equipment.title_pos | update y { $in - $options.equipment_boxes_v_space - $options.empty_equipment_box_height }),
+        text_pos: ($equipment.text_pos | update y { $in - $options.equipment_boxes_v_space - $options.empty_equipment_box_height }),
     }} else {{
         equipments: $in,
-        box: ($equipment.box | update y { $in - ($EQUIPMENT_BOXES_V_SPACE + $FULL_EQUIPMENT_BOX_HEIGHT) } | update h $FULL_EQUIPMENT_BOX_HEIGHT),
-        title_pos: ($equipment.title_pos | update y { $"($in)-($EQUIPMENT_BOXES_V_SPACE + $FULL_EQUIPMENT_BOX_HEIGHT)" }),
-        text_pos: ($equipment.text_pos | update y { $"($in)-($EQUIPMENT_BOXES_V_SPACE + $FULL_EQUIPMENT_BOX_HEIGHT)" }),
+        box: ($equipment.box | update y { $in - ($options.equipment_boxes_v_space + $options.full_equipment_box_height) } | update h $options.full_equipment_box_height),
+        title_pos: ($equipment.title_pos | update y { $in - $options.equipment_boxes_v_space - $options.full_equipment_box_height }),
+        text_pos: ($equipment.text_pos | update y { $in - $options.equipment_boxes_v_space - $options.full_equipment_box_height }),
     }}
 
-    let characteristics_box = $CHARACTERISTICS_BOX | update h (
-        $CHARACTERISTICS_BOX.w // 2 +  # because text is twice larger
-        (if ($troop.characteristics | is-empty) { 0 } else { 2 * $CHARACTERISTICS_V_SPACE }) +
-        ($CHARACTERISTICS_IMAGE_SIZE + $CHARACTERISTICS_V_SPACE) * ($troop.characteristics | length)
+    let characteristics_box = $options.characteristics_box | update h (
+        $options.characteristics_box.w // 2 +  # because text is twice larger
+        (if ($troop.characteristics | is-empty) { 0 } else { 2 * $options.characteristics_v_space }) +
+        ($options.characteristics_image_size + $options.characteristics_v_space) * ($troop.characteristics | length)
     )
-    let special_skills_box = $SPECIAL_SKILLS_BOX | update h (
-        $SPECIAL_SKILLS_V_BASE + $SPECIAL_SKILLS_V_SPACE * (($troop.special_skills | length) - 1)
+    let special_skills_box = $options.special_skills_box | update h (
+        $options.special_skills_v_base + $options.special_skills_v_space * (($troop.special_skills | length) - 1)
     )
 
     let qrcode = mktemp --tmpdir infinity-XXXXXXX.png
     log info $"generating QR code in (ansi purple)($qrcode)(ansi reset)"
-    qrencode --margin $QR_CODE_MARGIN --size $QR_CODE_SIZE -o $qrcode $troop.reference
+    qrencode --margin $options.qr_code_margin --size $options.qr_code_size -o $qrcode $troop.reference
     let qrcode = $qrcode
-        | ffmpeg apply $"scale=($QR_CODE_WIDTH):($QR_CODE_WIDTH)" --output (mktemp --tmpdir infinity-XXXXXXX.png)
+        | ffmpeg apply $"scale=($options.qr_code_width):($options.qr_code_width)" --output (mktemp --tmpdir infinity-XXXXXXX.png)
 
     let transforms = [
-        (ffmpeg-text $"ISC: ($troop.isc)"  $ISC_POS            $ISC_FONT),
-        (ffmpeg-text $troop.classification $CLASSIFICATION_POS $ISC_FONT),
+        (ffmpeg-text $"ISC: ($troop.isc)"  $options.isc_pos            $options.isc_font),
+        (ffmpeg-text $troop.classification $options.classification_pos $options.isc_font),
 
-        { kind: "drawbox",  options: { ...$NAME_BOX, color: $"($color)@1.0", t: "fill" } },
-        { kind: "drawbox",  options: { ...$NAME_BOX, color: "black@0.4",     t: $"($BOX_BORDER)" } },
-        (ffmpeg-text $troop.name $NAME_POS $NAME_FONT),
+        { kind: "drawbox",  options: { ...$options.name_box, color: $"($color)@1.0", t: "fill" } },
+        { kind: "drawbox",  options: { ...$options.name_box, color: "black@0.4",     t: $"($options.box_border)" } },
+        (ffmpeg-text $troop.name $options.name_pos $options.name_font),
 
-        { kind: "drawbox",  options: { ...$NAME_2_BOX, color: $"($color)@1.0", t: "fill" } },
-        { kind: "drawbox",  options: { ...$NAME_2_BOX, color: "black@0.4",     t: $"($BOX_BORDER)" } },
-        (ffmpeg-text $troop.short_name $NAME_2_POS $NAME_2_FONT),
+        { kind: "drawbox",  options: { ...$options.name_2_box, color: $"($color)@1.0", t: "fill" } },
+        { kind: "drawbox",  options: { ...$options.name_2_box, color: "black@0.4",     t: $"($options.box_border)" } },
+        (ffmpeg-text $troop.short_name $options.name_2_pos $options.name_2_font),
 
-        { kind: "drawbox",  options: { ...$ICON_BOX, color: "black@0.5", t: "fill" } },
-        { kind: "drawbox",  options: { ...$ICON_BOX, color: "black@0.5", t: $"($BOX_BORDER)" } },
+        { kind: "drawbox",  options: { ...$options.icon_box, color: "black@0.5", t: "fill" } },
+        { kind: "drawbox",  options: { ...$options.icon_box, color: "black@0.5", t: $"($options.box_border)" } },
 
         { kind: "drawbox",  options: { ...$characteristics_box, color: "black@0.5", t: "fill" } },
-        { kind: "drawbox",  options: { ...$characteristics_box, color: "black@0.5", t: $"($BOX_BORDER)" } },
-        (ffmpeg-text $troop.type $CHARACTERISTICS_TYPE_POS $CHARACTERISTICS_TYPE_FONT),
+        { kind: "drawbox",  options: { ...$characteristics_box, color: "black@0.5", t: $"($options.box_border)" } },
+        (ffmpeg-text $troop.type $options.characteristics_type_pos $options.characteristics_type_font),
 
-        { kind: "drawbox",  options: { ...$STAT_KEYS_BOX, color: $"($color)@1.0", t: "fill" } },
-        { kind: "drawbox",  options: { ...$STAT_KEYS_BOX, color: "black@0.4",     t: $"($BOX_BORDER)" } },
+        { kind: "drawbox",  options: { ...$options.stat_keys_box, color: $"($color)@1.0", t: "fill" } },
+        { kind: "drawbox",  options: { ...$options.stat_keys_box, color: "black@0.4",     t: $"($options.box_border)" } },
 
-        { kind: "drawbox",  options: { ...$STAT_VALS_BOX, color: "black@0.5",     t: "fill" } },
-        { kind: "drawbox",  options: { ...$STAT_VALS_BOX, color: "black@0.5",     t: $"($BOX_BORDER)" } },
+        { kind: "drawbox",  options: { ...$options.stat_vals_box, color: "black@0.5",     t: "fill" } },
+        { kind: "drawbox",  options: { ...$options.stat_vals_box, color: "black@0.5",     t: $"($options.box_border)" } },
         ...(
             $troop.stats | transpose k v | enumerate | each { |it|
                 const MARTIAL_ARTS = [
@@ -433,8 +565,16 @@ export def gen-stats-page [
                 | default $it.item.v
 
                 [
-                    (ffmpeg-text $"($it.item.k)" { x: $"($STAT_KEYS_BOX.x)+($STAT_OFFSET_X)+($it.index)*($STAT_H_SPACE)-tw/2", y: $"($STAT_KEYS_BOX.y)+($STAT_KEYS_BOX.h / 2)-th/2" } $STAT_FONT),
-                    (ffmpeg-text $"($stat)"      { x: $"($STAT_VALS_BOX.x)+($STAT_OFFSET_X)+($it.index)*($STAT_H_SPACE)-tw/2", y: $"($STAT_VALS_BOX.y)+($STAT_VALS_BOX.h / 2)-th/2" } $STAT_FONT),
+                    (ffmpeg-text $"($it.item.k)" {
+                        x: ($options.stat_keys_box.x + $options.stat_offset_x + $it.index * $options.stat_h_space),
+                        y: ($options.stat_keys_box.y + $options.stat_keys_box.h / 2),
+                        alignment: $TEXT_ALIGNMENT.center,
+                    } $options.stat_font),
+                    (ffmpeg-text $"($stat)" {
+                        x: ($options.stat_vals_box.x + $options.stat_offset_x + $it.index * $options.stat_h_space),
+                        y: ($options.stat_vals_box.y + $options.stat_vals_box.h / 2),
+                        alignment: $TEXT_ALIGNMENT.center,
+                    } $options.stat_font),
                 ]
             } | flatten
         ),
@@ -445,39 +585,40 @@ export def gen-stats-page [
             } else {
                 let box = [
                     { kind: "drawbox",  options: { ...$special_skills_box, color: "black@0.5", t: "fill" } },
-                    { kind: "drawbox",  options: { ...$special_skills_box, color: "black@0.5", t: $"($BOX_BORDER)" } },
-                    (ffmpeg-text "Special skills" $SPECIAL_SKILLS_TITLE_POS $SPECIAL_SKILLS_TITLE_FONT),
+                    { kind: "drawbox",  options: { ...$special_skills_box, color: "black@0.5", t: $"($options.box_border)" } },
+                    (ffmpeg-text "Special skills" $options.special_skills_title_pos $options.special_skills_title_font),
                 ]
                 let skills = $troop.special_skills | enumerate | each { |it|
                     let pos = {
-                        x: $"($SPECIAL_SKILLS_BOX.x)+($SPECIAL_SKILLS_OFFSET.x)",
-                        y: $"($SPECIAL_SKILLS_BOX.y)+($SPECIAL_SKILLS_OFFSET.y)+($SPECIAL_SKILLS_V_SPACE)*($it.index)-th/2",
+                        x: ($options.special_skills_box.x + $options.special_skills_offset.x),
+                        y: ($options.special_skills_box.y + $options.special_skills_offset.y + $options.special_skills_v_space * $it.index),
+                        alignment: $TEXT_ALIGNMENT.left,
                     }
 
-                    [(equipment-or-skill-to-text $it.item $SPECIAL_SKILLS_FONT $pos).transform]
+                    [(equipment-or-skill-to-text $it.item $options.special_skills_font $pos).transform]
                 }
                 $box | append ($skills | flatten)
             }
         ),
 
         { kind: "drawbox",  options: { ...$weaponry.box, color: "black@0.5", t: "fill" } },
-        { kind: "drawbox",  options: { ...$weaponry.box, color: "black@0.5", t: $"($BOX_BORDER)" } },
-        (ffmpeg-text "WEAPONRY" $weaponry.title_pos $EQUIPMENT_TITLE_FONT),
-        ...(equipments-to-text $weaponry),
+        { kind: "drawbox",  options: { ...$weaponry.box, color: "black@0.5", t: $"($options.box_border)" } },
+        (ffmpeg-text "WEAPONRY" $weaponry.title_pos $options.equipment_title_font),
+        ...(equipments-to-text $weaponry $options),
 
         { kind: "drawbox",  options: { ...$equipment.box, color: "black@0.5", t: "fill" } },
-        { kind: "drawbox",  options: { ...$equipment.box, color: "black@0.5", t: $"($BOX_BORDER)" } },
-        (ffmpeg-text "EQUIPMENT" $equipment.title_pos $EQUIPMENT_TITLE_FONT),
-        ...(equipments-to-text $equipment),
+        { kind: "drawbox",  options: { ...$equipment.box, color: "black@0.5", t: $"($options.box_border)" } },
+        (ffmpeg-text "EQUIPMENT" $equipment.title_pos $options.equipment_title_font),
+        ...(equipments-to-text $equipment $options),
 
         { kind: "drawbox",  options: { ...$peripheral.box, color: "black@0.5", t: "fill" } },
-        { kind: "drawbox",  options: { ...$peripheral.box, color: "black@0.5", t: $"($BOX_BORDER)" } },
-        (ffmpeg-text "PERIPHERAL" $peripheral.title_pos $EQUIPMENT_TITLE_FONT),
-        ...(equipments-to-text $peripheral),
+        { kind: "drawbox",  options: { ...$peripheral.box, color: "black@0.5", t: $"($options.box_border)" } },
+        (ffmpeg-text "PERIPHERAL" $peripheral.title_pos $options.equipment_title_font),
+        ...(equipments-to-text $peripheral $options),
 
-        { kind: "drawbox",  options: { ...$MELEE_BOX, color: "black@0.5", t: "fill" } },
-        { kind: "drawbox",  options: { ...$MELEE_BOX, color: "black@0.5", t: $"($BOX_BORDER)" } },
-        (ffmpeg-text "MELEE WEAPONS" $MELEE_WEAPONS_TITLE_POS  $MELEE_WEAPONS_TITLE_FONT),
+        { kind: "drawbox",  options: { ...$options.melee_box, color: "black@0.5", t: "fill" } },
+        { kind: "drawbox",  options: { ...$options.melee_box, color: "black@0.5", t: $"($options.box_border)" } },
+        (ffmpeg-text "MELEE WEAPONS" $options.melee_weapons_title_pos  $options.melee_weapons_title_font),
         (do {
             let text = $troop.melee_weapons | each { |it|
                 match ($it | describe --detailed).type {
@@ -485,30 +626,30 @@ export def gen-stats-page [
                     "record" => $"($it.name) \(($it.mod)\)",
                 }
             } | str join ", "
-            ffmpeg-text $text $MELEE_WEAPONS_POS $MELEE_WEAPONS_FONT
+            ffmpeg-text $text $options.melee_weapons_pos $options.melee_weapons_font
         }),
 
-        { kind: "drawbox",  options: { ...$SWC_BOX, color: "black@0.5", t: "fill" } },
-        { kind: "drawbox",  options: { ...$SWC_BOX, color: "black@0.5", t: $"($BOX_BORDER)" } },
-        (ffmpeg-text "SWC"           $SWC_TITLE_POS  $SWC_TITLE_FONT),
-        (ffmpeg-text $"($troop.SWC)" $SWC_POS        $SWC_FONT),
+        { kind: "drawbox",  options: { ...$options.swc_box, color: "black@0.5", t: "fill" } },
+        { kind: "drawbox",  options: { ...$options.swc_box, color: "black@0.5", t: $"($options.box_border)" } },
+        (ffmpeg-text "SWC"           $options.swc_title_pos  $options.swc_title_font),
+        (ffmpeg-text $"($troop.SWC)" $options.swc_pos        $options.swc_font),
 
-        { kind: "drawbox",  options: { ...$C_BOX, color: "black@0.5", t: "fill" } },
-        { kind: "drawbox",  options: { ...$C_BOX, color: "black@0.5", t: $"($BOX_BORDER)" } },
-        (ffmpeg-text "C"           $C_TITLE_POS  $C_TITLE_FONT),
-        (ffmpeg-text $"($troop.C)" $C_POS        $C_FONT),
+        { kind: "drawbox",  options: { ...$options.c_box, color: "black@0.5", t: "fill" } },
+        { kind: "drawbox",  options: { ...$options.c_box, color: "black@0.5", t: $"($options.box_border)" } },
+        (ffmpeg-text "C"           $options.c_title_pos  $options.c_title_font),
+        (ffmpeg-text $"($troop.C)" $options.c_pos        $options.c_font),
     ]
 
-    let tmp = ffmpeg create ($BASE_IMAGE | ffmpeg options) --output (mktemp --tmpdir infinity-XXXXXXX.png)
+    let tmp = ffmpeg create ($options.base_image | ffmpeg options) --output (mktemp --tmpdir infinity-XXXXXXX.png)
         | [$in, ({ parent: $DIRS.minis, stem: $troop.asset, extension: "png" } | path join)]
-            | ffmpeg combine ($MINI_OVERLAY | ffmpeg options) --output (mktemp --tmpdir infinity-XXXXXXX.png)
+            | ffmpeg combine ($options.mini_overlay | ffmpeg options) --output (mktemp --tmpdir infinity-XXXXXXX.png)
         | if $troop.faction != null {
             [$in, ({ parent: $DIRS.factions, stem: $troop.faction, extension: "png" } | path join)]
-                | ffmpeg combine $"[1:v]format=rgba,colorchannelmixer=aa=0.5[ol];[0:v][ol]overlay=x=($FACTION_POS.x)-w/2:y=($FACTION_POS.y)-h/2" --output (mktemp --tmpdir infinity-XXXXXXX.png)
+                | ffmpeg combine $"[1:v]format=rgba,colorchannelmixer=aa=0.5[ol];[0:v][ol]overlay=x=($options.faction_pos.x)-w/2:y=($options.faction_pos.y)-h/2" --output (mktemp --tmpdir infinity-XXXXXXX.png)
         } else {
             $in
         }
-        | [$in, $qrcode] | ffmpeg combine ($QR_CODE_OVERLAY | ffmpeg options) --output (mktemp --tmpdir infinity-XXXXXXX.png)
+        | [$in, $qrcode] | ffmpeg combine ($options.qr_code_overlay | ffmpeg options) --output (mktemp --tmpdir infinity-XXXXXXX.png)
         | ffmpeg mapply ($transforms | compact | each { ffmpeg options })
 
     let tmp = $troop.characteristics
@@ -519,13 +660,13 @@ export def gen-stats-page [
                 options: {
                     x: $"($characteristics_box.x + $characteristics_box.w // 2)-w/2",
                     # FIXME: the first vertical offset is a bit magical
-                    y: $"($characteristics_box.y + 2 * $CHARACTERISTICS_V_SPACE + $CHARACTERISTICS_IMAGE_SIZE)+($it.index * ($CHARACTERISTICS_IMAGE_SIZE + $CHARACTERISTICS_V_SPACE))-h/2",
+                    y: $"($characteristics_box.y + 2 * $options.characteristics_v_space + $options.characteristics_image_size)+($it.index * ($options.characteristics_image_size + $options.characteristics_v_space))-h/2",
                 },
             } | ffmpeg options) --output (mktemp --tmpdir infinity-XXXXXXX.png)
         }
         | [$in, ({ parent: $DIRS.icons, stem: ($troop.asset | str replace --regex '\..*$' ''), extension: "png" } | path join) ] | ffmpeg combine ({
             kind: "overlay",
-            options: { x: $"($ICON_BOX.x + $ICON_BOX.w // 2)-w/2", y: $"($ICON_BOX.y + $ICON_BOX.h // 2)-h/2" },
+            options: { x: $"($options.icon_box.x + $options.icon_box.w // 2)-w/2", y: $"($options.icon_box.y + $options.icon_box.h // 2)-h/2" },
         } | ffmpeg options) --output (mktemp --tmpdir infinity-XXXXXXX.png)
 
     let tmp = $troop.allowed_factions
@@ -534,13 +675,13 @@ export def gen-stats-page [
             [$acc, ({ parent: $DIRS.allowed_factions, stem: $it.item, extension: "png" } | path join)] | ffmpeg combine ({
                 kind: "overlay",
                 options: {
-                    x: $"($STAT_VALS_BOX.x)+($ALLOWED_FACTIONS_OFFSET.x)+($it.index * ($ALLOWED_FACTIONS_IMAGE_SIZE + $ALLOWED_FACTIONS_IMAGE_H_SPACE))-w/2",
-                    y: $"($STAT_VALS_BOX.y)+($STAT_VALS_BOX.h)+($ALLOWED_FACTIONS_OFFSET.y)-h/2",
+                    x: $"($options.stat_vals_box.x)+($options.allowed_factions_offset.x)+($it.index * ($options.allowed_factions_image_size + $options.allowed_factions_image_h_space))-w/2",
+                    y: $"($options.stat_vals_box.y)+($options.stat_vals_box.h)+($options.allowed_factions_offset.y)-h/2",
                 },
             } | ffmpeg options) --output (mktemp --tmpdir infinity-XXXXXXX.png)
         }
 
-    let tmp = $tmp | put-version $troop
+    let tmp = $tmp | put-version $troop $options.version
 
     let out = $output | path parse | update stem { $in ++ ".1" } | path join
     cp $tmp $out
