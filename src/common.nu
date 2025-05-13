@@ -52,8 +52,8 @@ export def get-options [w: int, h: int, margin: int]: [
     },
     version: {
         pos: {
-            x: (0.99875 * $w),
-            y: (0.99875 * $h),
+            x: (0.99875 * $w + $margin),
+            y: (0.99875 * $h + $margin),
             alignment: $TEXT_ALIGNMENT.bottom_right,
         },
         font: { fontfile: $REGULAR_FONT, fontsize: (15 / 1600 * $w), fontcolor: "black" },

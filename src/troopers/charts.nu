@@ -29,8 +29,7 @@ def get-options [options: record] {
         $header_fontsize +
         $headers_background_h / 2 +
         ($ranges_fontsize + 0.020 * $options.canvas.h) / 2 +
-        0.010 * $options.canvas.h +
-        $options.margin
+        0.010 * $options.canvas.h
     )
 
     {
