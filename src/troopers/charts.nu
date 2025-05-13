@@ -6,30 +6,31 @@ use ../ffmpeg.nu [ "ffmpeg metadata" ]
 
 def get-options [options: record] {
     let box = $options.margins.left | {
-        x: $in,
-        y: $options.margins.top,
+        x: ($in + $options.margin),
+        y: ($options.margins.top + $options.margin),
         w: ($options.margins.right - $in),
-        h: (55 * $options.scale.y),
+        h: (0.055 * $options.canvas.h),
     }
 
     let header_max_chars = 10
     let name_max_chars = 25
     let traits_max_chars = 27
 
-    let normal_fontsize = 22 * $options.scale.x
-    let header_fontsize = 25 * $options.scale.y
+    let normal_fontsize = 0.01375 * $options.canvas.w
+    let header_fontsize = 0.02500 * $options.canvas.h
     let ranges_fontsize = $header_fontsize * 0.7
 
-    let name_x = (140 + 20) * $options.scale.x
+    let name_x = 0.1 * $options.canvas.w + $options.margin
 
     let start_y = $box.y + $box.h + $options.margins.top
-    let headers_background_h = 3 * $header_fontsize + 20 * $options.scale.y
+    let headers_background_h = 3 * $header_fontsize + 0.020 * $options.canvas.h
     let ranges_y = (
         $start_y +
         $header_fontsize +
         $headers_background_h / 2 +
-        ($ranges_fontsize + 20 * $options.scale.y) / 2 +
-        10 * $options.scale.y
+        ($ranges_fontsize + 0.020 * $options.canvas.h) / 2 +
+        0.010 * $options.canvas.h +
+        $options.margin
     )
 
     {
@@ -37,7 +38,7 @@ def get-options [options: record] {
             kind: "color",
             options: {
                 c: $BASE_COLOR,
-                s: $"($options.canvas.w)x($options.canvas.h)",
+                s: $"($options.canvas.w + 2 * $options.margin)x($options.canvas.h + 2 * $options.margin)",
                 d: 1,
             },
         },
@@ -45,28 +46,28 @@ def get-options [options: record] {
             box: $box,
             text: {
                 pos: {
-                    x: ($box.x + 28 * $options.scale.x),
+                    x: ($box.x + 0.0175 * $options.canvas.w),
                     y: ($box.y + $box.h / 2),
                     alignment: $TEXT_ALIGNMENT.left,
                 },
                 font: {
                     fontfile: $BOLD_FONT,
                     fontcolor: "white",
-                    fontsize: (45 * $options.scale.x),
+                    fontsize: (0.028125 * $options.canvas.w),
                 },
             }
             max_chars: $name_max_chars,
             x: $name_x,
         },
-        v_space: (20 * $options.scale.y),
-        box_border: (5 * $options.scale.x),
+        v_space: (0.020 * $options.canvas.h),
+        box_border: (0.003125 * $options.canvas.w),
         fonts: {
             normal: { fontfile: $REGULAR_FONT, fontcolor: "black", fontsize: $normal_fontsize },
             header: { fontfile: $BOLD_FONT,    fontcolor: "white", fontsize: $header_fontsize },
             ranges: { fontfile: $BOLD_FONT,    fontcolor: "white", fontsize: $ranges_fontsize },
         },
         ranges: {
-            cell_width: (50 * $options.scale.x),
+            cell_width: (0.03125 * $options.canvas.w),
             labels: ['8"', '16"', '24"', '32"', '40"', '48"', '96"'],
             pos: {
                 x: ($name_x + ($normal_fontsize * 0.33) * $name_max_chars),
@@ -75,10 +76,10 @@ def get-options [options: record] {
             background: {
                 kind: "drawbox",
                 options: {
-                    x: 0,
+                    x: $options.margin,
                     y: $"($ranges_y)-h/2",
                     w: $options.canvas.w,
-                    h: ($ranges_fontsize + 20 * $options.scale.y),
+                    h: ($ranges_fontsize + 0.020 * $options.canvas.h),
                     color: "0x555555",
                     t: "fill",
                 },
@@ -87,16 +88,16 @@ def get-options [options: record] {
         headers: {
             labels: [
                 [field,                    short,  x                        ];
-                [PS,                       PS,     (750  * $options.scale.x)],
-                [B,                        B,      (805  * $options.scale.x)],
-                [AMMUNITION,               AMMO,   (905  * $options.scale.x)],
-                ["SAVING ROLL ATTRIBUTE",  ATTR,   (1060 * $options.scale.x)],
-                ["NUMBER OF SAVING ROLLS", SR,     (1200 * $options.scale.x)],
+                [PS,                       PS,     (0.46875  * $options.canvas.w + $options.margin)],
+                [B,                        B,      (0.503125 * $options.canvas.w + $options.margin)],
+                [AMMUNITION,               AMMO,   (0.565625 * $options.canvas.w + $options.margin)],
+                ["SAVING ROLL ATTRIBUTE",  ATTR,   (0.6625   * $options.canvas.w + $options.margin)],
+                ["NUMBER OF SAVING ROLLS", SR,     (0.75     * $options.canvas.w + $options.margin)],
             ],
             background: {
                 kind: "drawbox",
                 options: {
-                    x: 0,
+                    x: $options.margin,
                     y: $"($start_y + $header_fontsize)-h/2",
                     w: $options.canvas.w,
                     h: $headers_background_h,
@@ -107,7 +108,7 @@ def get-options [options: record] {
             max_chars: $header_max_chars,
         },
         traits: {
-            x: ($options.canvas.w - (165 + 20) * $options.scale.x),
+            x: ((1 - 0.115625) * $options.canvas.w + $options.margin),
             max_chars: $traits_max_chars,
         },
         start_y: ($box.y + $box.h + $options.margins.top),
@@ -155,7 +156,7 @@ def put-weapons-charts [equipments: table<name: string, stats: record>, options:
 
     let transforms = $equipments | enumerate | reduce --fold {
         y: ($options.ranges.pos.y + $options.ranges.background.options.h),
-        last_y: ($options.ranges.pos.y + $options.ranges.background.options.h // 2),
+        last_y: ($options.ranges.pos.y + $options.ranges.background.options.h // 2), # NOTE: because boxes are left-alignment
         ts: [],
     } { |eq, acc|
         # FIXME: no idea why this is IO call is required...
@@ -197,7 +198,7 @@ def put-weapons-charts [equipments: table<name: string, stats: record>, options:
         let background = {
             kind: "drawbox",
             options: {
-                x: 0,
+                x: $options.margin,
                 y: $"($range_y)-h/2",
                 w: $options.canvas.w,
                 h: $range_h,

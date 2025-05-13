@@ -45,6 +45,7 @@ export def build-trooper-card [
         C: int
     >,
     --canvas: record<w: int, h: int>,
+    --margin: int,
     --color: string,
     --output: path = "output.png",
     --stats,
@@ -69,7 +70,7 @@ export def build-trooper-card [
     | where $it.mod != null
     | reject pos?
 
-    let options = get-options $canvas.w $canvas.h
+    let options = get-options $canvas.w $canvas.h $margin
 
     match [$stats, $charts] {
         [true, true] | [false, false] => {

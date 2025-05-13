@@ -26,7 +26,7 @@ export const TEXT_ALIGNMENT = {
     bottom_right : { x:   "tw", y:   "th" },
 }
 
-export def get-options [w: int, h: int]: [
+export def get-options [w: int, h: int, margin: int]: [
     nothing -> record<
         canvas: record<w: int, h: int>,
         scale: record<x: float, y: float>,
@@ -42,6 +42,7 @@ export def get-options [w: int, h: int]: [
     >
 ] { {
     canvas: { w: $w, h: $h },
+    margin: $margin,
     scale: { x: ($w / 1600), y: ($h / 1000) },
     margins: {
         top    : (0.035 * $h),
@@ -51,8 +52,8 @@ export def get-options [w: int, h: int]: [
     },
     version: {
         pos: {
-            x: ((1 - 2 / 1600) * $w),
-            y: ((1 - 2 / 1000) * $h),
+            x: (0.99875 * $w),
+            y: (0.99875 * $h),
             alignment: $TEXT_ALIGNMENT.bottom_right,
         },
         font: { fontfile: $REGULAR_FONT, fontsize: (15 / 1600 * $w), fontcolor: "black" },
