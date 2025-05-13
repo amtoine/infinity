@@ -27,6 +27,8 @@ const MINI_OVERLAY = { kind: "overlay",  options: {
     y: $"($CANVAS.h * $SCALE)-(50 * $SCALE)-h",
 } }
 
+const BOX_BORDER = 5 * $SCALE
+
 ################################################################################
 ###### ICON and CHARACTERISTICS BOXES ##########################################
 ################################################################################
@@ -356,25 +358,25 @@ export def gen-stats-page [
         (ffmpeg-text $troop.classification $CLASSIFICATION_POS $ISC_FONT),
 
         { kind: "drawbox",  options: { ...$NAME_BOX, color: $"($color)@1.0", t: "fill" } },
-        { kind: "drawbox",  options: { ...$NAME_BOX, color: "black@0.4",     t: "5" } },
+        { kind: "drawbox",  options: { ...$NAME_BOX, color: "black@0.4",     t: $"($BOX_BORDER)" } },
         (ffmpeg-text $troop.name $NAME_POS $NAME_FONT),
 
         { kind: "drawbox",  options: { ...$NAME_2_BOX, color: $"($color)@1.0", t: "fill" } },
-        { kind: "drawbox",  options: { ...$NAME_2_BOX, color: "black@0.4",     t: "5" } },
+        { kind: "drawbox",  options: { ...$NAME_2_BOX, color: "black@0.4",     t: $"($BOX_BORDER)" } },
         (ffmpeg-text $troop.short_name $NAME_2_POS $NAME_2_FONT),
 
         { kind: "drawbox",  options: { ...$ICON_BOX, color: "black@0.5", t: "fill" } },
-        { kind: "drawbox",  options: { ...$ICON_BOX, color: "black@0.5", t: "5" } },
+        { kind: "drawbox",  options: { ...$ICON_BOX, color: "black@0.5", t: $"($BOX_BORDER)" } },
 
         { kind: "drawbox",  options: { ...$characteristics_box, color: "black@0.5", t: "fill" } },
-        { kind: "drawbox",  options: { ...$characteristics_box, color: "black@0.5", t: "5" } },
+        { kind: "drawbox",  options: { ...$characteristics_box, color: "black@0.5", t: $"($BOX_BORDER)" } },
         (ffmpeg-text $troop.type $CHARACTERISTICS_TYPE_POS $CHARACTERISTICS_TYPE_FONT),
 
         { kind: "drawbox",  options: { ...$STAT_KEYS_BOX, color: $"($color)@1.0", t: "fill" } },
-        { kind: "drawbox",  options: { ...$STAT_KEYS_BOX, color: "black@0.4",     t: "5" } },
+        { kind: "drawbox",  options: { ...$STAT_KEYS_BOX, color: "black@0.4",     t: $"($BOX_BORDER)" } },
 
         { kind: "drawbox",  options: { ...$STAT_VALS_BOX, color: "black@0.5",     t: "fill" } },
-        { kind: "drawbox",  options: { ...$STAT_VALS_BOX, color: "black@0.5",     t: "5" } },
+        { kind: "drawbox",  options: { ...$STAT_VALS_BOX, color: "black@0.5",     t: $"($BOX_BORDER)" } },
         ...(
             $troop.stats | transpose k v | enumerate | each { |it|
                 const MARTIAL_ARTS = [
@@ -450,7 +452,7 @@ export def gen-stats-page [
             } else {
                 let box = [
                     { kind: "drawbox",  options: { ...$special_skills_box, color: "black@0.5", t: "fill" } },
-                    { kind: "drawbox",  options: { ...$special_skills_box, color: "black@0.5", t: "5" } },
+                    { kind: "drawbox",  options: { ...$special_skills_box, color: "black@0.5", t: $"($BOX_BORDER)" } },
                     (ffmpeg-text "Special skills" $SPECIAL_SKILLS_TITLE_POS $SPECIAL_SKILLS_TITLE_FONT),
                 ]
                 let skills = $troop.special_skills | enumerate | each { |it|
@@ -466,22 +468,22 @@ export def gen-stats-page [
         ),
 
         { kind: "drawbox",  options: { ...$weaponry.box, color: "black@0.5", t: "fill" } },
-        { kind: "drawbox",  options: { ...$weaponry.box, color: "black@0.5", t: "5" } },
+        { kind: "drawbox",  options: { ...$weaponry.box, color: "black@0.5", t: $"($BOX_BORDER)" } },
         (ffmpeg-text "WEAPONRY" $weaponry.title_pos $EQUIPMENT_TITLE_FONT),
         ...(equipments-to-text $weaponry),
 
         { kind: "drawbox",  options: { ...$equipment.box, color: "black@0.5", t: "fill" } },
-        { kind: "drawbox",  options: { ...$equipment.box, color: "black@0.5", t: "5" } },
+        { kind: "drawbox",  options: { ...$equipment.box, color: "black@0.5", t: $"($BOX_BORDER)" } },
         (ffmpeg-text "EQUIPMENT" $equipment.title_pos $EQUIPMENT_TITLE_FONT),
         ...(equipments-to-text $equipment),
 
         { kind: "drawbox",  options: { ...$peripheral.box, color: "black@0.5", t: "fill" } },
-        { kind: "drawbox",  options: { ...$peripheral.box, color: "black@0.5", t: "5" } },
+        { kind: "drawbox",  options: { ...$peripheral.box, color: "black@0.5", t: $"($BOX_BORDER)" } },
         (ffmpeg-text "PERIPHERAL" $peripheral.title_pos $EQUIPMENT_TITLE_FONT),
         ...(equipments-to-text $peripheral),
 
         { kind: "drawbox",  options: { ...$MELEE_BOX, color: "black@0.5", t: "fill" } },
-        { kind: "drawbox",  options: { ...$MELEE_BOX, color: "black@0.5", t: "5" } },
+        { kind: "drawbox",  options: { ...$MELEE_BOX, color: "black@0.5", t: $"($BOX_BORDER)" } },
         (ffmpeg-text "MELEE WEAPONS" $MELEE_WEAPONS_TITLE_POS  $MELEE_WEAPONS_TITLE_FONT),
         (do {
             let text = $troop.melee_weapons | each { |it|
@@ -494,12 +496,12 @@ export def gen-stats-page [
         }),
 
         { kind: "drawbox",  options: { ...$SWC_BOX, color: "black@0.5", t: "fill" } },
-        { kind: "drawbox",  options: { ...$SWC_BOX, color: "black@0.5", t: "5" } },
+        { kind: "drawbox",  options: { ...$SWC_BOX, color: "black@0.5", t: $"($BOX_BORDER)" } },
         (ffmpeg-text "SWC"           $SWC_TITLE_POS  $SWC_TITLE_FONT),
         (ffmpeg-text $"($troop.SWC)" $SWC_POS        $SWC_FONT),
 
         { kind: "drawbox",  options: { ...$C_BOX, color: "black@0.5", t: "fill" } },
-        { kind: "drawbox",  options: { ...$C_BOX, color: "black@0.5", t: "5" } },
+        { kind: "drawbox",  options: { ...$C_BOX, color: "black@0.5", t: $"($BOX_BORDER)" } },
         (ffmpeg-text "C"           $C_TITLE_POS  $C_TITLE_FONT),
         (ffmpeg-text $"($troop.C)" $C_POS        $C_FONT),
     ]
