@@ -76,7 +76,7 @@ def get-options [options: record] {
         h: $stat_keys_box.h,
     }
     # horizontal space between stats
-    let stat_h_space = 0.0675 * $options.canvas.w
+    let stat_h_space = 0.0660 * $options.canvas.w
     # horizontal offset for the first stat (mov)
     let stat_offset_x = 0.0375 * $options.canvas.w
     let stat_font = { fontfile: $REGULAR_FONT, fontcolor: "white", fontsize: (0.01875 * $options.canvas.w) }
@@ -245,7 +245,7 @@ def get-options [options: record] {
         base_image: {
             kind: "color",
             options: {
-                c: "0xaa3333",
+                c: (if $options.debug_margin { "0xaa3333" } else { $BASE_COLOR }),
                 s: $"($options.canvas.w + 2 * $options.margin)x($options.canvas.h + 2 * $options.margin)",
                 d: 1,
             },
@@ -640,14 +640,13 @@ export def gen-stats-page [
         (ffmpeg-text $"($troop.C)" $options.c_pos        $options.c_font),
     ]
 
-    let box = {
-        x: $options.margin,
-        y: $options.margin,
-        w: $options.canvas.w,
-        h: $options.canvas.h,
-    }
     let tmp = ffmpeg create ($options.base_image | ffmpeg options) --output (mktemp --tmpdir infinity-XXXXXXX.png)
-        | ffmpeg apply ({ kind: "drawbox",  options: { ...$box, color: $"($BASE_COLOR)@1.0", t: "fill" } } | ffmpeg options) --output (mktemp --tmpdir infinity-XXXXXXX.png)
+        | if $options.debug_margin { ffmpeg apply ({ kind: "drawbox",  options: {
+            x: $options.margin,
+            y: $options.margin,
+            w: $options.canvas.w,
+            h: $options.canvas.h,
+            color: $"($BASE_COLOR)@1.0", t: "fill" } } | ffmpeg options) --output (mktemp --tmpdir infinity-XXXXXXX.png) } else { $in }
         | [$in, ({ parent: $DIRS.minis, stem: $troop.asset, extension: "png" } | path join)]
             | ffmpeg combine ($options.mini_overlay | ffmpeg options) --output (mktemp --tmpdir infinity-XXXXXXX.png)
         | if $troop.faction != null {

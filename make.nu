@@ -59,6 +59,7 @@ def run [
     troops: table<name: string, color: string>,
     --canvas: record<w: int, h: int>,
     --margin: int,
+    --debug,
     --stats,
     --charts,
 ] {
@@ -85,7 +86,7 @@ def run [
             total: $total,
             content: $t.item.name,
         } | log info $"\(($in.current) / ($in.total)\) ($in.content)"
-        build-trooper-card (open $troop_file) --canvas $canvas --margin $margin --color $t.item.color --output $output --stats=$stats --charts=$charts
+        build-trooper-card (open $troop_file) --canvas $canvas --margin $margin --debug=$debug --color $t.item.color --output $output --stats=$stats --charts=$charts
     }
 }
 
@@ -94,10 +95,11 @@ def "main showcase" [
     --width (-w): int,
     --height (-h): int,
     --margin (-m): int,
+    --debug,
     --stats,
     --charts,
 ] {
-    run $SHOWCASE --canvas { w: $width, h: $height } --margin $margin --stats=$stats --charts=$charts
+    run $SHOWCASE --canvas { w: $width, h: $height } --margin $margin --stats=$stats --charts=$charts --debug=$debug
     for s in $SHOWCASE {
         cp --verbose ($"($OUT_DIR)/($s.name | str replace '/' '-').*" | into glob) assets/
     }
@@ -109,10 +111,11 @@ def "main troops" [
     --width (-w): int,
     --height (-h): int,
     --margin (-m): int,
+    --debug,
     --stats,
     --charts,
 ] {
-    run (list-troops | where name =~ $name) --canvas { w: $width, h: $height } --margin $margin --stats=$stats --charts=$charts
+    run (list-troops | where name =~ $name) --canvas { w: $width, h: $height } --margin $margin --stats=$stats --charts=$charts --debug=$debug
 }
 
 # clean all PNG building files
