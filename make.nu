@@ -55,7 +55,7 @@ def list-troops []: [ nothing -> table<name: string, color: string> ] {
         }
 }
 
-def run [troops: table<name: string, color: string>, --stats, --charts, --no-equipments-or-skills] {
+def run [troops: table<name: string, color: string>, --stats, --charts] {
     use . troopers build-trooper-card
 
     if ($troops | is-empty) {
@@ -84,7 +84,7 @@ def run [troops: table<name: string, color: string>, --stats, --charts, --no-equ
 }
 
 # build the "showcase" cards and copy them to the the `assets/` directory
-def "main showcase" [--stats, --charts, --no-equipments-or-skills] {
+def "main showcase" [--stats, --charts] {
     run $SHOWCASE --stats=$stats --charts=$charts
     for s in $SHOWCASE {
         cp --verbose ($"($OUT_DIR)/($s.name | str replace '/' '-').*" | into glob) assets/
@@ -92,7 +92,7 @@ def "main showcase" [--stats, --charts, --no-equipments-or-skills] {
 }
 
 # build the "troops" cards from NUON "trooper" files in the `troops/stats/` directory
-def "main troops" [name: string = "", --stats, --charts, --no-equipments-or-skills] {
+def "main troops" [name: string = "", --stats, --charts] {
     run (list-troops | where name =~ $name) --stats=$stats --charts=$charts
 }
 
