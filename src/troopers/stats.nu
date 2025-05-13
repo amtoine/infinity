@@ -640,7 +640,14 @@ export def gen-stats-page [
         (ffmpeg-text $"($troop.C)" $options.c_pos        $options.c_font),
     ]
 
+    let box = {
+        x: $options.margin,
+        y: $options.margin,
+        w: $options.canvas.w,
+        h: $options.canvas.h,
+    }
     let tmp = ffmpeg create ($options.base_image | ffmpeg options) --output (mktemp --tmpdir infinity-XXXXXXX.png)
+        | ffmpeg apply ({ kind: "drawbox",  options: { ...$box, color: $"($BASE_COLOR)@1.0", t: "fill" } } | ffmpeg options) --output (mktemp --tmpdir infinity-XXXXXXX.png)
         | [$in, ({ parent: $DIRS.minis, stem: $troop.asset, extension: "png" } | path join)]
             | ffmpeg combine ($options.mini_overlay | ffmpeg options) --output (mktemp --tmpdir infinity-XXXXXXX.png)
         | if $troop.faction != null {

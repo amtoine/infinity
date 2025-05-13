@@ -473,7 +473,7 @@ export def gen-charts-page [
         h: $options.canvas.h,
     }
     let res = ffmpeg create ($options.base_image | ffmpeg options) --output (mktemp --tmpdir infinity-XXXXXXX.png)
-        | ffmpeg apply ({ kind: "drawbox",  options: { ...$box, color: $"0xffffff@1.0", t: "fill" } } | ffmpeg options) --output (mktemp --tmpdir infinity-XXXXXXX.png)
+        | ffmpeg apply ({ kind: "drawbox",  options: { ...$box, color: $"($BASE_COLOR)@1.0", t: "fill" } } | ffmpeg options) --output (mktemp --tmpdir infinity-XXXXXXX.png)
         | ffmpeg mapply ($weapons_transforms.ts | each { ffmpeg options }) --output (mktemp --tmpdir infinity-XXXXXXX.png)
         | ffmpeg mapply ($name_box_transforms | each { ffmpeg options }) --output (mktemp --tmpdir infinity-XXXXXXX.png)
         | put-version $troop $version
