@@ -81,6 +81,11 @@ export def "ffmpeg options" []: [ record<kind: string, options: record> -> strin
     $"($in.pre?)($in.kind)=($options)($in.post?)"
 }
 
+export def "ffmpeg pre" [options: record] {
+    let options = $options | items { |k, v| $"($k)=($v)" } | str join ","
+    $"[1:v]($options)[ovrl], [0:v][ovrl]"
+}
+
 export def "ffmpeg create" [
     transform: string,
     --output: path = "output.jpg",

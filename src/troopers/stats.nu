@@ -2,6 +2,7 @@ use ../common.nu [
     BOLD_FONT, REGULAR_FONT, BASE_COLOR, DIRS, TEXT_ALIGNMENT,
     put-version, ffmpeg-text,
 ]
+use ../ffmpeg.nu [ "ffmpeg pre" ]
 
 use std iter
 
@@ -263,7 +264,7 @@ def get-options [options: record] {
         },
         mini: {
             kind: "overlay",
-            pre: $"[1:v]scale=-1:(0.95 * $options.canvas.h) [ovrl], [0:v][ovrl]",
+            pre: (ffmpeg pre { scale: $"-1:(0.95 * $options.canvas.h)" }),
             options: {
                 x: $"(0.2 * $options.canvas.w + $options.margin)-w/2",
                 y: $"($options.canvas.h - 0.050 * $options.canvas.h + $options.margin)-h",
@@ -662,7 +663,11 @@ export def gen-stats-page [
             [$in, ({ parent: $DIRS.factions, stem: $troop.faction, extension: "png" } | path join)]
                 | ffmpeg combine ({
                     kind: "overlay",
-                    pre: $"[1:v]format=rgba,colorchannelmixer=aa=($options.faction.alpha),scale=($options.faction.w):($options.faction.h)[ovrl]; [0:v][ovrl]",
+                    pre: (ffmpeg pre {
+                        format: rgba,
+                        "colorchannelmixer=aa": ($options.faction.alpha),
+                        scale: $"($options.faction.w):($options.faction.h)",
+                    }),
                     options: {
                         x: $"($options.faction.x)-w/2",
                         y: $"($options.faction.y)-h/2",
@@ -679,7 +684,7 @@ export def gen-stats-page [
         | reduce --fold $tmp { |it, acc|
             [$acc, ({ parent: $DIRS.characteristics, stem: $it.item, extension: "png" } | path join)] | ffmpeg combine ({
                 kind: "overlay",
-                pre: $"[1:v]scale=($options.characteristics_image_size):($options.characteristics_image_size) [ovrl], [0:v][ovrl]",
+                pre: (ffmpeg pre { scale: $"($options.characteristics_image_size):($options.characteristics_image_size)" }),
                 options: {
                     x: $"($characteristics_box.x + $characteristics_box.w // 2)-w/2",
                     y: $"(
@@ -693,7 +698,7 @@ export def gen-stats-page [
         }
         | [$in, ({ parent: $DIRS.icons, stem: ($troop.asset | str replace --regex '\..*$' ''), extension: "png" } | path join) ] | ffmpeg combine ({
             kind: "overlay",
-            pre: $"[1:v]scale=(0.9 * $options.icon_box.w):(0.9 * $options.icon_box.h) [ovrl], [0:v][ovrl]",
+            pre: (ffmpeg pre { scale: $"(0.9 * $options.icon_box.w):(0.9 * $options.icon_box.h)" }),
             options: {
                 x: $"($options.icon_box.x + $options.icon_box.w // 2)-w/2",
                 y: $"($options.icon_box.y + $options.icon_box.h // 2)-h/2",
@@ -705,7 +710,7 @@ export def gen-stats-page [
         | reduce --fold $tmp { |it, acc|
             [$acc, ({ parent: $DIRS.factions, stem: $it.item, extension: "png" } | path join)] | ffmpeg combine ({
                 kind: "overlay",
-                pre: $"[1:v]scale=($options.allowed_factions_image_size):($options.allowed_factions_image_size) [ovrl], [0:v][ovrl]",
+                pre: (ffmpeg pre { scale: $"($options.allowed_factions_image_size):($options.allowed_factions_image_size)" }),
                 options: {
                     x: $"(
                         $options.stat_vals_box.x +
