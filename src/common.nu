@@ -3,8 +3,7 @@ use log.nu [ "log warning", "log error" ]
 const ASSETS_DIR = "./troops/assets/"
 export const DIRS = {
     minis:            ($ASSETS_DIR | path join "minis"),
-    factions:         ($ASSETS_DIR | path join "factions" "940"),
-    allowed_factions: ($ASSETS_DIR | path join "factions" "70")
+    factions:         ($ASSETS_DIR | path join "factions"),
     characteristics:  ($ASSETS_DIR | path join "characteristics"),
     icons:            ($ASSETS_DIR | path join "icons"),
 }

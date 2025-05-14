@@ -12,26 +12,30 @@ def get-options [options: record] {
     let icon_box = {
         x: ($options.margins.left + $options.margin),
         y: ($options.margins.top + $options.margin),
-        w: (0.096875 * $options.canvas.w - $options.margins.left),
-        h: (0.155000 * $options.canvas.h - $options.margins.top),
+        w: (0.11 * $options.canvas.w - $options.margins.left),
+        h: (0.11 * $options.canvas.w - $options.margins.left),
     }
 
     let characteristics_box = {
         x: ($options.margins.left + $options.margin),
-        y: ($icon_box.y + $icon_box.h + 0.0125 * $options.canvas.w + $options.margin),
+        y: ($icon_box.y + $icon_box.h + 0.0125 * $options.canvas.w),
         w: (0.075 * $options.canvas.w - $options.margins.left),
         h: null,
     }
     # space between the trooper type and the first characteristics asset
-    let characteristics_v_space = 0.005 * $options.canvas.h
+    let characteristics_v_space = 0.1 * $characteristics_box.w
     # size of a characteristics asset
-    let characteristics_image_size = 0.04375 * $options.canvas.w
+    let characteristics_image_size = 0.8 * $characteristics_box.w
     let characteristics_type_pos = {
         x: ($characteristics_box.x + $characteristics_box.w // 2),
         y: ($characteristics_box.y + 0.025 * $options.canvas.h),
         alignment: $TEXT_ALIGNMENT.center,
     }
-    let characteristics_type_font = { fontfile: $BOLD_FONT, fontcolor: "white", fontsize: (0.01875 * $options.canvas.w) }
+    let characteristics_type_font = {
+        fontfile: $BOLD_FONT,
+        fontcolor: "white",
+        fontsize: (0.01875 * $options.canvas.w),
+    }
     ################################################################################
 
     ################################################################################
@@ -86,8 +90,8 @@ def get-options [options: record] {
         x: (0.03125 * $options.canvas.w),
         y: (0.05000 * $options.canvas.h),
     }
-    let allowed_factions_image_size = 0.04375 * $options.canvas.w
-    let allowed_factions_image_h_space = 0.00625 * $options.canvas.w
+    let allowed_factions_image_size    = 0.05 * $options.canvas.w
+    let allowed_factions_image_h_space = 0.10 * $allowed_factions_image_size
 
     let special_skills_box = {
         x: ($options.margins.right - 0.265625 * $options.canvas.w + $options.margin),
@@ -250,12 +254,16 @@ def get-options [options: record] {
                 d: 1,
             },
         },
-        faction_pos: {
+        faction: {
             x: ($options.margins.right - 0.065625 * $options.canvas.w + $options.margin),
             y: ($options.canvas.h / 2 + $options.margin),
+            w: (0.95 * $options.canvas.h),
+            h: (0.95 * $options.canvas.h),
+            alpha: 0.5,
         },
-        mini_overlay: {
+        mini: {
             kind: "overlay",
+            pre: $"[1:v]scale=-1:(0.95 * $options.canvas.h) [ovrl], [0:v][ovrl]",
             options: {
                 x: $"(0.2 * $options.canvas.w + $options.margin)-w/2",
                 y: $"($options.canvas.h - 0.050 * $options.canvas.h + $options.margin)-h",
@@ -464,9 +472,10 @@ export def gen-stats-page [
     }}
 
     let characteristics_box = $options.characteristics_box | update h (
-        $options.characteristics_box.w // 2 +  # because text is twice larger
-        (if ($troop.characteristics | is-empty) { 0 } else { 2 * $options.characteristics_v_space }) +
-        ($options.characteristics_image_size + $options.characteristics_v_space) * ($troop.characteristics | length)
+        2 * ($options.characteristics_type_pos.y - $options.characteristics_box.y) + # centered text
+        $options.characteristics_image_size * ($troop.characteristics | length) +    # images
+        $options.characteristics_v_space * (($troop.characteristics | length) - 1) + # v spaces
+        $options.characteristics_v_space                                             # bottom
     )
     let special_skills_box = $options.special_skills_box | update h (
         $options.special_skills_v_base + $options.special_skills_v_space * (($troop.special_skills | length) - 1)
@@ -648,10 +657,17 @@ export def gen-stats-page [
             h: $options.canvas.h,
             color: $"($BASE_COLOR)@1.0", t: "fill" } } | ffmpeg options) --output (mktemp --tmpdir infinity-XXXXXXX.png) } else { $in }
         | [$in, ({ parent: $DIRS.minis, stem: $troop.asset, extension: "png" } | path join)]
-            | ffmpeg combine ($options.mini_overlay | ffmpeg options) --output (mktemp --tmpdir infinity-XXXXXXX.png)
+            | ffmpeg combine ($options.mini | ffmpeg options) --output (mktemp --tmpdir infinity-XXXXXXX.png)
         | if $troop.faction != null {
             [$in, ({ parent: $DIRS.factions, stem: $troop.faction, extension: "png" } | path join)]
-                | ffmpeg combine $"[1:v]format=rgba,colorchannelmixer=aa=0.5[ol];[0:v][ol]overlay=x=($options.faction_pos.x)-w/2:y=($options.faction_pos.y)-h/2" --output (mktemp --tmpdir infinity-XXXXXXX.png)
+                | ffmpeg combine ({
+                    kind: "overlay",
+                    pre: $"[1:v]format=rgba,colorchannelmixer=aa=($options.faction.alpha),scale=($options.faction.w):($options.faction.h)[ovrl]; [0:v][ovrl]",
+                    options: {
+                        x: $"($options.faction.x)-w/2",
+                        y: $"($options.faction.y)-h/2",
+                    },
+            } | ffmpeg options) --output (mktemp --tmpdir infinity-XXXXXXX.png)
         } else {
             $in
         }
@@ -663,26 +679,44 @@ export def gen-stats-page [
         | reduce --fold $tmp { |it, acc|
             [$acc, ({ parent: $DIRS.characteristics, stem: $it.item, extension: "png" } | path join)] | ffmpeg combine ({
                 kind: "overlay",
+                pre: $"[1:v]scale=($options.characteristics_image_size):($options.characteristics_image_size) [ovrl], [0:v][ovrl]",
                 options: {
                     x: $"($characteristics_box.x + $characteristics_box.w // 2)-w/2",
-                    # FIXME: the first vertical offset is a bit magical
-                    y: $"($characteristics_box.y + 2 * $options.characteristics_v_space + $options.characteristics_image_size)+($it.index * ($options.characteristics_image_size + $options.characteristics_v_space))-h/2",
+                    y: $"(
+                        $characteristics_box.y +
+                        2 * ($options.characteristics_type_pos.y - $options.characteristics_box.y) + # centered text
+                        $options.characteristics_image_size // 2 +
+                        $it.index * ($options.characteristics_image_size + $options.characteristics_v_space)
+                    )-h/2",
                 },
             } | ffmpeg options) --output (mktemp --tmpdir infinity-XXXXXXX.png)
         }
         | [$in, ({ parent: $DIRS.icons, stem: ($troop.asset | str replace --regex '\..*$' ''), extension: "png" } | path join) ] | ffmpeg combine ({
             kind: "overlay",
-            options: { x: $"($options.icon_box.x + $options.icon_box.w // 2)-w/2", y: $"($options.icon_box.y + $options.icon_box.h // 2)-h/2" },
+            pre: $"[1:v]scale=(0.9 * $options.icon_box.w):(0.9 * $options.icon_box.h) [ovrl], [0:v][ovrl]",
+            options: {
+                x: $"($options.icon_box.x + $options.icon_box.w // 2)-w/2",
+                y: $"($options.icon_box.y + $options.icon_box.h // 2)-h/2",
+            },
         } | ffmpeg options) --output (mktemp --tmpdir infinity-XXXXXXX.png)
 
     let tmp = $troop.allowed_factions
         | enumerate
         | reduce --fold $tmp { |it, acc|
-            [$acc, ({ parent: $DIRS.allowed_factions, stem: $it.item, extension: "png" } | path join)] | ffmpeg combine ({
+            [$acc, ({ parent: $DIRS.factions, stem: $it.item, extension: "png" } | path join)] | ffmpeg combine ({
                 kind: "overlay",
+                pre: $"[1:v]scale=($options.allowed_factions_image_size):($options.allowed_factions_image_size) [ovrl], [0:v][ovrl]",
                 options: {
-                    x: $"($options.stat_vals_box.x)+($options.allowed_factions_offset.x)+($it.index * ($options.allowed_factions_image_size + $options.allowed_factions_image_h_space))-w/2",
-                    y: $"($options.stat_vals_box.y)+($options.stat_vals_box.h)+($options.allowed_factions_offset.y)-h/2",
+                    x: $"(
+                        $options.stat_vals_box.x +
+                        $options.allowed_factions_offset.x +
+                        $it.index * ($options.allowed_factions_image_size + $options.allowed_factions_image_h_space)
+                    )-w/2",
+                    y: $"(
+                        $options.stat_vals_box.y +
+                        $options.stat_vals_box.h +
+                        $options.allowed_factions_offset.y
+                    )-h/2",
                 },
             } | ffmpeg options) --output (mktemp --tmpdir infinity-XXXXXXX.png)
         }
