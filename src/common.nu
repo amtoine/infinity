@@ -51,7 +51,7 @@ export def get-options [w: int, h: int, margin: int, debug: bool]: [
     },
     version: {
         pos: {
-            x: (0.99875 * $w + $margin),
+            x: (0.95000 * $w + $margin),
             y: (0.99875 * $h + $margin),
             alignment: $TEXT_ALIGNMENT.bottom_right,
         },
