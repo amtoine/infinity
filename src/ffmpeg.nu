@@ -17,7 +17,14 @@ export const FLIPPING = "vflip,hflip"
 export const HSTACKING = "[0][1]hstack=inputs=2"
 export const VSTACKING = "[0][1]vstack=inputs=2"
 
-export const FFMPEG_OPTS = [ -y -hide_banner -loglevel quiet ]
+export const FFMPEG_OPTS = [ -y -hide_banner -loglevel warning ]
+
+def --wrapped run-with-error [cmd: string, ...args: string] {
+    let ret = $in | ^$cmd ...$args | complete
+    if $ret.exit_code != 0 {
+        error make --unspanned { msg: $ret.stderr }
+    }
+}
 
 export def "ffmpeg metadata" []: [
     path -> record<
@@ -84,11 +91,7 @@ export def "ffmpeg create" [
         output: $"(ansi purple)($output)(ansi reset)",
     } | log trace $"null --($in.transform)--> ($in.output)"
 
-    try {
-        ffmpeg ...$options -f lavfi -i $transform -frames:v 1 $output
-    } catch { |e|
-        error make --unspanned { msg: $e.msg }
-    }
+    run-with-error ffmpeg ...$options -f lavfi -i $transform -frames:v 1 $output
     $output
 }
 
@@ -123,11 +126,7 @@ export def "ffmpeg apply" [
         output: $"(ansi purple)($output)(ansi reset)",
     } | log trace $"($in.in) --($in.transform)--> ($in.output)"
 
-    $in | try {
-        ffmpeg ...$options -i $in -vf $transform $output
-    } catch { |e|
-        error make --unspanned { msg: $e.msg }
-    }
+    $in | run-with-error ffmpeg ...$options -i $in -vf $transform $output
     $output
 }
 
@@ -175,11 +174,13 @@ export def "ffmpeg combine" [
         output: $"(ansi purple)($output)(ansi reset)",
     } | log trace $"($in.in) --($in.transform)--> ($in.output)"
 
-    $in | try {
-        ffmpeg ...$options ...($in | each {[ "-i", $in ]} | flatten) -filter_complex $transform $output
-    } catch { |e|
-        error make --unspanned { msg: $e.msg }
-    }
+    $in | run-with-error ffmpeg ...[
+        ...$options
+        ...($in | each {[ "-i", $in ]} | flatten)
+        -filter_complex $transform
+        $output
+    ]
+
     $output
 }
 
