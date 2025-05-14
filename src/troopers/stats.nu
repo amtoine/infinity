@@ -386,13 +386,13 @@ def equipments-to-text [
         | iter intersperse $options.list_separator
         | reduce --fold { transforms: [], pos: $x.text_pos } { |it, acc|
             let pos = if $it == $options.list_separator {
-                $acc.pos | update y { $"($in)+($options.list_separator_v_offset)" }
+                $acc.pos | update y { $in + $options.list_separator_v_offset }
             } else {
                 $acc.pos
             }
             let res = equipment-or-skill-to-text $it $options.equipment_font $pos
             let next_pos = $acc.pos
-                | update x { $"($in) + (($res.text | str length) * $options.equipment_char_size)" }
+                | update x { $in + ($res.text | str length) * $options.equipment_char_size }
 
             { transforms: ($acc.transforms | append $res.transform), pos: $next_pos }
         }
