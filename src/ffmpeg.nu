@@ -107,7 +107,7 @@ export def "ffmpeg create" [
         output: $"(ansi purple)($output)(ansi reset)",
     } | log trace $"null --($in.transform)--> ($in.output)"
 
-    run-with-error ffmpeg ...$options -f lavfi -i $transform -frames:v 1 $output
+    run-with-error ffmpeg ...$options -filter_complex $transform -frames:v 1 $output
     $output
 }
 
@@ -129,7 +129,6 @@ export def "ffmpeg blank" [
     }
     | ffmpeg options
     | ffmpeg create $in --output $output --extension $extension --options $options
-    $output
 }
 
 export def "ffmpeg apply" [
