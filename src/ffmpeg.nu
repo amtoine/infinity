@@ -71,7 +71,7 @@ export def "ffmpeg metadata" []: [
 
 export def "ffmpeg options" []: [ record<kind: string, options: record> -> string ] {
     let options = $in.options | items { |k, v| $"($k)=($v)" } | str join ":"
-    $"($in.kind)=($options)"
+    $"($in.pre?)($in.kind)=($options)($in.post?)"
 }
 
 export def "ffmpeg create" [
