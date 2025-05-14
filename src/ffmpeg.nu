@@ -73,7 +73,12 @@ export def "ffmpeg metadata" []: [
             probe_score: int>,
     >
 ] {
-    ffprobe -v quiet -print_format json -show_format -show_streams $in | from json | update streams { into record }
+    let res = ffprobe -v quiet -print_format json -show_format -show_streams $in | from json
+    if $res == {} {
+        $res
+    } else {
+        $res | update streams { into record }
+    }
 }
 
 export def "ffmpeg options" []: [ record<kind: string, options: record> -> string ] {
