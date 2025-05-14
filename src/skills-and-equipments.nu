@@ -307,14 +307,12 @@ export def generate-equipment-or-skill-card [equipment_or_skill: record, paramet
         },
     }
 
-    let asset = ffmpeg create ({ kind: "color", options: {
+    let asset = { kind: "color", options: {
         c: $BASE_COLOR,
         s: $"($border.options.w)x($border.options.h)",
         d: 1,
-    } } | ffmpeg options) --output (mktemp --tmpdir infinity-XXXXXXX.png)
-        | ffmpeg mapply (
-            [$border, $header_box] ++ $transforms | each { ffmpeg options }
-        ) --output $output
+    } } | ffmpeg create ($in | ffmpeg options) -o @rand
+        | ffmpeg mapply ([$border, $header_box] ++ $transforms | each { ffmpeg options }) -o $output
 
     { asset: $asset, width: $width }
 }

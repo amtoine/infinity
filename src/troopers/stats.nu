@@ -485,8 +485,7 @@ export def gen-stats-page [
     let qrcode = mktemp --tmpdir infinity-XXXXXXX.png
     log info $"generating QR code in (ansi purple)($qrcode)(ansi reset)"
     qrencode --margin $options.qr_code_margin --size $options.qr_code_size -o $qrcode $troop.reference
-    let qrcode = $qrcode
-        | ffmpeg apply $"scale=($options.qr_code_width):($options.qr_code_width)" --output (mktemp --tmpdir infinity-XXXXXXX.png)
+    let qrcode = $qrcode | ffmpeg apply $"scale=($options.qr_code_width):($options.qr_code_width)" -o @rand
 
     let transforms = [
         (ffmpeg-text $"ISC: ($troop.isc)"  $options.isc_pos            $options.isc_font),
@@ -650,15 +649,15 @@ export def gen-stats-page [
         (ffmpeg-text $"($troop.C)" $options.c_pos        $options.c_font),
     ]
 
-    let tmp = ffmpeg create ($options.base_image | ffmpeg options) --output (mktemp --tmpdir infinity-XXXXXXX.png)
+    let tmp = ffmpeg create ($options.base_image | ffmpeg options) -o @rand
         | if $options.debug_margin { ffmpeg apply ({ kind: "drawbox",  options: {
             x: $options.margin,
             y: $options.margin,
             w: $options.canvas.w,
             h: $options.canvas.h,
-            color: $"($BASE_COLOR)@1.0", t: "fill" } } | ffmpeg options) --output (mktemp --tmpdir infinity-XXXXXXX.png) } else { $in }
+            color: $"($BASE_COLOR)@1.0", t: "fill" } } | ffmpeg options) -o @rand } else { $in }
         | [$in, ({ parent: $DIRS.minis, stem: $troop.asset, extension: "png" } | path join)]
-            | ffmpeg combine ($options.mini | ffmpeg options) --output (mktemp --tmpdir infinity-XXXXXXX.png)
+            | ffmpeg combine ($options.mini | ffmpeg options) -o @rand
         | if $troop.faction != null {
             [$in, ({ parent: $DIRS.factions, stem: $troop.faction, extension: "png" } | path join)]
                 | ffmpeg combine ({
@@ -672,12 +671,12 @@ export def gen-stats-page [
                         x: $"($options.faction.x)-w/2",
                         y: $"($options.faction.y)-h/2",
                     },
-            } | ffmpeg options) --output (mktemp --tmpdir infinity-XXXXXXX.png)
+            } | ffmpeg options) -o @rand
         } else {
             $in
         }
-        | [$in, $qrcode] | ffmpeg combine ($options.qr_code_overlay | ffmpeg options) --output (mktemp --tmpdir infinity-XXXXXXX.png)
-        | ffmpeg mapply ($transforms | compact | each { ffmpeg options })
+        | [$in, $qrcode] | ffmpeg combine ($options.qr_code_overlay | ffmpeg options) -o @rand
+        | ffmpeg mapply ($transforms | compact | each { ffmpeg options }) -o @rand
 
     let tmp = $troop.characteristics
         | enumerate
@@ -694,7 +693,7 @@ export def gen-stats-page [
                         $it.index * ($options.characteristics_image_size + $options.characteristics_v_space)
                     )-h/2",
                 },
-            } | ffmpeg options) --output (mktemp --tmpdir infinity-XXXXXXX.png)
+            } | ffmpeg options) -o @rand
         }
         | [$in, ({ parent: $DIRS.icons, stem: ($troop.asset | str replace --regex '\..*$' ''), extension: "png" } | path join) ] | ffmpeg combine ({
             kind: "overlay",
@@ -703,7 +702,7 @@ export def gen-stats-page [
                 x: $"($options.icon_box.x + $options.icon_box.w // 2)-w/2",
                 y: $"($options.icon_box.y + $options.icon_box.h // 2)-h/2",
             },
-        } | ffmpeg options) --output (mktemp --tmpdir infinity-XXXXXXX.png)
+        } | ffmpeg options) -o @rand
 
     let tmp = $troop.allowed_factions
         | enumerate
@@ -723,7 +722,7 @@ export def gen-stats-page [
                         $options.allowed_factions_offset.y
                     )-h/2",
                 },
-            } | ffmpeg options) --output (mktemp --tmpdir infinity-XXXXXXX.png)
+            } | ffmpeg options) -o @rand
         }
 
     let tmp = $tmp | put-version $troop $options.version

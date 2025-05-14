@@ -86,11 +86,22 @@ export def "ffmpeg pre" [options: record] {
     $"[1:v]($options)[ovrl], [0:v][ovrl]"
 }
 
+def output-path [output: string, --extension: string]: [ nothing -> path ] {
+    match $output {
+        "@auto" | "" => { $"output.($extension)" | path expand },
+        "@rand"      => { mktemp --tmpdir $"XXXXXXX.($extension)" },
+        _            => { $output | path expand },
+    }
+}
+
 export def "ffmpeg create" [
     transform: string,
-    --output: path = "output.jpg",
+    --output (-o): string = "",
+    --extension (-e): string = "png",
     --options: list<string> = $FFMPEG_OPTS,
 ]: [ nothing -> path ] {
+    let output = output-path $output --extension $extension
+
     {
         transform: $"(ansi yellow)($transform)(ansi reset)",
         output: $"(ansi purple)($output)(ansi reset)",
@@ -104,7 +115,8 @@ export def "ffmpeg blank" [
     color: string,
     width: int,
     height: int,
-    --output: path = "output.jpg",
+    --output (-o): string = "",
+    --extension (-e): string = "png",
     --options: list<string> = $FFMPEG_OPTS,
 ]: [ nothing -> path ] {
     {
@@ -116,15 +128,18 @@ export def "ffmpeg blank" [
         },
     }
     | ffmpeg options
-    | ffmpeg create $in --output $output --options $options
+    | ffmpeg create $in --output $output --extension $extension --options $options
     $output
 }
 
 export def "ffmpeg apply" [
     transform: string,
-    --output: path = "output.jpg",
+    --output (-o): string = "",
+    --extension (-e): string = "png",
     --options: list<string> = $FFMPEG_OPTS,
 ]: [ path -> path ] {
+    let output = output-path $output --extension $extension
+
     {
         in: $"(ansi purple)($in)(ansi reset)",
         transform: $"(ansi yellow)($transform)(ansi reset)",
@@ -137,10 +152,12 @@ export def "ffmpeg apply" [
 
 export def "ffmpeg mapply" [
     transforms: list<string>,
-    --output: path = "output.jpg",
+    --output (-o): string = "",
+    --extension (-e): string = "png",
     --options: list<string> = $FFMPEG_OPTS,
 ]: [ any -> path ] {
     let input = $in
+    let output = output-path $output --extension $extension
 
     let t = $input | describe --detailed
     match $t.type {
@@ -152,11 +169,10 @@ export def "ffmpeg mapply" [
     }
 
     let res = $transforms | reduce --fold $input { |it, acc|
-        let output = mktemp --tmpdir "ffmpeg-mapply-XXXXXXX.png"
         if $acc == null {
-            ffmpeg create $it --output $output
+            ffmpeg create $it -o @rand -e $extension
         } else {
-            $acc | ffmpeg apply $it --output $output
+            $acc | ffmpeg apply $it -o @rand -e $extension
         }
     }
 
@@ -170,18 +186,21 @@ export def "ffmpeg mapply" [
 
 export def "ffmpeg combine" [
     transform: string,
-    --output: path = "output.jpg",
+    --output (-o): string = "",
+    --extension (-e): string = "png",
     --options: list<string> = $FFMPEG_OPTS,
 ]: [ list<path> -> path ] {
+    let output = output-path $output --extension $extension
+
     {
         in: ($in | each { $'(ansi purple)($in)(ansi reset)' } | str join ', '),
         transform: $"(ansi yellow)($transform)(ansi reset)",
         output: $"(ansi purple)($output)(ansi reset)",
     } | log trace $"($in.in) --($in.transform)--> ($in.output)"
 
-    $in | run-with-error ffmpeg ...[
+    $in | each {[ "-i", $in ]} | flatten | run-with-error ffmpeg ...[
         ...$options
-        ...($in | each {[ "-i", $in ]} | flatten)
+        ...$in
         -filter_complex $transform
         $output
     ]

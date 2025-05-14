@@ -119,8 +119,7 @@ export def "put-version" [
         | items { |k, v| $"($k | str title-case): ($v)" }
     let version_text = $"(git describe) [($versions | str join ', ')]"
 
-    let out = mktemp --tmpdir infinity-XXXXXXX.png
-    $in | ffmpeg apply ((ffmpeg-text $version_text $version.pos $version.font) | ffmpeg options) --output $out
+    $in | ffmpeg apply ((ffmpeg-text $version_text $version.pos $version.font) | ffmpeg options) -o @rand
 }
 
 const KV_MODIFIER_FMT           = '^(?<k>.*)=(?<v>.*)$'
