@@ -1,4 +1,5 @@
 use . log [ "log info", "log warning" ]
+use . ffmpeg *
 
 const FONT_UPSTREAM = "https://download.gnome.org/sources/adwaita-fonts/48/adwaita-fonts-48.2.tar.xz"
 const FONT_LOCAL = "/tmp/adwaita-fonts-48.2.tar.xz"
@@ -233,6 +234,73 @@ def "main skill-cards" [] {
             skills-and-equipments generate-equipment-or-skill-card $in.item
         }
         | get asset
+}
+
+const MAKEPLAYINGCARDS_EXTENSION = "jpg"
+
+def "makeplayingcards fetch" [
+    id: string,
+    side: string,
+    index: int,
+    --output: string = $"output.($MAKEPLAYINGCARDS_EXTENSION)",
+]: [ nothing -> path ] {
+    let output = match $output {
+        "@auto" => $"($id)_($side)_($index).($MAKEPLAYINGCARDS_EXTENSION)",
+        "@rand" => { mktemp --tmpdir $"XXXXXXX.($MAKEPLAYINGCARDS_EXTENSION)" },
+        _       => $output,
+    }
+    let url = {
+        scheme: https,
+        host: "www.makeplayingcards.com",
+        path: $"//PreviewFiles/Share/($id)($side)($index).($MAKEPLAYINGCARDS_EXTENSION)",
+    }
+
+    print --no-newline $"($index) ($side)\t"
+    http get ($url | url join) | save --force $output
+
+    let metadata = $output | ffmpeg metadata
+    if $metadata == {} or ($metadata.streams | select width height) == { width: 0, height: 0 } {
+        print $"(ansi red_bold)not an image(ansi reset)"
+        null
+    } else {
+        print $"(ansi green)ok(ansi reset)"
+        $output
+    }
+}
+
+def "main makeplayingcards.com fetch" [
+    id: string,
+    ...cards: string,
+    --viewer: record<
+        cmd: string,
+        args: list<string>,
+    > = {
+        cmd: feh,
+        args: [ --image-bg, '#aaaaaa', --draw-tinted, --draw-exif, --draw-filename, --fullscreen ],
+    },
+] {
+    $cards | into int | each { |card|
+        let front = makeplayingcards fetch $id "FRONT" $card --output @auto
+        let back  = makeplayingcards fetch $id  "BACK" $card --output @auto
+        match [$front, $back] {
+            [null, null] => {},
+            [null,    _] => {
+                let dims = $back | ffmpeg metadata | get streams | select width height
+                let front = ffmpeg blank "0xffffff" $dims.width $dims.height -o @rand
+                [$front, $back] | ffmpeg combine $VSTACKING --output @rand
+            },
+            [   _, null] => {
+                let dims = $front | ffmpeg metadata | get streams | select width height
+                let back = ffmpeg blank "0xffffff" $dims.width $dims.height -o @rand
+                [$front, $back] | ffmpeg combine $VSTACKING --output @rand
+            },
+            [   _,    _] => {
+                [$front, $back] | ffmpeg combine $VSTACKING --output @rand
+            },
+        }
+    }
+    | flatten
+    | ^$viewer.cmd ...$viewer.args ...$in
 }
 
 # run all that is required for a release
