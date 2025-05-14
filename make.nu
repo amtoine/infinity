@@ -75,8 +75,16 @@ def run [
     let total = $troops | length
 
     for t in ($troops | enumerate) {
-        let troop_file = { parent: $STATS_DIR, stem: $t.item.name, extension: "nuon" } | path join
-        let output = { parent: $OUT_DIR, stem: ($t.item.name | str replace '/' '-'), extension: "png" } | path join
+        let troop_file = {
+            parent: $STATS_DIR,
+            stem: $t.item.name,
+            extension: "nuon",
+        } | path join
+        let output = {
+            parent: $OUT_DIR,
+            stem: ($t.item.name | str replace '/' '-'),
+            extension: "png",
+        } | path join
 
         {
             current: (
@@ -86,7 +94,15 @@ def run [
             total: $total,
             content: $t.item.name,
         } | log info $"\(($in.current) / ($in.total)\) ($in.content)"
-        build-trooper-card (open $troop_file) --canvas $canvas --margin $margin --debug=$debug --color $t.item.color --output $output --stats=$stats --charts=$charts
+        (build-trooper-card (open $troop_file)
+            --canvas $canvas
+            --margin $margin
+            --debug=$debug
+            --color $t.item.color
+            --output $output
+            --stats=$stats
+            --charts=$charts
+        )
     }
 }
 
@@ -99,7 +115,13 @@ def "main showcase" [
     --stats,
     --charts,
 ] {
-    run $SHOWCASE --canvas { w: $width, h: $height } --margin $margin --stats=$stats --charts=$charts --debug=$debug
+    (run $SHOWCASE
+        --canvas { w: $width, h: $height }
+        --margin $margin
+        --stats=$stats
+        --charts=$charts
+        --debug=$debug
+    )
     for s in $SHOWCASE {
         cp --verbose ($"($OUT_DIR)/($s.name | str replace '/' '-').*" | into glob) assets/
     }
@@ -115,7 +137,13 @@ def "main troops" [
     --stats,
     --charts,
 ] {
-    run (list-troops | where name =~ $name) --canvas { w: $width, h: $height } --margin $margin --stats=$stats --charts=$charts --debug=$debug
+    (run (list-troops | where name =~ $name)
+        --canvas { w: $width, h: $height }
+        --margin $margin
+        --stats=$stats
+        --charts=$charts
+        --debug=$debug
+    )
 }
 
 # clean all PNG building files
@@ -124,11 +152,22 @@ def "main clean" [] {
     rm --force /tmp/infinity-*.png  /tmp/ffmpeg-*.png
 }
 
-def batch-transform-pairs [name: string, transform: closure, extension: string]: [ nothing -> list<path> ] {
+def batch-transform-pairs [
+    name: string, transform: closure, extension: string
+]: [
+    nothing -> list<path>
+] {
     let todo = ls $OUT_DIR
         | where $it.name =~ $name
         | insert key {
-            $in.name | path parse | get stem | split row '.' | reverse | skip 1 | reverse | str join "."
+            $in.name
+                | path parse
+                | get stem
+                | split row '.'
+                | reverse
+                | skip 1
+                | reverse
+                | str join "."
         }
     let total = ($todo | length) / 2
     let width = $todo | each { $in.key | str length } | math max
@@ -145,7 +184,11 @@ def batch-transform-pairs [name: string, transform: closure, extension: string]:
                 total: $total,
                 content: ($in.item.key | fill --alignment "left" --width $width --character ' '),
             } | print --no-newline $"[($in.current) / ($in.total)] ($in.content)\r"
-            let output = { parent: $nu.temp-path, stem: $in.item.key, extension: $extension } | path join
+            let output = {
+                parent: $nu.temp-path,
+                stem: $in.item.key,
+                extension: $extension
+            } | path join
             do $transform $in.item.items.name $output
             $output
         }
@@ -169,7 +212,11 @@ def "main pdf" [name: string = ""] {
 def "main archive" [] {
     let assets = list-troops
         | get name
-        | each { str replace '/' '-' | $"($OUT_DIR)/($in)" | [ $"($in).1.png", $"($in).2.png" ] }
+        | each {
+            str replace '/' '-'
+                | $"($OUT_DIR)/($in)"
+                | [ $"($in).1.png", $"($in).2.png" ]
+        }
         | flatten
 
     ^tar czf $"archives/infinity-trooper-assets-(git describe).tar.gz" ...$assets
