@@ -1,7 +1,7 @@
 {
     isc: "Nyoka Assault Troops",
     name: "NYOKA Assault Troops",
-    short_name: "NYOKA FTO",
+    short_name: "NYOKA",
     faction: "o-12",
     allowed_factions: ["starmada"],
     asset: "o-12-starmada-nyoka.1",

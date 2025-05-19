@@ -26,14 +26,14 @@
         AVA:   3,
     }
     special_skills: [
-        [ name,                   mod,        ];
-        [ "Climbing Plus",        null,       ],
-        [ "Courage",              null,       ],
-        [ "Dodge",                '+1"',      ],
-        [ "Immunity",             "Enhanced", ],
-        [ "Martial Arts",         "L1",       ],
-        [ "Terrain",              "Zero-G",   ],
-        [ "Specialist Operative", null,       ],
+        [ name,                   mod,        spec ];
+        [ "Climbing Plus",        null,       false ],
+        [ "Courage",              null,       false ],
+        [ "Dodge",                '+1"',      false ],
+        [ "Immunity",             "Enhanced", false ],
+        [ "Martial Arts",         "L1",       false ],
+        [ "Terrain",              "Zero-G",   false ],
+        [ "Specialist Operative", null,        true ],
     ],
     equipment: [
         [ name,                   mod,  ];
