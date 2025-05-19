@@ -242,18 +242,19 @@ def "makeplayingcards fetch" [
     id: string,
     side: string,
     index: int,
-    --output: string = $"output.($MAKEPLAYINGCARDS_EXTENSION)",
+    --output: string = "output.@ext",
 ]: [ nothing -> path ] {
-    let output = match $output {
-        "@auto" => $"($id)_($side)_($index).($MAKEPLAYINGCARDS_EXTENSION)",
-        "@rand" => { mktemp --tmpdir $"XXXXXXX.($MAKEPLAYINGCARDS_EXTENSION)" },
-        _       => $output,
-    }
+    let output = $output
+        | str replace --all "@auto" $"($id)_($side)_($index)"
+        | str replace --all "@rand" (random uuid | hash sha256)
+        | str replace --all "@ext" $MAKEPLAYINGCARDS_EXTENSION
     let url = {
         scheme: https,
         host: "www.makeplayingcards.com",
         path: $"//PreviewFiles/Share/($id)($side)($index).($MAKEPLAYINGCARDS_EXTENSION)",
     }
+
+    mkdir ($output | path dirname)
 
     print --no-newline $"($index) ($side)\t"
     http get ($url | url join) | save --force $output
@@ -280,8 +281,8 @@ def "main makeplayingcards.com fetch" [
     },
 ] {
     $cards | into int | each { |card|
-        let front = makeplayingcards fetch $id "FRONT" $card --output @auto
-        let back  = makeplayingcards fetch $id  "BACK" $card --output @auto
+        let front = makeplayingcards fetch $id "FRONT" $card --output mpc/@auto.@ext
+        let back  = makeplayingcards fetch $id  "BACK" $card --output mpc/@auto.@ext
         match [$front, $back] {
             [null, null] => {},
             [null,    _] => {
