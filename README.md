@@ -17,6 +17,26 @@
 nu make.nu
 ```
 
+## Look at the performance
+```nushell
+use tmp-usage.nu
+```
+```nushell
+tmp-usage run 1.0
+tmp-usage watch 200_00.ndnuon      # in another terminal
+```
+```nushell
+tmp-usage run 1.4142135623730951
+tmp-usage watch 282_84.ndnuon      # in another terminal
+```
+```nushell
+tmp-usage plot [
+    [     name, data ];
+    [ "200.00", (open 200_00.ndnuon | get used | into int) ],
+    [ "282.84", (open 282_84.ndnuon | get used | into int) ],
+]
+```
+
 ## Credits
 - statistics have been taken from the official [Infinity ARMY online tool][army]
 - assets have been taken from the official [Infinity ARMY online tool][army]
