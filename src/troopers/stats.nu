@@ -488,7 +488,7 @@ export def gen-stats-page [
     let qrcode = $qrcode | ffmpeg apply $"scale=($options.qr_code_width):($options.qr_code_width)" -o @rand
 
     let transforms = [
-        (ffmpeg-text $"ISC: ($troop.isc)"  $options.isc_pos            $options.isc_font),
+        (ffmpeg-text $troop.isc            $options.isc_pos            $options.isc_font),
         (ffmpeg-text $troop.classification $options.classification_pos $options.isc_font),
 
         { kind: "drawbox",  options: { ...$options.name_box, color: $"($color)@1.0", t: "fill" } },

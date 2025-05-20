@@ -13,8 +13,8 @@ def get-options [options: record] {
     }
 
     let header_max_chars = 10
-    let name_max_chars = 25
-    let traits_max_chars = 27
+    let name_max_chars = 20
+    let traits_max_chars = 26
 
     let normal_fontsize = 0.01375 * $options.canvas.w
     let header_fontsize = 0.02500 * $options.canvas.h
@@ -66,10 +66,10 @@ def get-options [options: record] {
             ranges: { fontfile: $BOLD_FONT,    fontcolor: "white", fontsize: $ranges_fontsize },
         },
         ranges: {
-            cell_width: (0.03125 * $options.canvas.w),
+            cell_width: (0.04 * $options.canvas.w),
             labels: ['8"', '16"', '24"', '32"', '40"', '48"', '96"'],
             pos: {
-                x: ($name_x + ($normal_fontsize * 0.33) * $name_max_chars),
+                x: ($name_x + ($normal_fontsize * 0.35) * $name_max_chars),
                 y: $ranges_y,
             }
             background: {
@@ -86,12 +86,12 @@ def get-options [options: record] {
         },
         headers: {
             labels: [
-                [field,                    short,  x                        ];
-                [PS,                       PS,     (0.46875  * $options.canvas.w + $options.margin)],
-                [B,                        B,      (0.503125 * $options.canvas.w + $options.margin)],
-                [AMMUNITION,               AMMO,   (0.565625 * $options.canvas.w + $options.margin)],
-                ["SAVING ROLL ATTRIBUTE",  ATTR,   (0.6625   * $options.canvas.w + $options.margin)],
-                ["NUMBER OF SAVING ROLLS", SR,     (0.75     * $options.canvas.w + $options.margin)],
+                [field,                    short, x                        ];
+                [PS,                       null,  ((0.75 - 4 * 0.06195652173913044) * $options.canvas.w + $options.margin)],
+                [B,                        null,  ((0.75 - 3 * 0.06195652173913044) * $options.canvas.w + $options.margin)],
+                [AMMUNITION,               AMMO,  ((0.75 - 2 * 0.06195652173913044) * $options.canvas.w + $options.margin)],
+                ["SAVING ROLL ATTRIBUTE",  ATTR,  ((0.75 - 1 * 0.06195652173913044) * $options.canvas.w + $options.margin)],
+                ["NUMBER OF SAVING ROLLS", SR,    ((0.75 - 0 * 0.06195652173913044) * $options.canvas.w + $options.margin)],
             ],
             background: {
                 kind: "drawbox",
@@ -120,12 +120,12 @@ def put-weapons-charts [equipments: table<name: string, stats: record>, options:
     let header_transforms = [
         { field: "NAME", x: $options.name.x },
         { field: "RANGE", x: ($options.ranges.pos.x + ($options.ranges.labels | length) / 2 * $options.ranges.cell_width) },
-        ...($options.headers.labels | select field x),
+        ...($options.headers.labels),
         { field: "TRAITS", x: $options.traits.x },
     ] | each { |h|
         # FIXME: no idea why this is IO call is required...
         print --no-newline ""
-        let header_lines = fit-items-in-width ($h.field | split row " ") $options.headers.max_chars --separator " "
+        let header_lines = fit-items-in-width ($h.short? | default $h.field | split row " ") $options.headers.max_chars --separator " "
             | each { str join " " }
 
         $header_lines | enumerate | each { |l|
@@ -222,7 +222,7 @@ def put-weapons-charts [equipments: table<name: string, stats: record>, options:
                 options: {
                     x: ($options.ranges.pos.x + $it.index * $options.ranges.cell_width),
                     y: $"($range_y)-h/2",
-                    w: $options.ranges.cell_width,
+                    w: ($options.ranges.cell_width + 1),
                     h: $range_h,
                     color: $color, t: "fill",
                 },
