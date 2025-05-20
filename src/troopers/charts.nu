@@ -206,27 +206,51 @@ def put-weapons-charts [equipments: table<name: string, stats: record>, options:
             },
         }
 
-        let ranges_boxes = $options.ranges.labels | enumerate | each { |it|
-            let color = match ($eq.item.stats | get $it.item) {
-                "+6" | 6 | "6" => $CORVUS_BELLI_COLORS.purple,
-                "+3" | 3 | "3" => $CORVUS_BELLI_COLORS.green,
-                "0" | 0 => $CORVUS_BELLI_COLORS.blue,
-                "-3" | -3 => $CORVUS_BELLI_COLORS.yellow,
-                "-6" | -6 => $CORVUS_BELLI_COLORS.red,
-                "null" => $CORVUS_BELLI_COLORS.black,
-                _ => $CORVUS_BELLI_COLORS.gray,
-            }
+        let empty_ranges = $options.ranges.labels | where { |it|
+            ($eq.item.stats | get $it) == ""
+        }
+        let ranges_boxes = match ($empty_ranges | length) {
+            0 => {
+                $options.ranges.labels | enumerate | each { |it|
+                    let color = match ($eq.item.stats | get $it.item) {
+                        "+6" | 6 | "6" => $CORVUS_BELLI_COLORS.purple,
+                        "+3" | 3 | "3" => $CORVUS_BELLI_COLORS.green,
+                        "0" | 0 => $CORVUS_BELLI_COLORS.blue,
+                        "-3" | -3 => $CORVUS_BELLI_COLORS.yellow,
+                        "-6" | -6 => $CORVUS_BELLI_COLORS.red,
+                        "null" => $CORVUS_BELLI_COLORS.black,
+                        _ => $CORVUS_BELLI_COLORS.gray,
+                    }
 
-            {
-                kind: "drawbox",
-                options: {
-                    x: ($options.ranges.pos.x + $it.index * $options.ranges.cell_width),
-                    y: $"($range_y)-h/2",
-                    w: ($options.ranges.cell_width + 1),
-                    h: $range_h,
-                    color: $color, t: "fill",
-                },
-            }
+                    {
+                        kind: "drawbox",
+                        options: {
+                            x: ($options.ranges.pos.x + $it.index * $options.ranges.cell_width),
+                            y: $"($range_y)-h/2",
+                            w: ($options.ranges.cell_width + 1),
+                            h: $range_h,
+                            color: $color, t: "fill",
+                        },
+                    }
+                }
+            },
+            7 => [],
+            6 => {
+                let special = $options.ranges.labels | where { |it|
+                    ($eq.item.stats | get $it) != ""
+                } | get 0
+                let pos = {
+                    x: ($options.ranges.pos.x + 3.5 * $options.ranges.cell_width),
+                    y: $range_y,
+                    alignment: $TEXT_ALIGNMENT.center,
+                }
+                let text = $"($eq.item.stats | get $special)"
+                [(ffmpeg-text $text $pos $options.fonts.normal)]
+            },
+            _ => {
+                log error $"($eq.item.NAME) !!!!!!"
+                []
+            },
         }
 
         let stats_boxes = $options.headers.labels | each { |s|
