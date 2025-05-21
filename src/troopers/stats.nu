@@ -349,6 +349,7 @@ def equipment-or-skill-to-text [
     equipment_or_skill,  # string | record<name: string, mod?: string, spec?: bool>
     base_font: record<fontfile: path, fontcolor: string, fontsize: number>,
     pos: record<x: number, y: number, alignment: record<x: string, y: string>>,
+    --is-equipment,
 ]: [ nothing -> record<transform: record, text: string> ] {
     let equipment_or_skill = match ($equipment_or_skill | describe --detailed).type {
         "string" => { name: $equipment_or_skill },
@@ -360,10 +361,11 @@ def equipment-or-skill-to-text [
     } else {
         $"($equipment_or_skill.name) \(($equipment_or_skill.mod)\)"
     }
-    let font = $base_font | if $equipment_or_skill.spec? == true {
-        update fontfile $BOLD_FONT | update fontsize { $in * 1.10 }
-    } else {
-        $in
+    let font = $base_font | match [($equipment_or_skill.spec? == true), $is_equipment] {
+        [false , false] => { $in },
+        [true  , false] => { update fontfile $BOLD_FONT | update fontsize { $in * 1.10 } },
+        [true  , true ] => { $in },
+        [false , true ] => { update fontfile $BOLD_FONT | update fontsize { $in * 1.10 } },
     }
 
     { transform: (ffmpeg-text $text $pos $font), text: $text }
@@ -372,8 +374,6 @@ def equipment-or-skill-to-text [
 def equipments-to-text [
     x: record<
         equipments: list<any>,
-        box: record<x: number, y: number, w: number, h: number>,
-        title_pos: record<x: any, y: any>,
         text_pos: record<x: any, y: any>,
     >
     options: record,
@@ -390,7 +390,7 @@ def equipments-to-text [
             } else {
                 $acc.pos
             }
-            let res = equipment-or-skill-to-text $it $options.equipment_font $pos
+            let res = equipment-or-skill-to-text --is-equipment $it $options.equipment_font $pos
             let next_pos = $acc.pos
                 | update x { $in + ($res.text | str length) * $options.equipment_char_size }
 
@@ -471,6 +471,11 @@ export def gen-stats-page [
         title_pos: ($equipment.title_pos | update y { $in - $options.equipment_boxes_v_space - $options.full_equipment_box_height }),
         text_pos: ($equipment.text_pos | update y { $in - $options.equipment_boxes_v_space - $options.full_equipment_box_height }),
     }}
+
+    let melee_weapons = {
+        equipments: $troop.melee_weapons,
+        text_pos: $options.melee_weapons_pos,
+    }
 
     let characteristics_box = $options.characteristics_box | update h (
         2 * ($options.characteristics_type_pos.y - $options.characteristics_box.y) + # centered text
@@ -613,30 +618,22 @@ export def gen-stats-page [
         { kind: "drawbox",  options: { ...$weaponry.box, color: "black@0.5", t: "fill" } },
         { kind: "drawbox",  options: { ...$weaponry.box, color: "black@0.5", t: $"($options.box_border)" } },
         (ffmpeg-text "WEAPONRY" $weaponry.title_pos $options.equipment_title_font),
-        ...(equipments-to-text $weaponry $options),
+        ...(equipments-to-text ($weaponry | reject title_pos box) $options),
 
         { kind: "drawbox",  options: { ...$equipment.box, color: "black@0.5", t: "fill" } },
         { kind: "drawbox",  options: { ...$equipment.box, color: "black@0.5", t: $"($options.box_border)" } },
         (ffmpeg-text "EQUIPMENT" $equipment.title_pos $options.equipment_title_font),
-        ...(equipments-to-text $equipment $options),
+        ...(equipments-to-text ($equipment | reject title_pos box) $options),
 
         { kind: "drawbox",  options: { ...$peripheral.box, color: "black@0.5", t: "fill" } },
         { kind: "drawbox",  options: { ...$peripheral.box, color: "black@0.5", t: $"($options.box_border)" } },
         (ffmpeg-text "PERIPHERAL" $peripheral.title_pos $options.equipment_title_font),
-        ...(equipments-to-text $peripheral $options),
+        ...(equipments-to-text ($peripheral | reject title_pos box) $options),
 
         { kind: "drawbox",  options: { ...$options.melee_box, color: "black@0.5", t: "fill" } },
         { kind: "drawbox",  options: { ...$options.melee_box, color: "black@0.5", t: $"($options.box_border)" } },
         (ffmpeg-text "MELEE WEAPONS" $options.melee_weapons_title_pos  $options.melee_weapons_title_font),
-        (do {
-            let text = $troop.melee_weapons | each { |it|
-                match ($it | describe --detailed).type {
-                    "string" => $it,
-                    "record" => $"($it.name) \(($it.mod)\)",
-                }
-            } | str join ", "
-            ffmpeg-text $text $options.melee_weapons_pos $options.melee_weapons_font
-        }),
+        ...(equipments-to-text $melee_weapons $options),
 
         { kind: "drawbox",  options: { ...$options.swc_box, color: "black@0.5", t: "fill" } },
         { kind: "drawbox",  options: { ...$options.swc_box, color: "black@0.5", t: $"($options.box_border)" } },
