@@ -83,7 +83,7 @@ export def build-trooper-card [
                         "record" => $it,
                     }
                 }
-                | insert spec false
+                | upsert spec { default false }
             let profile = $it | get $profile | default []
                 | each { |it|
                     match ($it | describe --detailed).type {
@@ -91,7 +91,7 @@ export def build-trooper-card [
                         "record" => $it,
                     }
                 }
-                | insert spec true
+                | upsert spec { default true }
             $common | append $profile | default null mod
         }
         | reject $profile
