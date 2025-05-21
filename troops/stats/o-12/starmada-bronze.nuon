@@ -1,0 +1,72 @@
+{
+    isc: "Bronzes, Deep Space Peacemaker Corps",
+    name: "BRONZES, Deep Space Peacemaker Corps",
+    short_name: "BRONZE",
+    faction: "o-12",
+    allowed_factions: ["starmada"],
+    classification: "Veteran Troops",
+    reference: "https://infinityuniverse.com/army/infinity/starmada/bronzes",
+    type: "HI",
+    characteristics: [
+        "cube",
+        "regular",
+        "hackable",
+    ],
+    stats: {
+        MOV:  "6-2",
+        CC:   20,
+        BS:   13,
+        PH:   13,
+        WIP:  13,
+        ARM:   4,
+        BTS:   6,
+        VITA:  2,
+        S:     2,
+        AVA:   3,
+    },
+    special_skills: [
+        [ name            , mod        ];
+        [ "Climbing Plus" , null       ],
+        [ "Courage"       , null       ],
+        [ "Dodge"         , '+1"'      ],
+        [ "Immunity"      , "Enhanced" ],
+        [ "Martial Arts"  , "L1"       ],
+        [ "Terrain"       , "Zero-G"   ],
+    ],
+    equipment: ["360° Visor"],
+    melee_weapons: [
+        [ name       , mod    , spec ]
+        [ "Pistol"   , null   , true ],
+        [ "E/M CCW"  , "PS=7" , true ],
+        [ "PARA CCW" , "-6"   , true ],
+    ],
+    profiles: [
+        {
+            asset: "o-12-starmada-bronze.1",
+            weaponry: [{ name: "Red Fury", mod: "PS=6" }],
+            SWC: 1,
+            C: 47,
+        },
+        {
+            asset: "o-12-starmada-bronze.any",
+            special_skills: ["Paramedic"],
+            equipment: ["Medikit"],
+            weaponry: ["Heavy Shotgun", "Akrylat-Kanone"],
+            SWC: 0,
+            C: 41,
+        },
+        {
+            asset: "o-12-starmada-bronze.2",
+            special_skills: ["Specialist Operative"],
+            weaponry: ["MULTI Rifle", "Heavy Riotstopper"],
+            SWC: 0,
+            C: 43,
+        },
+        {
+            asset: "o-12-starmada-bronze.any",
+            weaponry: ["Heavy Machine Gun"],
+            SWC: 1.5,
+            C: 48,
+        },
+    ],
+}

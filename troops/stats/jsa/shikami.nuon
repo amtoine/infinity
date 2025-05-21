@@ -1,0 +1,69 @@
+{
+    isc: "Shikami",
+    name: "SHIKAMI",
+    short_name: "SHIKAMI",
+    faction: "jsa",
+    allowed_factions: ["jsa", "ouban"],
+    classification: "Elite Troops",
+    reference: "https://infinityuniverse.com/army/infinity/jsa/shikami",
+    type: "HI",
+    characteristics: [
+        "cube",
+        "regular",
+        "hackable",
+    ],
+    stats: {
+        MOV:  "6-2",
+        CC:   23,
+        BS:   13,
+        PH:   14,
+        WIP:  13,
+        ARM:   3,
+        BTS:   3,
+        VITA:  2,
+        S:     2,
+        AVA:   2,
+    },
+    special_skills: [
+        [ name                   , mod     ];
+        [ "Climbing Plus"        , null    ],
+        [ "Courage"              , null    ],
+        [ "Dodge"                , '+2"'   ],
+        [ "Forward Deployment"   , '+4"'   ],
+        [ "Immunity"             , "Shock" ],
+        [ "Martial Arts"         , "L3"    ],
+        [ "Mimetism"             , "-6"    ],
+        [ "Specialist Operative" , null    ],
+        [ "Stealth"              , null    ],
+        [ "Super-Jump"           , '3"'    ],
+    ],
+    profiles: [
+        {
+            asset: "jsa-shikami.1",
+            weaponry: ["MULTI Rifle", "D-Charges", "Eclipse Grenades"],
+            melee_weapons: [
+                [ name        , mod    ];
+                [ "Pistol"    , null   ],
+                [ "AP+DA CCW" , "PS=4" ],
+            ],
+            SWC: 0,
+            C: 47,
+        },
+        {
+            asset: "jsa-shikami.2",
+            weaponry: [
+                [ name               , mod   ];
+                [ "Contender"        , null  ],
+                [ "Flash Pulse"      , "+1B" ],
+                [ "Eclipse Grenades" , null  ],
+            ],
+            melee_weapons: [
+                [ name             , mod    ];
+                [ "Assault Pistol" , null   ],
+                [ "AP+DA CCW"      , "PS=4" ],
+            ],
+            SWC: 0,
+            C: 42,
+        },
+    ],
+}

@@ -4,7 +4,6 @@
     short_name: "ORC",
     faction: "panoceania",
     allowed_factions: ["panoceania", "svalarheima-s-winter-force", "white-company"],
-    asset: "panoceania-orc",
     classification: "Veteran Troops",
     reference: "https://infinityuniverse.com/army/infinity/panoceania/orc-troops",
     type: "HI",
@@ -24,12 +23,19 @@
         VITA:  2,
         S:     2,
         AVA:   2,
-    }
-    special_skills: [ { name: "Immunity", mod: "Shock" }],
-    weaponry: ["MULTI Rifle"],
-    equipment: [],
-    peripheral: [],
-    melee_weapons: ["Pistol", "CCW"],
-    SWC: 0,
-    C: 28,
+    },
+    special_skills: [{ name: "Immunity", mod: "Shock" }],
+    melee_weapons: [
+        [ name     , mod  , spec ];
+        [ "Pistol" , null , true ],
+        [ "CCW"    , null , true ],
+    ],
+    profiles: [
+        {
+            asset: "panoceania-orc",
+            weaponry: ["MULTI Rifle"],
+            SWC: 0,
+            C: 28,
+        },
+    ],
 }

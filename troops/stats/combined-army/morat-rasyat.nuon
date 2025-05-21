@@ -1,0 +1,63 @@
+{
+    isc: "Rasyat Diplomatic Division",
+    name: "RASYAT Diplomatic Division",
+    short_name: "RASYAT",
+    faction: "combined-army",
+    allowed_factions: ["combined-army", "morat-aggression-forces"],
+    classification: "Elite Troops",
+    reference: "https://infinityuniverse.com/army/infinity/morat/rasyat-diplomatic-division",
+    type: "MI",
+    characteristics: [
+        "cube",
+        "regular",
+    ],
+    stats: {
+        MOV:  "4-4",
+        CC:   21,
+        BS:   12,
+        PH:   13,
+        WIP:  13,
+        ARM:   2,
+        BTS:   0,
+        VITA:  1,
+        S:     2,
+        AVA:   3,
+    },
+    special_skills: [
+        [ name                   , mod              ];
+        [ "Combat Jump"          , null             ],
+        [ "Dodge"                , '+1"'            ],
+        [ "Martial Arts"         , "L2"             ],
+        [ "Natural Born Warrior" , null             ],
+        [ "Parachutist"          , "Dep. Zone"      ],
+        [ "Religious Troop"      , null             ],
+        [ "Stealth"              , null             ],
+        [ "Super-Jump"           , "Jet Propulsion" ],
+        [ "Warhorse"             , null             ],
+    ],
+    melee_weapons: [
+        [ name           , mod    , spec ];
+        [ "Heavy Pistol" , null   , true ],
+        [ "DA CCW"       , "PS=5" , true ],
+    ],
+    profiles: [
+        {
+            asset: "combined-army-morat-rasyat",
+            weaponry: ["Boarding Shotgun", "D-Charges", "Eclipse Grenades"],
+            SWC: 0,
+            C: 25,
+        },
+        {
+            asset: "combined-army-morat-rasyat",
+            weaponry: ["Spitfire", "D-Charges", "Eclipse Grenades"],
+            SWC: 1.5,
+            C: 34,
+        },
+        {
+            asset: "combined-army-morat-rasyat",
+            weaponry: ["Combi Rifle", "E/M Carbine", "D-Charges", "Eclipse Grenades"],
+            SWC: 0,
+            C: 31,
+        },
+    ],
+}

@@ -1,0 +1,66 @@
+{
+    isc: "Kaitok Shock Regiment",
+    name: "KAITOK Shock Regiment",
+    short_name: "KAITOK",
+    faction: "combined-army",
+    allowed_factions: ["morat-aggression-forces"],
+    classification: "Veteran Troops",
+    reference: "https://infinityuniverse.com/army/infinity/morat/kaitok-shock-regiment",
+    type: "HI",
+    characteristics: [
+        "cube",
+        "regular",
+        "hackable",
+    ],
+    stats: {
+        MOV:  "6-2",
+        CC:   16,
+        BS:   12,
+        PH:   14,
+        WIP:  13,
+        ARM:   5,
+        BTS:   3,
+        VITA:  2,
+        S:     5,
+        AVA:   3,
+    },
+    special_skills: [
+        [ name              , mod     ];
+        [ "BS Attack"       , "SR-1"  ],
+        [ "Dodge"           , '+2"'   ],
+        [ "Frenzy"          , null    ],
+        [ "Immunity"        , "Shock" ],
+        [ "Religious Troop" , null    ],
+        [ "Warhorse"        , null    ],
+    ],
+    melee_weapons: [
+        [ name           , mod    , spec ];
+        [ "Heavy Pistol" , "+1B"  , true ],
+        [ "CCW"          , "PS=6" , true ],
+    ],
+    profiles: [
+        {
+            asset: "combined-army-morat-kaitok",
+            weaponry: [
+                [ name           , mod   ];
+                [ "Chain Rifle"  , "+2B" ],
+                [ "Flammenspeer" , null  ],
+            ],
+            SWC: 0,
+            C: 19,
+        },
+        {
+            asset: "combined-army-morat-kaitok",
+            weaponry: ["Heavy Rocket Launcher"],
+            SWC: 1.5,
+            C: 20,
+        },
+        {
+            asset: "combined-army-morat-kaitok",
+            weaponry: ["Feuerbach"],
+            equipment: [{ name: "Multispectral Visor", mod: "L1" }],
+            SWC: 1.5,
+            C: 34,
+        },
+    ],
+}

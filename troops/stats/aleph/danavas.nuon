@@ -3,8 +3,7 @@
     name: "DANAVAS Hackers",
     short_name: "DANAVAS",
     faction: "aleph",
-    allowed_factions: ["aleph", "sss", "white-company"],
-    asset: "aleph-danavas",
+    allowed_factions: [ "aleph", "sss", "white-company" ],
     classification: "Line Troops",
     reference: "https://infinityuniverse.com/army/infinity/aleph/danavas-hackers",
     type: "LI",
@@ -23,15 +22,17 @@
         VITA:  1,
         S:     2,
         AVA:   2,
-    }
-    special_skills: [
-        "Courage",
-        { name: "Hacker", spec: true },
+    },
+    special_skills: [ "Courage" ],
+    profiles: [
+        {
+            asset: "aleph-danavas",
+            special_skills: [ "Hacker" ],
+            weaponry: [ "Combi Rifle", "Pitcher" ],
+            equipment: [{ name: "Hacking Device Plus", mod: "UPGRADE: Oblivion +1B" }],
+            melee_weapons: [ "Breaker Pistol", "CCW" ],
+            SWC: 0.5,
+            C: 22,
+        },
     ],
-    weaponry: ["Combi Rifle", "Pitcher"],
-    equipment: [{ name: "Hacking Device Plus", mod: "UPGRADE: Oblivion +1B", spec: true }],
-    peripheral: [],
-    melee_weapons: ["Breaker Pistol", "CCW"],
-    SWC: 0.5,
-    C: 22,
 }

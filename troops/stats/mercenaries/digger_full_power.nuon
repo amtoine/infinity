@@ -1,0 +1,59 @@
+{
+    isc: "Diggers, Armed Prospectors",
+    name: "Full Power DIGGERS",
+    short_name: "DIGGER",
+    faction: null,
+    allowed_factions: [],
+    classification: "Mercenary Troops",
+    reference: "https://infinityuniverse.com/army/infinity/starmada/merc-diggers-armed-prospectors",
+    type: "HI",
+    characteristics: [
+        "cube",
+        "regular",
+        "impetuous",
+        "hackable",
+    ],
+    stats: {
+        MOV:  "4-4",
+        CC:   21,
+        BS:   11,
+        PH:   13,
+        WIP:  12,
+        ARM:   3,
+        BTS:   0,
+        VITA:  2,
+        S:     2,
+        AVA:   2,
+    },
+    special_skills: [
+        [ name                   , mod     ];
+        [ "Booty"                , null    ],
+        [ "CC Attack"            , "+1B"   ],
+        [ "Courage"              , null    ],
+        [ "Dodge"                , '+1"'   ],
+        [ "Immunity"             , "Shock" ],
+        [ "Impetuous"            , null    ],
+        [ "Natural Born Warrior" , null    ],
+        [ "No Cover"             , null    ],
+        [ "Transmutation"        , "1"     ],
+    ],
+    melee_weapons: [
+        [ name     , mod    , spec ];
+        [ "Pistol" , null   , true ],
+        [ "AP CCW" , "PS=6" , true ],
+    ],
+    profiles: [
+        {
+            asset: "mercenaries-digger.1",
+            weaponry: [{ name: "Chain Rifle", mod: "+1B" }, "Grenades"],
+            SWC: 0,
+            C: 14,
+        },
+        {
+            asset: "mercenaries-digger.2",
+            weaponry: ["Rifle", "Light Shotgun", "Grenades"],
+            SWC: 0,
+            C: 18,
+        },
+    ],
+}

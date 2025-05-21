@@ -1,0 +1,96 @@
+{
+    isc: "Morat Vanguard Infantry",
+    name: "MORAT VANGUARD INFANTRY",
+    short_name: "MORAT VANGUARD",
+    faction: "combined-army",
+    allowed_factions: ["combined-army", "morat-aggression-forces"],
+    asset: "combined-army-morat-vanguard.combi-rifle",
+    classification: "Line Troops",
+    reference: "https://infinityuniverse.com/army/infinity/morat/morat-vanguard-infantry",
+    type: "LI",
+    characteristics: [
+        "cube",
+        "regular",
+    ],
+    stats: {
+        MOV:  "4-4",
+        CC:   15,
+        BS:   11,
+        PH:   12,
+        WIP:  13,
+        ARM:   1,
+        BTS:   3,
+        VITA:  1,
+        S:     2,
+        AVA:   "Total",
+    },
+    special_skills: [
+        "Religious Troop",
+        "Warhorse",
+    ],
+    melee_weapons: [
+        [ name           , mod  , spec ];
+        [ "Heavy Pistol" , null , true ],
+        [ "CCW"          , null , true ],
+    ],
+    profiles: [
+        {
+            asset: "combined-army-morat-vanguard.combi-rifle",
+            weaponry: ["Combi Rifle"],
+            SWC: 0,
+            C: 14,
+        },
+        {
+            asset: "combined-army-morat-vanguard.any",
+            special_skills: [{ name: "BS Attack", mod: "-3" }],
+            weaponry: ["Heavy Machine Gun"],
+            SWC: 1,
+            C: 23,
+        },
+        {
+            asset: "combined-army-morat-vanguard.4",
+            weaponry: ["K1 Sniper Rifle"],
+            SWC: 1,
+            C: 18,
+        },
+        {
+            asset: "combined-army-morat-vanguard.any",
+            weaponry: ["Missile Launcher"],
+            SWC: 1.5,
+            C: 19,
+        },
+        {
+            asset: "combined-army-morat-vanguard.combi-rifle",
+            special_skills: ["Forward Observer"],
+            weaponry: ["Combi Rifle", "Flash Pulse"],
+            SWC: 0,
+            C: 15,
+        },
+        {
+            asset: "combined-army-morat-vanguard.combi-rifle",
+            special_skills: ["Paramedic"],
+            weaponry: ["Combi Rifle"],
+            equipment: ["MediKit"],
+            SWC: 0,
+            C: 16,
+        },
+        {
+            asset: "combined-army-morat-vanguard.combi-rifle",
+            special_skills: [
+                [ name                   , mod  ];
+                [ "Commlink"             , "+1" ],
+                [ "Specialist Operative" , null ],
+            ],
+            weaponry: ["Combi Rifle"],
+            SWC: 0,
+            C: 16,
+        },
+        {
+            asset: "combined-army-morat-vanguard.combi-rifle",
+            special_skills: ["Lieutenant"],
+            weaponry: ["Combi Rifle"],
+            SWC: 0,
+            C: 14,
+        },
+    ],
+}
