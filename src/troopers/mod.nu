@@ -125,8 +125,18 @@ export def build-trooper-card [
         | merge-common-and-profile peripheral?     profile_peripheral?
     let total = $profiles | length
 
+    let dirty = not (git status --short --untracked-files=no | lines | is-empty)
+    let rev = git rev-parse HEAD | if $dirty {
+        $"($in)-dirty"
+    } else {
+        $in
+    }
+
     for p in ($profiles | enumerate) {
-        let output = $output | path parse | update stem { $in ++ $".($p.index + 1)" } | path join
+        let output = $output
+            | path parse
+            | update stem { $"($rev)-($in).($p.index + 1)" }
+            | path join
         {
             current: (
                 $p.index + 1
