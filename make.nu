@@ -130,8 +130,16 @@ export def "main fmt-troop" [format: record, ...troopers: string, --dpi: float, 
 def "main showcase" [] {
     let troopers = ["jsa/shikami", "panoceania/orc"]
     main fmt-troop $FORMATS.poker ...$troopers --dpi 500 --margin 0.00
+
+    let dirty = not (git status --short --untracked-files=no | lines | is-empty)
+    let rev = git rev-parse HEAD | if $dirty {
+        $"($in)-dirty"
+    } else {
+        $in
+    }
+
     for t in $troopers {
-        cp --verbose ($"($OUT_DIR)/($t | str replace '/' '-').*.1" | into glob) assets/
+        cp --verbose ($"($OUT_DIR)/($rev)-($t | str replace '/' '-').*.1" | into glob) assets/
     }
 }
 
