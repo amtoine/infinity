@@ -19,9 +19,10 @@ nu make.nu
 
 ## Compare images
 ```nushell
-use src/log.nu [ "log warning" ]
+use src/ffmpeg.nu [ "ffmpeg combine", HSTACKING ]
+use src/log.nu [ "log info", "log warning" ]
 
-def compare [a: string, b: string] {
+def compare [a: string, b: string]: [ nothing -> list<path> ] {
     let xs = nu make.nu inspect
         | from json
         | where $it.hash == $b and not $it.dirty
@@ -29,20 +30,22 @@ def compare [a: string, b: string] {
         | path parse
         | get stem
 
-    for x in $xs {
+    $xs | each { |x|
         let o = $"img-diffs/($a)-($b)-($x).png"
         let a = $"out/($a)-($x).png"
         let b = $"out/($b)-($x).png"
 
         if not ($a | path exists) {
             log warning $"($a) not found"
-            continue
         } else if not ($b | path exists) {
             log warning $"($b) not found"
-            continue
+        } else {
+            log info $x
+            python img-diff.py $a $b -o $o | ignore
+            [$b, $o] | reduce --fold $a { |it, acc|
+                [$acc, $it] | ffmpeg combine $HSTACKING --output @rand
+            }
         }
-
-        python img-diff.py $a $b -o $o
     }
 }
 ```
