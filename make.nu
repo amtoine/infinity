@@ -7,6 +7,11 @@ const FONT_LOCAL = "/tmp/adwaita-fonts-48.2.tar.xz"
 const STATS_DIR = "./troops/stats/"
 const OUT_DIR = "./out/"
 
+export const FORMATS = {
+    jumbo: { wi: 5.00, hi: 3.50 },
+    poker: { wi: 3.50, hi: 2.50 },
+}
+
 # configure Git
 def "main git" [] {
     log info "git config diff.exif.textconv exiftool"
@@ -50,23 +55,27 @@ def list-troops []: [ nothing -> table<name: string, color: string> ] {
         }
 }
 
-# build the "showcase" cards and copy them to the the `assets/` directory
-def "main showcase" [] {
-    let params = {
-        wi: 3.50,
-        hi: 2.50,
-        dpi: 500,
-        troopers: [ "jsa/shikami.1","panoceania/orc" ],
-    }
-    for t in $params.troopers {
+export def "main fmt-troop" [format: record, ...troopers: string, --dpi: float, --margin: float = 0.00] {
+    for t in $troopers {
+        bash -c "rm -rf /tmp/*.png"
         (main troops
             $t
             --stats
             --charts
-            -w ($params.wi * $params.dpi | into int)
-            -h ($params.hi * $params.dpi | into int)
-            -m 0)
-        cp --verbose ($"($OUT_DIR)/($t | str replace '/' '-').*" | into glob) assets/
+            -w ($format.wi * $dpi | into int)
+            -h ($format.hi * $dpi | into int)
+            -m ($format.wi * $dpi * $margin | into int)
+        )
+    }
+    notify-send "done"
+}
+
+# build the "showcase" cards and copy them to the the `assets/` directory
+def "main showcase" [] {
+    let troopers = ["jsa/shikami", "panoceania/orc"]
+    main fmt-troop $FORMATS.poker ...$troopers --dpi 500 --margin 0.00
+    for t in $troopers {
+        cp --verbose ($"($OUT_DIR)/($t | str replace '/' '-').*.1" | into glob) assets/
     }
 }
 
