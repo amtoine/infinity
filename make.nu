@@ -55,30 +55,6 @@ def list-troops []: [ nothing -> table<name: string, color: string> ] {
         }
 }
 
-export def "main fmt-troop" [format: record, ...troopers: string, --dpi: float, --margin: float = 0.00] {
-    for t in $troopers {
-        bash -c "rm -rf /tmp/*.png"
-        (main troops
-            $t
-            --stats
-            --charts
-            -w ($format.wi * $dpi | into int)
-            -h ($format.hi * $dpi | into int)
-            -m ($format.wi * $dpi * $margin | into int)
-        )
-    }
-    notify-send "done"
-}
-
-# build the "showcase" cards and copy them to the the `assets/` directory
-def "main showcase" [] {
-    let troopers = ["jsa/shikami", "panoceania/orc"]
-    main fmt-troop $FORMATS.poker ...$troopers --dpi 500 --margin 0.00
-    for t in $troopers {
-        cp --verbose ($"($OUT_DIR)/($t | str replace '/' '-').*.1" | into glob) assets/
-    }
-}
-
 # build the "troops" cards from NUON "trooper" files in the `troops/stats/` directory
 def "main troops" [
     name: string = "",
@@ -132,6 +108,30 @@ def "main troops" [
             --stats=$stats
             --charts=$charts
         )
+    }
+}
+
+export def "main fmt-troop" [format: record, ...troopers: string, --dpi: float, --margin: float = 0.00] {
+    for t in $troopers {
+        bash -c "rm -rf /tmp/*.png"
+        (main troops
+            $t
+            --stats
+            --charts
+            -w ($format.wi * $dpi | into int)
+            -h ($format.hi * $dpi | into int)
+            -m ($format.wi * $dpi * $margin | into int)
+        )
+    }
+    notify-send "done"
+}
+
+# build the "showcase" cards and copy them to the the `assets/` directory
+def "main showcase" [] {
+    let troopers = ["jsa/shikami", "panoceania/orc"]
+    main fmt-troop $FORMATS.poker ...$troopers --dpi 500 --margin 0.00
+    for t in $troopers {
+        cp --verbose ($"($OUT_DIR)/($t | str replace '/' '-').*.1" | into glob) assets/
     }
 }
 
