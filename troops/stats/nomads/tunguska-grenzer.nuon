@@ -60,6 +60,7 @@
             asset: "nomads-tunguska-grenzer.2",
             special_skills: [{ name: "Discover", mod: "+3" }],
             weaponry: ["Combi Rifle", { name: "Light Flamethrower", mod: "+1B" }],
+            equipment: ["Biometric Visor"],
             SWC: 0,
             C: 28,
         },
