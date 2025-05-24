@@ -35,7 +35,7 @@
     ],
     equipment: ["360° Visor"],
     melee_weapons: [
-        [ name       , mod    , spec ]
+        [ name       , mod    , spec ];
         [ "Pistol"   , null   , true ],
         [ "E/M CCW"  , "PS=7" , true ],
         [ "PARA CCW" , "-6"   , true ],
