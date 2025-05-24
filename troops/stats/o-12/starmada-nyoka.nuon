@@ -1,7 +1,7 @@
 {
     isc: "Nyoka Assault Troops",
     name: "NYOKA Assault Troops",
-    short_name: "NYOKA FTO",
+    short_name: "NYOKA",
     faction: "o-12",
     allowed_factions: ["starmada"],
     classification: "Spec. Trained Troops",
@@ -34,6 +34,7 @@
     profiles: [
         {
             asset: "o-12-starmada-nyoka.2",
+            short_name: "NYOKA FTO",
             weaponry: ["Heavy Rocket Launcher", "Chain-colt"],
             melee_weapons: ["Shock CCW", { name: "Heavy Pistol", mod: "+1B" }],
             SWC: 1,
@@ -41,6 +42,7 @@
         },
         {
             asset: "o-12-starmada-nyoka.1",
+            short_name: "NYOKA FTO",
             special_skills: ["Forward Observer"],
             weaponry: ["MULTI Rifle", "Chain-colt"],
             melee_weapons: ["Pistol", "Shock CCW"],

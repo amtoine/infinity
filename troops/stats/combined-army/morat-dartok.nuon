@@ -1,7 +1,7 @@
 {
     isc: "Dartok Cybercombat Team",
     name: "DARTOK Cybercombat Team",
-    short_name: "DARTOK FTO",
+    short_name: "DARTOK",
     faction: "combined-army",
     allowed_factions: ["combined-army", "morat-aggression-forces"],
     classification: "Spec. Trained Troops",
@@ -33,6 +33,7 @@
     profiles: [
         {
             asset: "combined-army-morat-dartok",
+            short_name: "DARTOK FTO",
             special_skills: ["Hacker"],
             weaponry: ["Submachine Gun", "Pitcher", "E/M Grenades"],
             SWC: 0.5,
