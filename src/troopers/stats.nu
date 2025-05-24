@@ -556,7 +556,11 @@ export def gen-stats-page [
 
                         if $ma_skill != null {
                             let art = $MARTIAL_ARTS | where level == $ma_skill.v | into record
-                            $"($cc_value)+($art.attack)"
+                            if $art.attack > 0 {
+                                $"($cc_value)+($art.attack)"
+                            } else {
+                                $cc_value
+                            }
                         } else {
                             $cc_value
                         }
