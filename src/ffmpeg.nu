@@ -92,11 +92,11 @@ export def "ffmpeg pre" [options: record] {
 }
 
 def output-path [output: string, --extension: string]: [ nothing -> path ] {
-    match $output {
-        "@auto" | "" => { $"output.($extension)" | path expand },
-        "@rand"      => { mktemp --tmpdir $"XXXXXXX.($extension)" },
-        _            => { $output | path expand },
-    }
+    $output
+        | str replace --all "@auto" $"output.($extension)"
+        | str replace --all "@rand" (random uuid | hash sha256)
+        | str replace --all "@ext" $extension
+        | path expand
 }
 
 export def "ffmpeg create" [
