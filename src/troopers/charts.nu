@@ -339,7 +339,7 @@ export def gen-charts-page [
     output: path,
     modifiers: table<name: string, mod: record>,
     options: record,
-] {
+]: [ nothing -> path ] {
     let charts = ls charts/weapons/*.csv | reduce --fold [] { |it, acc|
         $acc ++ (open $it.name)
     }
@@ -504,4 +504,6 @@ export def gen-charts-page [
     let out = $output | path parse | update stem { $in ++ ".2" } | path join
     cp $res $out
     log info $"\t(ansi purple)($out)(ansi reset)"
+
+    $out
 }

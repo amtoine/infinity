@@ -424,7 +424,7 @@ export def gen-stats-page [
     output: path,
     modifiers: table<name: string, mod: record>,
     options: record,
-] {
+]: [ nothing -> path ] {
     # NOTE: this is required because of signature issues in Nushell
     let modifiers = $modifiers | transpose --header-row | into record
 
@@ -727,4 +727,6 @@ export def gen-stats-page [
     let out = $output | path parse | update stem { $in ++ ".1" } | path join
     cp $tmp $out
     log info $"\t(ansi purple)($out)(ansi reset)"
+
+    $out
 }

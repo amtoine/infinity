@@ -52,7 +52,7 @@ export def build-trooper-card [
     --output: path = "output.png",
     --stats,
     --charts,
-] {
+]: [ nothing -> list<path> ] {
     let modifiers = $trooper.special_skills | each { |skill|
         let skill = if ($skill | describe --detailed).type == "record" {
             $skill | default null mod | reject spec?
@@ -133,7 +133,7 @@ export def build-trooper-card [
         $in
     }
 
-    for p in ($profiles | enumerate) {
+    $profiles | enumerate | each { |p|
         let output = $output
             | path parse
             | update stem { $"($rev)-($in).($p.index + 1)" }
@@ -147,16 +147,17 @@ export def build-trooper-card [
         } | log info $"    \(($in.current) / ($in.total)\)"
 
         match [$stats, $charts] {
-            [true, true] | [false, false] => {
-                gen-stats-page $p.item $color $output $modifiers $options
-                gen-charts-page $p.item $color $output $modifiers $options
-            },
-            [true, false] => {
-                gen-stats-page $p.item $color $output $modifiers $options
-            },
-            [false, true] => {
-                gen-charts-page $p.item $color $output $modifiers $options
-            },
+            [true, true] | [false, false] => {[
+                (gen-stats-page $p.item $color $output $modifiers $options),
+                (gen-charts-page $p.item $color $output $modifiers $options),
+            ]},
+            [true, false] => {[
+                (gen-stats-page $p.item $color $output $modifiers $options),
+            ]},
+            [false, true] => {[
+                (gen-charts-page $p.item $color $output $modifiers $options),
+            ]},
         }
     }
+    | flatten
 }
