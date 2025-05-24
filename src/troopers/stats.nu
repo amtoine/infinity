@@ -390,7 +390,7 @@ def equipments-to-text [
             } else {
                 $acc.pos
             }
-            let res = equipment-or-skill-to-text --is-equipment $it $options.equipment_font $pos
+            let res = equipment-or-skill-to-text --is-equipment=($it != $options.list_separator) $it $options.equipment_font $pos
             let next_pos = $acc.pos
                 | update x { $in + ($res.text | str length) * $options.equipment_char_size }
 
