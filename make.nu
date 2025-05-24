@@ -249,3 +249,11 @@ def "main" [] {
     main troops
     main viz
 }
+
+def "main inspect" [] {
+    ls $OUT_DIR --short-names
+        | get name
+        | parse --regex "(?<hash>[0-9a-fA-F]*)-(?<dirty>dirty-)?(?<filename>.*)"
+        | update dirty { not ($in == "") }
+        | to json
+}
