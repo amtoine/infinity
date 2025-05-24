@@ -43,14 +43,18 @@ def compare [a: string, b: string]: [ nothing -> list<path> ] {
             log info $x
             python img-diff.py $a $b -o $o | ignore
             [$b, $o] | reduce --fold $a { |it, acc|
-                [$acc, $it] | ffmpeg combine $HSTACKING --output @rand
+                [$acc, $it] | ffmpeg combine $HSTACKING --output img-diffs/@rand.png
             }
         }
     }
 }
 ```
 ```nushell
-compare "a9f44c1f234361d41e275f03ce74934413f13b97" "ee1a163a512f0100e0ddcac76a2901da7ec9bd4a"
+let changes = {
+    multi-profile-troopers : (compare "a9f44c1f234361d41e275f03ce74934413f13b97" "ee1a163a512f0100e0ddcac76a2901da7ec9bd4a"),
+    fix                    : (compare "41032c8fcca55e71ae5fb76ffedf40d158544db2" "ed5894b1d2ef2e424dec029bb9dc5b0cb0f2400e"),
+    cc-mod                 : (compare "ed5894b1d2ef2e424dec029bb9dc5b0cb0f2400e" "42b2b279967a4c0e7eed1185c9c9226f3661f4a8"),
+}
 ```
 
 ## Credits
