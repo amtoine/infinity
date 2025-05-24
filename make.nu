@@ -139,7 +139,7 @@ def "main showcase" [] {
     }
 
     for t in $troopers {
-        cp --verbose ($"($OUT_DIR)/($rev)-($t | str replace '/' '-').*.1" | into glob) assets/
+        cp --verbose ($"($OUT_DIR)/($rev)-($t | str replace '/' '-').1.*.png" | into glob) assets/
     }
 }
 
