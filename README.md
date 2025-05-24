@@ -17,6 +17,39 @@
 nu make.nu
 ```
 
+## Compare images
+```nushell
+use src/log.nu [ "log warning" ]
+
+def compare [a: string, b: string] {
+    let xs = nu make.nu inspect
+        | from json
+        | where $it.hash == $b and not $it.dirty
+        | get filename
+        | path parse
+        | get stem
+
+    for x in $xs {
+        let o = $"img-diffs/($a)-($b)-($x).png"
+        let a = $"out/($a)-($x).png"
+        let b = $"out/($b)-($x).png"
+
+        if not ($a | path exists) {
+            log warning $"($a) not found"
+            continue
+        } else if not ($b | path exists) {
+            log warning $"($b) not found"
+            continue
+        }
+
+        python img-diff.py $a $b -o $o
+    }
+}
+```
+```nushell
+compare "a9f44c1f234361d41e275f03ce74934413f13b97" "ee1a163a512f0100e0ddcac76a2901da7ec9bd4a"
+```
+
 ## Credits
 - statistics have been taken from the official [Infinity ARMY online tool][army]
 - assets have been taken from the official [Infinity ARMY online tool][army]
