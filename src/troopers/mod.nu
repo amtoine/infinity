@@ -123,6 +123,7 @@ export def build-trooper-card [
         | merge-common-and-profile weaponry?       profile_weaponry?
         | merge-common-and-profile melee_weapons?  profile_melee_weapons?
         | merge-common-and-profile peripheral?     profile_peripheral?
+        | update short_name { |it| $it.profiles_short_name? | default $it.short_name }
     let total = $profiles | length
 
     let dirty = not (git status --short --untracked-files=no | lines | is-empty)
