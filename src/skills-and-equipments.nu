@@ -311,7 +311,7 @@ export def generate-equipment-or-skill-card [equipment_or_skill: record, paramet
         c: $BASE_COLOR,
         s: $"($border.options.w)x($border.options.h)",
         d: 1,
-    } } | ffmpeg create ($in | ffmpeg options) -o @rand
+    } } | ffmpeg create ($in | ffmpeg options) -o /tmp/@rand.png
         | ffmpeg mapply ([$border, $header_box] ++ $transforms | each { ffmpeg options }) -o $output
 
     { asset: $asset, width: $width }

@@ -304,16 +304,16 @@ def "main makeplayingcards.com fetch" [
             [null, null] => {},
             [null,    _] => {
                 let dims = $back | ffmpeg metadata | get streams | select width height
-                let front = ffmpeg blank "0xffffff" $dims.width $dims.height -o @rand
-                [$front, $back] | ffmpeg combine $VSTACKING --output @rand
+                let front = ffmpeg blank "0xffffff" $dims.width $dims.height -o /tmp/@rand.png
+                [$front, $back] | ffmpeg combine $VSTACKING -o /tmp/@rand.png
             },
             [   _, null] => {
                 let dims = $front | ffmpeg metadata | get streams | select width height
-                let back = ffmpeg blank "0xffffff" $dims.width $dims.height -o @rand
-                [$front, $back] | ffmpeg combine $VSTACKING --output @rand
+                let back = ffmpeg blank "0xffffff" $dims.width $dims.height -o /tmp/@rand.png
+                [$front, $back] | ffmpeg combine $VSTACKING -o /tmp/@rand.png
             },
             [   _,    _] => {
-                [$front, $back] | ffmpeg combine $VSTACKING --output @rand
+                [$front, $back] | ffmpeg combine $VSTACKING -o /tmp/@rand.png
             },
         }
     }

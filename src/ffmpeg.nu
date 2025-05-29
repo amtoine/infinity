@@ -174,9 +174,9 @@ export def "ffmpeg mapply" [
 
     let res = $transforms | reduce --fold $input { |it, acc|
         if $acc == null {
-            ffmpeg create $it -o @rand -e $extension
+            ffmpeg create $it -o /tmp/@rand.png -e $extension
         } else {
-            $acc | ffmpeg apply $it -o @rand -e $extension
+            $acc | ffmpeg apply $it -o /tmp/@rand.png -e $extension
         }
     }
 

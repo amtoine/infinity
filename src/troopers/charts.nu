@@ -490,15 +490,15 @@ export def gen-charts-page [
         (ffmpeg-text $troop.short_name $options.name.text.pos $options.name.text.font),
     ]
 
-    let res = ffmpeg create ($options.base_image | ffmpeg options) -o @rand
+    let res = ffmpeg create ($options.base_image | ffmpeg options) -o /tmp/@rand.png
         | if $options.debug_margin { ffmpeg apply ({ kind: "drawbox",  options: {
             x: $options.margin,
             y: $options.margin,
             w: $options.canvas.w,
             h: $options.canvas.h,
-            color: $"($BASE_COLOR)@1.0", t: "fill" } } | ffmpeg options) -o @rand } else { $in }
-        | ffmpeg mapply ($weapons_transforms.ts | each { ffmpeg options }) -o @rand
-        | ffmpeg mapply ($name_box_transforms | each { ffmpeg options }) -o @rand
+            color: $"($BASE_COLOR)@1.0", t: "fill" } } | ffmpeg options) -o /tmp/@rand.png } else { $in }
+        | ffmpeg mapply ($weapons_transforms.ts | each { ffmpeg options }) -o /tmp/@rand.png
+        | ffmpeg mapply ($name_box_transforms | each { ffmpeg options }) -o /tmp/@rand.png
         | put-version $troop $version
 
     let out = $output | path parse | update stem { $in ++ ".2" } | path join
