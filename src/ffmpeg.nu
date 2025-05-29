@@ -20,6 +20,7 @@ export const VSTACKING = "[0][1]vstack=inputs=2"
 export const FFMPEG_OPTS = [ -y -hide_banner -loglevel warning ]
 
 def --wrapped run-with-error [cmd: string, ...args: string] {
+    log trace $"($cmd) ($args | str join ' ')"
     let ret = $in | ^$cmd ...$args | complete
     if $ret.exit_code != 0 {
         error make --unspanned { msg: $ret.stderr }
@@ -244,7 +245,7 @@ export def "ffmpeg options" []: [ record<kind: string, options: record> -> strin
 
 export def "ffmpeg pre" [options: record]: [ nothing -> string ] {
     let options = $options | items { |k, v| $"($k)=($v)" } | str join ","
-    $"[1:v]($options)[ovrl], [0:v][ovrl]"
+    $"[1:v]($options)[ovrl],[0:v][ovrl]"
 }
 
 def output-path [output: string, --extension: string]: [ nothing -> path ] {
@@ -262,11 +263,6 @@ export def "ffmpeg create" [
     --options: list<string> = $FFMPEG_OPTS,
 ]: [ nothing -> path ] {
     let output = output-path $output --extension $extension
-
-    {
-        transform: $"(ansi yellow)($transform)(ansi reset)",
-        output: $"(ansi purple)($output)(ansi reset)",
-    } | log trace $"null --($in.transform)--> ($in.output)"
 
     run-with-error ffmpeg ...$options -filter_complex $transform -frames:v 1 $output
     $output
@@ -440,11 +436,6 @@ export def "ffmpeg blank" [
     let output = output-path $output --extension $extension
     let color = $color | parse color --span (metadata $color).span
 
-    {
-        transform: $"(ansi yellow)($width)x($height)@($color)(ansi reset)",
-        output: $"(ansi purple)($output)(ansi reset)",
-    } | log trace $"null --($in.transform)--> ($in.output)"
-
     let color_option = {
         kind: "color",
         options: {
@@ -482,12 +473,6 @@ export def "ffmpeg apply" [
 ]: [ path -> path ] {
     let output = output-path $output --extension $extension
 
-    {
-        in: $"(ansi purple)($in)(ansi reset)",
-        transform: $"(ansi yellow)($transform)(ansi reset)",
-        output: $"(ansi purple)($output)(ansi reset)",
-    } | log trace $"($in.in) --($in.transform)--> ($in.output)"
-
     $in | run-with-error ffmpeg ...$options -i $in -vf $transform $output
     $output
 }
@@ -512,16 +497,16 @@ export def "ffmpeg mapply" [
 
     let res = $transforms | reduce --fold $input { |it, acc|
         if $acc == null {
-            ffmpeg create $it -o /tmp/@rand.png -e $extension
+            ffmpeg create $it -o /tmp/@rand.@ext -e $extension
         } else {
-            $acc | ffmpeg apply $it -o /tmp/@rand.png -e $extension
+            $acc | ffmpeg apply $it -o /tmp/@rand.@ext -e $extension
         }
     }
 
     {
         in: $"(ansi purple)($res)(ansi reset)",
         output: $"(ansi purple)($output)(ansi reset)",
-    } | log trace $"($in.in) --> ($in.output)"
+    } | log trace $"cp ($in.in) ($in.output)"
     cp $res $output
     $output
 }
@@ -533,12 +518,6 @@ export def "ffmpeg combine" [
     --options: list<string> = $FFMPEG_OPTS,
 ]: [ list<path> -> path ] {
     let output = output-path $output --extension $extension
-
-    {
-        in: ($in | each { $'(ansi purple)($in)(ansi reset)' } | str join ', '),
-        transform: $"(ansi yellow)($transform)(ansi reset)",
-        output: $"(ansi purple)($output)(ansi reset)",
-    } | log trace $"($in.in) --($in.transform)--> ($in.output)"
 
     $in | each {[ "-i", $in ]} | flatten | run-with-error ffmpeg ...[
         ...$options
