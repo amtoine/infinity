@@ -1,6 +1,7 @@
 use . log [ "log info", "log warning" ]
 use . ffmpeg *
 
+
 const FONT_UPSTREAM = "https://download.gnome.org/sources/adwaita-fonts/48/adwaita-fonts-48.2.tar.xz"
 const FONT_LOCAL = "/tmp/adwaita-fonts-48.2.tar.xz"
 
@@ -124,6 +125,33 @@ export def "main fmt-troop" [format: record, ...troopers: string, --dpi: float, 
         )
     }
     notify-send "done"
+}
+
+export def "main compare" [a: string, b: string, name: string = ""]: [ nothing -> list<path> ] {
+    let xs = main inspect
+        | from json
+        | where $it.hash == $b and not $it.dirty and $it.filename =~ $name
+        | get filename
+        | path parse
+        | get stem
+
+    $xs | each { |x|
+        let o = $"img-diffs/($a)-($b)-($x).png"
+        let a = $"out/($a)-($x).png"
+        let b = $"out/($b)-($x).png"
+
+        if not ($a | path exists) {
+            log warning $"($a) not found"
+        } else if not ($b | path exists) {
+            log warning $"($b) not found"
+        } else {
+            log info $x
+            python img-diff.py $a $b -o $o | ignore
+            [$b, $o] | reduce --fold $a { |it, acc|
+                [$acc, $it] | ffmpeg combine $HSTACKING --output img-diffs/@rand.png
+            }
+        }
+    }
 }
 
 # build the "showcase" cards and copy them to the the `assets/` directory

@@ -19,43 +19,13 @@ nu make.nu
 
 ## Compare images
 ```nushell
-use src/ffmpeg.nu [ "ffmpeg combine", HSTACKING ]
-use src/log.nu [ "log info", "log warning" ]
+use make.nu
 
-def compare [a: string, b: string, name: string = ""]: [ nothing -> list<path> ] {
-    let xs = nu make.nu inspect
-        | from json
-        | where $it.hash == $b and not $it.dirty and $it.filename =~ $name
-        | get filename
-        | path parse
-        | get stem
-        | tee { print }
-
-    $xs | each { |x|
-        let o = $"img-diffs/($a)-($b)-($x).png"
-        let a = $"out/($a)-($x).png"
-        let b = $"out/($b)-($x).png"
-
-        if not ($a | path exists) {
-            log warning $"($a) not found"
-        } else if not ($b | path exists) {
-            log warning $"($b) not found"
-        } else {
-            log info $x
-            python img-diff.py $a $b -o $o | ignore
-            [$b, $o] | reduce --fold $a { |it, acc|
-                [$acc, $it] | ffmpeg combine $HSTACKING --output img-diffs/@rand.png
-            }
-        }
-    }
-}
-```
-```nushell
 let changes = {
-    multi-profile-troopers : (compare "a9f44c1f234361d41e275f03ce74934413f13b97" "ee1a163a512f0100e0ddcac76a2901da7ec9bd4a" ""),
-    fix                    : (compare "41032c8fcca55e71ae5fb76ffedf40d158544db2" "ed5894b1d2ef2e424dec029bb9dc5b0cb0f2400e" ""),
-    cc-mod                 : (compare "ed5894b1d2ef2e424dec029bb9dc5b0cb0f2400e" "42b2b279967a4c0e7eed1185c9c9226f3661f4a8" ""),
-    ffmpeg-colors          : (compare "42b2b279967a4c0e7eed1185c9c9226f3661f4a8" "a00c5f77e558479bbd8f5f93a81a0196916e2cde" ""),
+    multi-profile-troopers : (make main compare "a9f44c1f234361d41e275f03ce74934413f13b97" "ee1a163a512f0100e0ddcac76a2901da7ec9bd4a" ""),
+    fix                    : (make main compare "41032c8fcca55e71ae5fb76ffedf40d158544db2" "ed5894b1d2ef2e424dec029bb9dc5b0cb0f2400e" ""),
+    cc-mod                 : (make main compare "ed5894b1d2ef2e424dec029bb9dc5b0cb0f2400e" "42b2b279967a4c0e7eed1185c9c9226f3661f4a8" ""),
+    ffmpeg-colors          : (make main compare "42b2b279967a4c0e7eed1185c9c9226f3661f4a8" "a00c5f77e558479bbd8f5f93a81a0196916e2cde" ""),
 }
 ```
 
