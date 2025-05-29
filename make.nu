@@ -114,7 +114,7 @@ def "main troops" [
 
 export def "main fmt-troop" [format: record, ...troopers: string, --dpi: float, --margin: float = 0.00] {
     for t in $troopers {
-        bash -c "rm -rf /tmp/*.png"
+        main clean
         (main troops
             $t
             --stats
@@ -173,8 +173,8 @@ def "main showcase" [] {
 
 # clean all PNG building files
 def "main clean" [] {
-    log info $"cleaning ((try { ls /tmp/infinity-*.png } catch {[]} | length) + (try { ls /tmp/ffmpeg-*.png } catch {[]} | length)) file\(s\)"
-    rm --force /tmp/infinity-*.png  /tmp/ffmpeg-*.png
+    log info $"cleaning (try { ls /tmp/*.png } catch {[]} | length) file\(s\)"
+    bash -c "rm -rf /tmp/*.png"
 }
 
 def batch-transform-pairs [
