@@ -2,6 +2,7 @@
     isc: "Danavas Hackers",
     name: "DANAVAS Hackers",
     short_name: "DANAVAS",
+    asset: "aleph-danavas",
     faction: "aleph",
     allowed_factions: [ "aleph", "sss", "white-company" ],
     classification: "Line Troops",
@@ -26,7 +27,6 @@
     special_skills: [ "Courage" ],
     profiles: [
         {
-            asset: "aleph-danavas",
             special_skills: [ "Hacker" ],
             weaponry: [ "Combi Rifle", "Pitcher" ],
             equipment: [{ name: "Hacking Device Plus", mod: "UPGRADE: Oblivion +1B" }],

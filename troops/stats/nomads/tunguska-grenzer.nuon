@@ -2,6 +2,7 @@
     isc: "Grenzers, Grenz Security Team",
     name: "GRENZERS, Grenz Security Team",
     short_name: "GRENZER",
+    asset: "nomads-tunguska-grenzer",
     faction: "nomads",
     allowed_factions: ["nomads", "tunguska"],
     classification: "Veteran Troops",
@@ -38,26 +39,22 @@
     ],
     profiles: [
         {
-            asset: "nomads-tunguska-grenzer.1",
             weaponry: ["Missile Launcher"],
             SWC: 1.5,
             C: 28,
         },
         {
-            asset: "nomads-tunguska-grenzer.any",
             weaponry: ["Red Fury"],
             SWC: 1,
             C: 28,
         },
         {
-            asset: "nomads-tunguska-grenzer.2",
             special_skills: ["Forward Observer", "NCO", "Sensor"],
             weaponry: ["Combi Rifle", { name: "Light Flamethrower", mod: "+1B" }, "Flash Pulse"],
             SWC: 0,
             C: 29,
         },
         {
-            asset: "nomads-tunguska-grenzer.2",
             special_skills: [{ name: "Discover", mod: "+3" }],
             weaponry: ["Combi Rifle", { name: "Light Flamethrower", mod: "+1B" }],
             equipment: ["Biometric Visor"],
@@ -65,14 +62,12 @@
             C: 28,
         },
         {
-            asset: "nomads-tunguska-grenzer.any",
             special_skills: ["Marksmanship"],
             weaponry: ["MULTI Sniper Rifle"],
             SWC: 1.5,
             C: 32,
         },
         {
-            asset: "nomads-tunguska-grenzer.2",
             special_skills: ["Lieutenant", { name: "Discover", mod: "+3"}],
             weaponry: ["Combi Rifle", { name: "Light Flamethrower", mod: "+1B" }],
             equipment: ["Biometric Visor"],

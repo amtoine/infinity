@@ -2,6 +2,7 @@
     isc: "Karkata Ancillary Remote Unit",
     name: "KARKATA Ancillary Remote Unit",
     short_name: "KARKATA",
+    asset: "aleph-marut",
     faction: "aleph",
     allowed_factions: [ "aleph", "sss" ],
     classification: "",
@@ -34,7 +35,6 @@
     ],
     profiles: [
         {
-            asset: "aleph-marut-karkata",
             SWC: 0,
             C: 3,
         },

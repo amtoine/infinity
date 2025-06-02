@@ -2,6 +2,7 @@
     isc: "Tunguska Cheerkillers",
     name: "Tunguska CHEERKILLERS",
     short_name: "CHEERKILLER",
+    asset: "nomads-tunguska-cheerkiller",
     faction: "nomads",
     allowed_factions: ["tunguska"],
     classification: "Spec. Trained Troops",
@@ -31,28 +32,24 @@
     ],
     profiles: [
         {
-            asset: "nomads-tunguska-cheerkiller.3",
             weaponry: ["Light Shotgun", "Pulzar"],
             melee_weapons: ["Pistol", "Shock CCW"],
             SWC: 0,
             C: 12,
         },
         {
-            asset: "nomads-tunguska-cheerkiller.1",
             weaponry: ["Submachine Gun", "Nanopulser"],
             melee_weapons: ["Pistol", "Shock CCW"],
             SWC: 0,
             C: 13,
         },
         {
-            asset: "nomads-tunguska-cheerkiller.2",
             weaponry: ["AP Rifle", "Nanopulser"],
             melee_weapons: [{ name: "MULTI Pistol", mod: "+1B" }, "Shock CCW"],
             SWC: 0,
             C: 18,
         },
         {
-            asset: "nomads-tunguska-cheerkiller.1",
             special_skills: ["Specialist Operative"],
             weaponry: ["Submachine Gun", "Nanopulser"],
             melee_weapons: ["Pistol", "Shock CCW"],
@@ -60,7 +57,6 @@
             C: 14,
         },
         {
-            asset: "nomads-tunguska-cheerkiller.any",
             weaponry: ["Shock Marksman Rifle", "Nanopulser"],
             equipment: [{ name: "Multispectral Visor", mod: "L2" }],
             melee_weapons: ["Pistol", "Shock CCW"],

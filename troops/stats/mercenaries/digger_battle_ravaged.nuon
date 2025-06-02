@@ -2,6 +2,7 @@
     isc: "Diggers, Armed Prospectors",
     name: "Battle-Ravaged DIGGERS",
     short_name: "DIGGER",
+    asset: "mercenaries-digger",
     faction: null,
     allowed_factions: [],
     classification: "Mercenary Troops",
@@ -42,13 +43,11 @@
     ],
     profiles: [
         {
-            asset: "mercenaries-digger.1",
             weaponry: [{ name: "Chain Rifle", mod: "+1B" }, "Grenades"],
             SWC: 0,
             C: 14,
         },
         {
-            asset: "mercenaries-digger.2",
             weaponry: ["Rifle", "Light Shotgun", "Grenades"],
             SWC: 0,
             C: 18,
