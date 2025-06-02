@@ -406,7 +406,7 @@ export def gen-stats-page [
         short_name: string,
         faction: any, # string or null
         allowed_factions: list<string>,
-        asset: string,
+        asset: any, # string or null
         classification: string,
         reference: string,
         type: string,
@@ -657,8 +657,12 @@ export def gen-stats-page [
             w: $options.canvas.w,
             h: $options.canvas.h,
             color: $"($BASE_COLOR)@1.0", t: "fill" } } | ffmpeg options) -o /tmp/@rand.png } else { $in }
-        | [$in, ({ parent: $DIRS.minis, stem: $troop.asset, extension: "png" } | path join)]
-            | ffmpeg combine ($options.mini | ffmpeg options) -o /tmp/@rand.png
+        | if $troop.asset != null {
+            [$in, ({ parent: $DIRS.minis, stem: $troop.asset, extension: "png" } | path join)]
+                | ffmpeg combine ($options.mini | ffmpeg options) -o /tmp/@rand.png
+        } else {
+            $in
+        }
         | if $troop.faction != null {
             [$in, ({ parent: $DIRS.factions, stem: $troop.faction, extension: "png" } | path join)]
                 | ffmpeg combine ({
@@ -696,7 +700,7 @@ export def gen-stats-page [
                 },
             } | ffmpeg options) -o /tmp/@rand.png
         }
-        | [$in, ({ parent: $DIRS.icons, stem: ($troop.asset | str replace --regex '\..*$' ''), extension: "png" } | path join) ] | ffmpeg combine ({
+        | [$in, ({ parent: $DIRS.icons, stem: ($troop.asset? | default $troop.icon? | str replace --regex '\..*$' ''), extension: "png" } | path join) ] | ffmpeg combine ({
             kind: "overlay",
             pre: (ffmpeg pre { scale: $"(0.9 * $options.icon_box.w):(0.9 * $options.icon_box.h)" }),
             options: {

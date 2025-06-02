@@ -1,0 +1,43 @@
+{
+    isc: "Karkata Ancillary Remote Unit",
+    name: "KARKATA Ancillary Remote Unit",
+    short_name: "KARKATA",
+    asset: null,
+    icon: "aleph-marut",
+    faction: "aleph",
+    allowed_factions: [ "aleph", "sss" ],
+    classification: "",
+    reference: "https://infinityuniverse.com/army/infinity/aleph/maruts",
+    type: "REM",
+    characteristics: [
+        "hackable",
+        "peripheral",
+    ],
+    stats: {
+        MOV:  "6-4",
+        CC:  "-",
+        BS:  "-",
+        PH:   10,
+        WIP:  12,
+        ARM:   0,
+        BTS:   3,
+        STR:   1,
+        S:     1,
+        AVA: "-",
+    },
+    special_skills: [
+        [ name                   , mod         ];
+        [ "Courage"              , null        ],
+        [ "Dodge"                , "+3"        ],
+        [ "Mimetism"             , "-3"        ],
+        [ "Peripheral"           , "Ancillary" ],
+        [ "Specialist Operative" , null        ],
+        [ "Terrain"              , "Total"     ],
+    ],
+    profiles: [
+        {
+            SWC: 0,
+            C: 3,
+        },
+    ],
+}

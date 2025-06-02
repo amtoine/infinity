@@ -321,7 +321,7 @@ export def gen-charts-page [
         short_name: string,
         faction: any, # string or null
         allowed_factions: list<string>,
-        asset: string,
+        asset: any, # string or null
         classification: string,
         reference: string,
         type: string,
