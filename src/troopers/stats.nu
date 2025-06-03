@@ -341,6 +341,11 @@ def get-options [options: record] {
         name_2_pos: $name_2_pos,
         name_2_font: $name_2_font,
         qr_code_overlay: $qr_code_overlay,
+        lieutenant_badge_size: (0.08 * $options.canvas.w),
+        lieutenant_badge: {
+            x: ($special_skills_box.x - 10),
+            y: $special_skills_box.y,
+        },
     }
 }
 
@@ -671,6 +676,19 @@ export def gen-stats-page [
                     options: {
                         x: $"($options.faction.x)-w/2",
                         y: $"($options.faction.y)-h/2",
+                    },
+            } | ffmpeg options) -o /tmp/@rand.png
+        } else {
+            $in
+        }
+        | if "Lieutenant" in $troop.special_skills.name {
+            [$in, "troops/assets/lieutenant.png"]
+                | ffmpeg combine ({
+                    kind: "overlay",
+                    pre: (ffmpeg pre { scale: $"-1:($options.lieutenant_badge_size)" }),
+                    options: {
+                        x: $"($options.lieutenant_badge.x)-w",
+                        y: $"($options.lieutenant_badge.y)",
                     },
             } | ffmpeg options) -o /tmp/@rand.png
         } else {
