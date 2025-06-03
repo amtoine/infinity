@@ -112,13 +112,20 @@ def "main troops" [
     }
 }
 
-export def "main fmt-troop" [format: record, ...troopers: string, --dpi: float, --margin: float = 0.00] {
+export def "main fmt-troop" [
+    format: record,
+    ...troopers: string,
+    --stats,
+    --charts,
+    --dpi: float,
+    --margin: float = 0.00,
+] {
     for t in $troopers {
         main clean
         (main troops
             $t
-            --stats
-            --charts
+            --stats=$stats
+            --charts=$charts
             -w ($format.wi * $dpi | into int)
             -h ($format.hi * $dpi | into int)
             -m ($format.wi * $dpi * $margin | into int)
