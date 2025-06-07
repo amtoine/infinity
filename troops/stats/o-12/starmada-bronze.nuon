@@ -48,7 +48,7 @@
             C: 47,
         },
         {
-            asset: "o-12-starmada-bronze.any",
+            asset: "o-12-starmada-bronze.any.bw",
             special_skills: ["Paramedic"],
             equipment: ["Medikit"],
             weaponry: ["Heavy Shotgun", "Akrylat-Kanone"],
@@ -63,7 +63,7 @@
             C: 43,
         },
         {
-            asset: "o-12-starmada-bronze.any",
+            asset: "o-12-starmada-bronze.any.bw",
             weaponry: ["Heavy Machine Gun"],
             SWC: 1.5,
             C: 48,

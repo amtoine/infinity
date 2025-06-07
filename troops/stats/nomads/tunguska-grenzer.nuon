@@ -44,7 +44,7 @@
             C: 28,
         },
         {
-            asset: "nomads-tunguska-grenzer.any",
+            asset: "nomads-tunguska-grenzer.any.bw",
             weaponry: ["Red Fury"],
             SWC: 1,
             C: 28,
@@ -65,7 +65,7 @@
             C: 28,
         },
         {
-            asset: "nomads-tunguska-grenzer.any",
+            asset: "nomads-tunguska-grenzer.3",
             special_skills: ["Marksmanship"],
             weaponry: ["MULTI Sniper Rifle"],
             SWC: 1.5,
