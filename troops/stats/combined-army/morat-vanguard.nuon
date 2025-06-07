@@ -4,7 +4,6 @@
     short_name: "MORAT VANGUARD",
     faction: "combined-army",
     allowed_factions: ["combined-army", "morat-aggression-forces"],
-    asset: "combined-army-morat-vanguard.combi-rifle",
     classification: "Line Troops",
     reference: "https://infinityuniverse.com/army/infinity/morat/morat-vanguard-infantry",
     type: "LI",
@@ -41,7 +40,7 @@
             C: 14,
         },
         {
-            asset: "combined-army-morat-vanguard.any",
+            asset: "combined-army-morat-vanguard.any.bw",
             special_skills: [{ name: "BS Attack", mod: "-3" }],
             weaponry: ["Heavy Machine Gun"],
             SWC: 1,
@@ -54,7 +53,7 @@
             C: 18,
         },
         {
-            asset: "combined-army-morat-vanguard.any",
+            asset: "combined-army-morat-vanguard.any.bw",
             weaponry: ["Missile Launcher"],
             SWC: 1.5,
             C: 19,

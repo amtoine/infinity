@@ -39,14 +39,14 @@
     ],
     profiles: [
         {
-            asset: "combined-army-morat-zerat.any",
+            asset: "combined-army-morat-zerat.any.bw",
             special_skills: [{ name: "BS Attack", mod: "SR-1" }],
             weaponry: [{ name: "Combi Rifle", mod: "+1B" }, "Shock Mines"],
             SWC: 0,
             C: 28,
         },
         {
-            asset: "combined-army-morat-zerat.any",
+            asset: "combined-army-morat-zerat.any.bw",
             special_skills: [{ name: "BS Attack", mod: "SR-1" }],
             weaponry: ["MULTI Marksman Rifle"],
             SWC: 1,
@@ -69,7 +69,7 @@
             C: 27,
         },
         {
-            asset: "combined-army-morat-zerat.any",
+            asset: "combined-army-morat-zerat.any.bw",
             special_skills: ["Minelayer"],
             weaponry: ["AP Submachine Gun", "Shock Mines", "PARA Mines"],
             SWC: 0,
