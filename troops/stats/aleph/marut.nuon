@@ -1,0 +1,66 @@
+{
+    isc: "Maruts",
+    name: "MARUTS",
+    short_name: "MARUT",
+    asset: "aleph-marut",
+    faction: "aleph",
+    allowed_factions: [ "aleph", "sss" ],
+    classification: "Headquarters Troops / Mechanized Troops",
+    reference: "https://infinityuniverse.com/army/infinity/aleph/maruts",
+    type: "TAG",
+    characteristics: [
+        "regular",
+        "hackable",
+    ],
+    stats: {
+        MOV:  "6-4",
+        CC:   18,
+        BS:   15,
+        PH:   17,
+        WIP:  15,
+        ARM:   8,
+        BTS:   9,
+        STR:   3,
+        S:     7,
+        AVA:   1,
+    },
+    special_skills: [
+        [ name                   , mod         ];
+        [ "BS Attack"            , "SR-1"      ],
+        [ "CC Attack"            , "+1B"       ],
+        [ "Courage"              , null        ],
+        [ "Dodge"                , "PH=11"     ],
+        [ "Gizmokit"             , "PH=13"     ],
+        [ "Remote Presence"      , null        ],
+        [ "Tactical Awareness"   , null        ],
+        [ "Terrain"              , "Total"     ],
+    ],
+    equipment: [
+        [ name                   , mod         ];
+        [ "ECM: Guided"          , "-6"        ],
+        [ "Multispectral Visor"  , "L2"        ],
+    ],
+    melee_weapons: [
+        [ name           , mod    , spec ];
+        [ "AP CCW"       , "PS=3" , true ],
+    ],
+    profiles: [
+        {
+            weaponry: ["MULTI Heavy Machine Gun", "Heavy Flamethrower", "Pulzar"],
+            peripheral: ["KARKATA"],
+            SWC: 1.5,
+            C: 86,
+        },
+        {
+            special_skills: [
+                [ name         , mod  ];
+                [ "Lieutenant" , null ],
+                [ "Stategos"   , "L2" ],
+            ],
+            weaponry: ["MULTI Heavy Machine Gun", "Heavy Flamethrower", "Pulzar"],
+            peripheral: ["KARKATA"],
+            SWC: 2,
+            C: 90,
+        },
+    ],
+}
