@@ -41,6 +41,7 @@ def main [
     length    : number,
     width     : number,
     thickness : number,
+    a         : number,
     b         : number,
     x         : number,
 ] {
@@ -120,7 +121,7 @@ def main [
     stl bar-with-thingies {
         length : $length,
         width  : $width,
-        a      : ($thickness * 5),
+        a      : $a,
         b      : $b,
         h      : $thickness,
     }
