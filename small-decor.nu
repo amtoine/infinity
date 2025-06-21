@@ -1,41 +1,6 @@
 use stl.nu
 use std math
-
-def "pt at-angle" [alpha: number, --modulus: number = 1.0]: [
-    nothing -> record<x: number, y: number>
-] {{
-    x: ($modulus * ($alpha | math cos)),
-    y: ($modulus * ($alpha | math sin)),
-}}
-
-def "pt rotate" [alpha: number]: [
-    record<x: number, y: number> -> record<x: number, y: number>
-] {
-    let c = $alpha | math cos
-    let s = $alpha | math sin
-    {
-        x: ($in.x * $c - $in.y * $s),
-        y: ($in.x * $s + $in.y * $c),
-    }
-}
-
-def "pt shift" [shift: record<x: number, y: number>]: [
-    record<x: number, y: number> -> record<x: number, y: number>
-] {{
-    x: ($in.x + $shift.x),
-    y: ($in.y + $shift.y),
-}}
-
-def "pt scale" [scale: number]: [
-    record<x: number, y: number> -> record<x: number, y: number>
-    record<x: number, y: number, z: number> -> record<x: number, y: number, z: number>
-] {
-    let input = $in
-    let cols = $in | columns
-    $cols | reduce --fold $input { |it, acc|
-        $acc | update $it { $in * $scale }
-    }
-}
+use geometry.nu [ "pt at-angle", "pt scale", "pt shift", "pt rotate" ]
 
 def main [
     length    : number,
@@ -116,7 +81,7 @@ def main [
         }
         | flatten
         | each { each { pt scale $scale } }
-        | stl solid $in --output plate.stl
+        | stl solid $in --output small-plate.stl
 
     stl bar-with-thingies {
         length : $length,
@@ -125,5 +90,5 @@ def main [
         b      : $b,
         h      : $thickness,
     }
-        | stl solid $in --output long.stl
+        | stl solid $in --output small-longside.stl
 }
