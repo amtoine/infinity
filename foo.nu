@@ -71,19 +71,13 @@ def main [
     #
     let points = [
         (pt at-angle (0 * $math.tau / 3) --modulus 1.00),
-        (pt at-angle (1 * $math.tau / 3) --modulus 1.00),
-        (pt at-angle (2 * $math.tau / 3) --modulus 1.00),
+        (pt at-angle (1 * $math.tau / 3) --modulus 1.30),
+        (pt at-angle (2 * $math.tau / 3) --modulus 1.30),
 
-        { x: -0.25 , y: (+1.0 * $b / 2) },
-        { x: (-0.25 - ($thickness / $scale) / 2) , y: (+1.0 * $b / 2) },
-        { x: (-0.25 - ($thickness / $scale) / 2) , y: (-1.0 * $b / 2) },
-        { x: -0.25 , y: (-1.0 * $b / 2) },
-
-        # { x: ((($math.tau / 3 | math cos) * -1) + $thickness / 2) , y: (+1.0 * $b / 2) },
-        # { x: ((($math.tau / 3 | math cos) * -1) - $thickness / 2) , y: (+1.0 * $b / 2) },
-        # { x: ((($math.tau / 3 | math cos) * -1) - $thickness / 2) , y: (-1.0 * $b / 2) },
-        # { x: ((($math.tau / 3 | math cos) * -1) + $thickness / 2) , y: (-1.0 * $b / 2) },
-
+        { x: (($math.tau / 3 | math cos) + ($thickness / $scale) / 2) , y: (+1.0 * $b / 2) },
+        { x: (($math.tau / 3 | math cos) - ($thickness / $scale) / 2) , y: (+1.0 * $b / 2) },
+        { x: (($math.tau / 3 | math cos) - ($thickness / $scale) / 2) , y: (-1.0 * $b / 2) },
+        { x: (($math.tau / 3 | math cos) + ($thickness / $scale) / 2) , y: (-1.0 * $b / 2) },
     ]
 
     [
@@ -113,7 +107,6 @@ def main [
         }
         | flatten
         | each { each { pt scale $scale } }
-        | tee { table -e | print $in }
         | stl solid $in --output plate.stl
 
     stl bar-with-thingies {
