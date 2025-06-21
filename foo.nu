@@ -42,6 +42,7 @@ def main [
     width     : number,
     thickness : number,
     b         : number,
+    x         : number,
 ] {
     let scale = $math.tau / 3 | {
         c: ($in | math cos),
@@ -50,6 +51,13 @@ def main [
         | (1 - $in.c) ** 2 + ($in.s) ** 2
         | math sqrt
         | $width / $in
+
+    # let y = (1 + ($math.tau / 3 | math cos | math abs) + ($x / $scale)) * ($math.tau / 12 | math tan)
+    let y = (
+        ($math.tau / 3 | math sin) *
+        (1 + ($math.tau / 3 | math cos | math abs) + ($x / $scale)) /
+        (1 + ($math.tau / 3 | math cos | math abs))
+    )
 
     # > [!note] this should be equilateral :eyes:
     #
@@ -71,13 +79,13 @@ def main [
     #
     let points = [
         (pt at-angle (0 * $math.tau / 3) --modulus 1.00),
-        (pt at-angle (1 * $math.tau / 3) --modulus 1.30),
-        (pt at-angle (2 * $math.tau / 3) --modulus 1.30),
+        { x: (($math.tau / 3 | math cos) - ($x / $scale)), y: ($y * +1) },
+        { x: (($math.tau / 3 | math cos) - ($x / $scale)), y: ($y * -1) },
 
-        { x: (($math.tau / 3 | math cos) + ($thickness / $scale) / 2) , y: (+1.0 * $b / 2) },
-        { x: (($math.tau / 3 | math cos) - ($thickness / $scale) / 2) , y: (+1.0 * $b / 2) },
-        { x: (($math.tau / 3 | math cos) - ($thickness / $scale) / 2) , y: (-1.0 * $b / 2) },
-        { x: (($math.tau / 3 | math cos) + ($thickness / $scale) / 2) , y: (-1.0 * $b / 2) },
+        { x: (($math.tau / 3 | math cos) + ($thickness / $scale) / 2) , y: (+1.0 * ($b / $scale) / 2) },
+        { x: (($math.tau / 3 | math cos) - ($thickness / $scale) / 2) , y: (+1.0 * ($b / $scale) / 2) },
+        { x: (($math.tau / 3 | math cos) - ($thickness / $scale) / 2) , y: (-1.0 * ($b / $scale) / 2) },
+        { x: (($math.tau / 3 | math cos) + ($thickness / $scale) / 2) , y: (-1.0 * ($b / $scale) / 2) },
     ]
 
     [
@@ -113,7 +121,7 @@ def main [
         length : $length,
         width  : $width,
         a      : ($thickness * 5),
-        b      : ($b * $scale),
+        b      : $b,
         h      : $thickness,
     }
         | stl solid $in --output long.stl
