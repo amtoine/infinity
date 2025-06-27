@@ -75,6 +75,17 @@ def save(triangles, scale=1.0, output="a.stl"):
     mesh.save(output)
 
 
+def add_options_to_parser(parser, options, **kwargs):
+    for (short, long) in options:
+        if short is None:
+            flags = [long]
+        elif long is None:
+            flags = [short]
+        else:
+            flags = [short, long]
+        parser.add_argument(*flags, **kwargs)
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(formatter_class=RawTextHelpFormatter)
     subparsers = parser.add_subparsers(dest="subcommand")
@@ -85,10 +96,14 @@ if __name__ == "__main__":
         { "args": ["-m", "--hole-margin"] , "kwargs": { "default": 0.4, "type": float } , "cylinder_kwargs": { "help": "unused" } , "small_decor_kwargs": {                                                          } , "medium_decor_kwargs": {                                                          } },
     ]
 
-    parser_cylinder = subparsers.add_parser("cylinder",                         help="create an STL cylinder")
-    parser_cylinder.add_argument(      "--height",   type=float, required=True, help="in mm")
-    parser_cylinder.add_argument("-r", "--radius",   type=float, required=True, help="in mm")
-    parser_cylinder.add_argument("-n", "--nb-sides", type=int,   default=100)
+    CYLINDER_MEASUREMENTS = [
+        [ None, "--height" ],
+        [ "-r", "--radius" ],
+    ]
+
+    parser_cylinder = subparsers.add_parser("cylinder", help="create an STL cylinder")
+    add_options_to_parser(parser_cylinder, CYLINDER_MEASUREMENTS, type=float, required=True, help="in mm")
+    parser_cylinder.add_argument("-n", "--nb-sides", type=int, default=100)
     for opt in common_options:
         parser_cylinder.add_argument(*opt["args"], **opt["kwargs"], **opt["cylinder_kwargs"])
 
@@ -164,14 +179,7 @@ if __name__ == "__main__":
         description="\n".join(SMALL_DECOR_HELP),
         formatter_class=RawTextHelpFormatter,
     )
-    for (short, long) in SMALL_DECOR_MEASUREMENTS:
-        if short is None:
-            flags = [long]
-        elif long is None:
-            flags = [short]
-        else:
-            flags = [short, long]
-        parser_small_decor.add_argument(*flags, type=float, required=True, help="in mm")
+    add_options_to_parser(parser_small_decor, SMALL_DECOR_MEASUREMENTS, type=float, required=True, help="in mm")
     for opt in common_options:
         parser_small_decor.add_argument(*opt["args"], **opt["kwargs"], **opt["small_decor_kwargs"])
 
@@ -296,15 +304,7 @@ if __name__ == "__main__":
         description="\n".join(MEDIUM_DECOR_HELP),
         formatter_class=RawTextHelpFormatter,
     )
-    for (short, long) in MEDIUM_DECOR_MEASUREMENTS:
-        if short is None:
-            flags = [long]
-        elif long is None:
-            flags = [short]
-        else:
-            flags = [short, long]
-        parser_medium_decor.add_argument(*flags, type=float, required=True, help="in mm")
-    parser_medium_decor.add_argument("--rounded", action="store_true")
+    add_options_to_parser(parser_medium_decor, MEDIUM_DECOR_MEASUREMENTS, type=float, required=True, help="in mm")
     for opt in common_options:
         parser_medium_decor.add_argument(*opt["args"], **opt["kwargs"], **opt["medium_decor_kwargs"])
 
