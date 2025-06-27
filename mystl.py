@@ -395,7 +395,7 @@ if __name__ == "__main__":
         for alpha in [-tau / 12, -3 * tau / 12, -5 * tau / 12]:
             _b = affinity.rotate(affinity.translate(base, xoff=-1.0), alpha, origin=(0, 0), use_radians=True)
             _h = affinity.rotate(affinity.translate(hole, xoff=-1.0), alpha, origin=(0, 0), use_radians=True)
-            polygon = polygon.union(_b.difference(_h))
+            polygon = polygon.union(poly_round(_b, precision=5).difference(_h))
             holes.append(_h)
 
         save(
