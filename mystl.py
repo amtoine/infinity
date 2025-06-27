@@ -20,7 +20,7 @@ def poly_round(polygon: Polygon, precision: int):
     return Polygon([(round(x, precision), round(y, precision)) for (x, y) in polygon.exterior.coords])
 
 
-def extrude(polygon, holes, height, visualize: bool = False, ensure_contained: bool = False):
+def extrude(polygon, holes, chamfer, height, visualize: bool = False, ensure_contained: bool = False):
     face_triangles = list(filter(
         lambda t: not any(shapely.equals(t.intersection(h), t) for h in holes) and (not ensure_contained or polygon.contains(t)),
         triangulate(polygon),
@@ -55,13 +55,22 @@ def extrude(polygon, holes, height, visualize: bool = False, ensure_contained: b
         axis=0,
     )
 
+    for c in chamfer:
+        triangles[np.all(abs(triangles[:,:,0:2] - c) < 1e-5, axis=2),2] = 0
+
     edges = [np.array(polygon.exterior.coords)]
     for hole in holes:
         edges.append(np.array(hole.exterior.coords))
 
     for edge in edges:
         for a, b in list(zip(edge[:-1], edge[1:])):
-            a, b, c, d = np.append(a, [0], axis=0), np.append(b, [0], axis=0), np.append(a, [height], axis=0), np.append(b, [height], axis=0)
+            if chamfer == []:
+                ha = height
+                hb = height
+            else:
+                ha = 0 if np.any(np.all(abs(np.array(chamfer) - a) == 0, axis=1)) else height
+                hb = 0 if np.any(np.all(abs(np.array(chamfer) - b) == 0, axis=1)) else height
+            a, b, c, d = np.append(a, [0], axis=0), np.append(b, [0], axis=0), np.append(a, [ha], axis=0), np.append(b, [hb], axis=0)
             triangles = np.append(triangles, np.array([[a, b, c]]), axis=0)
             triangles = np.append(triangles, np.array([[b, c, d]]), axis=0)
 
@@ -192,6 +201,7 @@ if __name__ == "__main__":
         formatter_class=RawTextHelpFormatter,
     )
     add_options_to_parser(parser_small_decor, SMALL_DECOR_MEASUREMENTS, type=float, required=True, help="in mm")
+    parser_small_decor.add_argument("--chamfer", type=float, required=False, default=0.0, help="in mm")
     for opt in common_options:
         parser_small_decor.add_argument(*opt["args"], **opt["kwargs"], **opt["small_decor_kwargs"])
 
@@ -346,6 +356,8 @@ if __name__ == "__main__":
             parser.error(f"-b (with hole margin) must be strictly less than --width on SIDE, found b={args.b}, hole-margin={args.hole_margin} and width={args.width}")
         if args.x <= args.thickness / 2 + args.hole_margin:
             parser.error(f"-x must be strictly greater than half --thickness (with hole margin), found x={args.x}, hole-margin={args.hole_margin} and thickness={args.thickness}")
+        if args.chamfer > (args.width - args.b) / 2:
+            parser.error(f"--chamfer must be strictly greater than half --width minus half -b, found:\n    chamfer={args.chamfer}\n    width={args.width}\n    b={args.b}\n    ((w - b) / 2)={(args.width - args.b) / 2}")
 
         scale = args.width / sqrt((1 - cos(tau / 3)) ** 2 + sin(tau / 3) ** 2)
 
@@ -356,6 +368,7 @@ if __name__ == "__main__":
         x         = args.x           / scale
         b         = args.b           / scale
         margin    = args.hole_margin / scale
+        chamfer   = args.chamfer     / scale
 
         ### plate
         # y = (1 + abs(cos(tau / 3)) + x) * tan(tau / 12)
@@ -399,7 +412,7 @@ if __name__ == "__main__":
             holes.append(_h)
 
         save(
-            extrude(polygon, holes, thickness, args.visualize, ensure_contained=False),
+            extrude(polygon, holes, [], thickness, args.visualize, ensure_contained=False),
             output=args.output.replace("@part", "plate"),
             scale=scale,
         )
@@ -413,7 +426,7 @@ if __name__ == "__main__":
         #
         #
         #           +---------------------------------------+     ^
-        #           |                                       |     |
+        #           *                                       *     |
         #           |                                       |     |
         #       +---+                                       +---+ |
         #     ^ |                                               | |
@@ -421,29 +434,44 @@ if __name__ == "__main__":
         #     v |                                               | |
         #       +---+                                       +---+ |
         #           |                                       |     |
-        #           |                                       |     |
+        #           *                                       *     |
         #           +---------------------------------------+     v
         #        <-> <-------------------------------------> <->
         #         a                  length                   a
         #
         #
+        z = chamfer
         polygon = Polygon([
-           (0.0   , 0.0),
-           (l     , 0.0),
-           (l     , w_1),
-           (l + a , w_1),
-           (l + a , w_2),
-           (l     , w_2),
-           (l     , w  ),
-           (0.0   , w  ),
-           (0.0   , w_2),
-           (-a    , w_2),
-           (-a    , w_1),
-           (0.0   , w_1),
+           (0.0   , 0.0  ),  #
+           (l     , 0.0  ),  #
+           (l     , z    ),  # chamfer
+           (l     , w_1  ),
+           (l + a , w_1  ),
+           (l + a , w_2  ),
+           (l     , w_2  ),
+           (l     , w - z),  # chamfer
+           (l     , w    ),  #
+           (0.0   , w    ),  #
+           (0.0   , w - z),  # chamfer
+           (0.0   , w_2  ),
+           (-a    , w_2  ),
+           (-a    , w_1  ),
+           (0.0   , w_1  ),
+           (0.0   , z    ),  # chamfer
         ])
 
+        if args.chamfer == 0:
+            chamfer = []
+        else:
+            chamfer = [
+               (0.0   , 0.0  ),  #
+               (l     , 0.0  ),  #
+               (l     , w    ),  #
+               (0.0   , w    ),  #
+            ]
+
         save(
-            extrude(polygon, [], thickness, args.visualize, ensure_contained=True),
+            extrude(polygon, [], chamfer, thickness, args.visualize, ensure_contained=True),
             output=args.output.replace("@part", "side"),
             scale=scale,
         )
