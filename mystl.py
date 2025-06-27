@@ -101,10 +101,14 @@ if __name__ == "__main__":
         parser_medium_decor.add_argument(*opt["args"], **opt["kwargs"], **opt["small_decor_kwargs"])
 
     parser_medium_decor = subparsers.add_parser("medium-decor",                        help="create a medium STL decor")
+    parser_medium_decor.add_argument(      "--height",    type=float, required=True,   help="in mm")
     parser_medium_decor.add_argument("-w", "--width",     type=float, required=True,   help="in mm")
     parser_medium_decor.add_argument("-t", "--thickness", type=float, required=True,   help="in mm")
     parser_medium_decor.add_argument("-x",                type=float, required=True,   help="in mm")
     parser_medium_decor.add_argument("-y",                type=float, required=True,   help="in mm")
+    parser_medium_decor.add_argument("-a",                type=float, required=True,   help="in mm")
+    parser_medium_decor.add_argument("-b",                type=float, required=True,   help="in mm")
+    parser_medium_decor.add_argument("-z",                type=float, required=True,   help="in mm")
     for opt in common_options:
         parser_medium_decor.add_argument(*opt["args"], **opt["kwargs"], **opt["medium_decor_kwargs"])
 
@@ -240,15 +244,17 @@ if __name__ == "__main__":
         #               ...........
         #               ..............
         #         3.....2................
-        #         ..........................
-        #         ............................0
-        #         ..........................
+        #      ^  ..........................
+        #   y  |  ............................0
+        #      v  ..........................
         #         4.....5................
         #               ..............
         #               ...........
         #               ........
         #               .....
         #               6.
+        #          <--->
+        #            x
         #
         base = Polygon([
             (cos(0 * tau / 3)     ,  sin(0 * tau / 3)),
@@ -271,6 +277,63 @@ if __name__ == "__main__":
             extrude(polygon, [], thickness, True, ensure_contained=True),
             output=args.output.replace("@part", "plate"),
             scale=scale,
+        )
+
+        ### side
+        w, h = args.width, args.height
+        a    = args.a
+        b    = args.b
+        c    = args.thickness
+        d    = args.thickness
+        e    = args.y
+        z    = args.z
+        #
+        #
+        #                              width
+        #                   <------------------------->
+        #                                e = y
+        #                             <------>
+        #                  7---------------------------6
+        #                  |                           | ^
+        #                  |                           | | z
+        #                  |        11--------10       | |
+        #                ^ |         |        |        | v
+        #  thickness = d | |         |        |        | ^
+        #                v |         |        |        | |
+        #                  |         8--------9        | |
+        #                  |                           | |
+        #                  |                           | |
+        #                  |                           | | height
+        #                  |                           | |
+        #                  |           2---3           | |
+        #                ^ |           |   |           | |
+        #              a | |           |   |           | |
+        #                v |           |   |           | v
+        #                  0-----------1   4-----------5
+        #                   <---------> <->
+        #                        b       c = thickness
+        #
+        polygon = Polygon([
+           (0.0   , 0.0  ),
+           (b     , 0.0  ),
+           (b     , a    ),
+           (b + c , a    ),
+           (b + c , 0.0  ),
+           (w     , 0.0  ),
+           (w     , h + z),
+           (0.0   , h + z),
+        ])
+        hole = Polygon([
+            (w / 2 - e / 2, h - d / 2),
+            (w / 2 + e / 2, h - d / 2),
+            (w / 2 + e / 2, h + d / 2),
+            (w / 2 - e / 2, h + d / 2),
+        ])
+
+        save(
+            extrude(polygon.difference(hole), [hole], args.thickness, args.visualize, ensure_contained=True),
+            output=args.output.replace("@part", "side"),
+            scale=1.0,
         )
     else:
         print("unreachable")
