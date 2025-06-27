@@ -21,16 +21,6 @@ def extrude(polygon, holes, height, visualize: bool = False, ensure_contained: b
         triangulate(polygon),
     ))
 
-    if visualize:
-        import matplotlib.pyplot as plt
-        from shapely.plotting import plot_polygon, plot_points
-        _, ax = plt.subplots()
-        for triangle in face:
-            plot_polygon(triangle, ax=ax, add_points=False, color="red")
-        plot_points(polygon, ax=ax, color="black")
-        plt.axis("equal")
-        plt.show()
-
     triangles = np.append(
         np.array([
             np.append(
@@ -63,6 +53,19 @@ def extrude(polygon, holes, height, visualize: bool = False, ensure_contained: b
             triangles = np.append(triangles, np.array([[a, b, c]]), axis=0)
             triangles = np.append(triangles, np.array([[b, c, d]]), axis=0)
 
+    if visualize:
+        import matplotlib.pyplot as plt
+        from shapely.plotting import plot_polygon, plot_points
+        _, ax = plt.subplots()
+        for triangle in face:
+            plot_polygon(triangle, ax=ax, add_points=False, color="red")
+        plot_polygon(Polygon(polygon.exterior.coords), ax=ax, add_points=False, facecolor=None, edgecolor="blue", linewidth=5)
+        for hole in holes:
+            plot_polygon(Polygon(hole.exterior.coords), ax=ax, add_points=False, facecolor="white", edgecolor="grey", linewidth=5)
+        plot_points(polygon, ax=ax, color="black")
+        plt.axis("equal")
+        plt.show()
+
     return triangles
 
 
@@ -81,6 +84,7 @@ if __name__ == "__main__":
     parser_cylinder.add_argument(      "--height",   type=float, required=True, help="in mm")
     parser_cylinder.add_argument("-r", "--radius",   type=float, required=True, help="in mm")
     parser_cylinder.add_argument("-n", "--nb-sides", type=int,   default=100)
+    parser_cylinder.add_argument("-v", "--visualize", action="store_true")
     parser_cylinder.add_argument("-o", "--output",               default="a.stl")
 
     parser_small_decor = subparsers.add_parser("small-decor",                         help="create a small STL decor")
