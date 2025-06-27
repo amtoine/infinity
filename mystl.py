@@ -15,11 +15,29 @@ import numpy as np
 import stl
 
 
+def poly_round(polygon: Polygon, precision: int):
+    return Polygon([(round(x, precision), round(y, precision)) for (x, y) in polygon.exterior.coords])
+
+
 def extrude(polygon, holes, height, visualize: bool = False, ensure_contained: bool = False):
     face_triangles = list(filter(
         lambda t: not any(shapely.equals(t.intersection(h), t) for h in holes) and (not ensure_contained or polygon.contains(t)),
         triangulate(polygon),
     ))
+
+    if visualize:
+        import matplotlib.pyplot as plt
+        from shapely.plotting import plot_polygon, plot_points
+        _, ax = plt.subplots()
+        for triangle in face_triangles:
+            plot_polygon(triangle, ax=ax, add_points=False, color="red")
+        plot_polygon(Polygon(polygon.exterior.coords), ax=ax, add_points=False, facecolor=None, edgecolor="blue", linewidth=5)
+        for hole in holes:
+            plot_polygon(Polygon(hole.exterior.coords), ax=ax, add_points=False, facecolor="white", edgecolor="grey", linewidth=5)
+        plot_points(polygon, ax=ax, color="black")
+        plt.axis("equal")
+        plt.show()
+
 
     face_mesh = np.array([
         np.append(
@@ -46,19 +64,6 @@ def extrude(polygon, holes, height, visualize: bool = False, ensure_contained: b
             triangles = np.append(triangles, np.array([[a, b, c]]), axis=0)
             triangles = np.append(triangles, np.array([[b, c, d]]), axis=0)
 
-    if visualize:
-        import matplotlib.pyplot as plt
-        from shapely.plotting import plot_polygon, plot_points
-        _, ax = plt.subplots()
-        for triangle in face_triangles:
-            plot_polygon(triangle, ax=ax, add_points=False, color="red")
-        plot_polygon(Polygon(polygon.exterior.coords), ax=ax, add_points=False, facecolor=None, edgecolor="blue", linewidth=5)
-        for hole in holes:
-            plot_polygon(Polygon(hole.exterior.coords), ax=ax, add_points=False, facecolor="white", edgecolor="grey", linewidth=5)
-        plot_points(polygon, ax=ax, color="black")
-        plt.axis("equal")
-        plt.show()
-
     return triangles
 
 
@@ -74,8 +79,8 @@ if __name__ == "__main__":
     subparsers = parser.add_subparsers(dest="subcommand")
 
     common_options = [
-        { "args": ["-v", "--visualize"], "kwargs": { "action": "store_true" }, "cylinder_kwargs": {}, "small_decor_kwargs": {}  },
-        { "args": ["-o", "--output"],    "kwargs": { "default": "a.stl" },     "cylinder_kwargs": {}, "small_decor_kwargs": { "help": "@part will be replaced by the name of the part" }  },
+        { "args": ["-v", "--visualize"] , "kwargs": { "action": "store_true" } , "cylinder_kwargs": {} , "small_decor_kwargs": {}                                                           , "medium_decor_kwargs": {}                                                           },
+        { "args": ["-o", "--output"]    , "kwargs": { "default": "a.stl" }     , "cylinder_kwargs": {} , "small_decor_kwargs": { "help": "@part will be replaced by the name of the part" } , "medium_decor_kwargs": { "help": "@part will be replaced by the name of the part" } },
     ]
 
     parser_cylinder = subparsers.add_parser("cylinder",                         help="create an STL cylinder")
@@ -85,15 +90,23 @@ if __name__ == "__main__":
     for opt in common_options:
         parser_cylinder.add_argument(*opt["args"], **opt["kwargs"], **opt["cylinder_kwargs"])
 
-    parser_small_decor = subparsers.add_parser("small-decor",                         help="create a small STL decor")
-    parser_small_decor.add_argument("-l", "--length",    type=float, required=True,   help="in mm")
-    parser_small_decor.add_argument("-w", "--width",     type=float, required=True,   help="in mm")
-    parser_small_decor.add_argument("-t", "--thickness", type=float, required=True,   help="in mm")
-    parser_small_decor.add_argument("-a",                type=float, required=True,   help="in mm")
-    parser_small_decor.add_argument("-b",                type=float, required=True,   help="in mm")
-    parser_small_decor.add_argument("-x",                type=float, required=True,   help="in mm")
+    parser_medium_decor = subparsers.add_parser("small-decor",                         help="create a small STL decor")
+    parser_medium_decor.add_argument("-l", "--length",    type=float, required=True,   help="in mm")
+    parser_medium_decor.add_argument("-w", "--width",     type=float, required=True,   help="in mm")
+    parser_medium_decor.add_argument("-t", "--thickness", type=float, required=True,   help="in mm")
+    parser_medium_decor.add_argument("-a",                type=float, required=True,   help="in mm")
+    parser_medium_decor.add_argument("-b",                type=float, required=True,   help="in mm")
+    parser_medium_decor.add_argument("-x",                type=float, required=True,   help="in mm")
     for opt in common_options:
-        parser_small_decor.add_argument(*opt["args"], **opt["kwargs"], **opt["small_decor_kwargs"])
+        parser_medium_decor.add_argument(*opt["args"], **opt["kwargs"], **opt["small_decor_kwargs"])
+
+    parser_medium_decor = subparsers.add_parser("medium-decor",                        help="create a medium STL decor")
+    parser_medium_decor.add_argument("-w", "--width",     type=float, required=True,   help="in mm")
+    parser_medium_decor.add_argument("-t", "--thickness", type=float, required=True,   help="in mm")
+    parser_medium_decor.add_argument("-x",                type=float, required=True,   help="in mm")
+    parser_medium_decor.add_argument("-y",                type=float, required=True,   help="in mm")
+    for opt in common_options:
+        parser_medium_decor.add_argument(*opt["args"], **opt["kwargs"], **opt["medium_decor_kwargs"])
 
     args = parser.parse_args()
 
@@ -210,6 +223,53 @@ if __name__ == "__main__":
         save(
             extrude(polygon, [], thickness, args.visualize, ensure_contained=True),
             output=args.output.replace("@part", "side"),
+            scale=scale,
+        )
+    elif args.subcommand == "medium-decor":
+        scale = args.width / sqrt((1 - cos(tau / 3)) ** 2 + sin(tau / 3) ** 2)
+
+        width     = args.width     / scale
+        thickness = args.thickness / scale
+        x         = args.x         / scale
+        y         = args.y         / scale
+        # > [!note] this should be equilateral :eyes:
+        #
+        #               1.
+        #               .....
+        #               ........
+        #               ...........
+        #               ..............
+        #         3.....2................
+        #         ..........................
+        #         ............................0
+        #         ..........................
+        #         4.....5................
+        #               ..............
+        #               ...........
+        #               ........
+        #               .....
+        #               6.
+        #
+        base = Polygon([
+            (cos(0 * tau / 3)     ,  sin(0 * tau / 3)),
+            (cos(1 * tau / 3)     ,  sin(1 * tau / 3)),
+            (cos(1 * tau / 3)     ,  y / 2),
+            (cos(1 * tau / 3) - x ,  y / 2),
+            (cos(2 * tau / 3) - x , -y / 2),
+            (cos(2 * tau / 3)     , -y / 2),
+            (cos(1 * tau / 3)     ,  sin(2 * tau / 3)),
+        ])
+
+        PRECISION = 5
+
+        polygon = Polygon([])
+        for alpha in [0, 2 * tau / 12, 4 * tau / 12, 6 * tau / 12, 8 * tau / 12, 10 * tau / 12]:
+            _b = affinity.rotate(affinity.translate(base, xoff=-1.0), alpha, origin=(0, 0), use_radians=True)
+            polygon = polygon.union(poly_round(_b, precision=5))
+
+        save(
+            extrude(polygon, [], thickness, True, ensure_contained=True),
+            output=args.output.replace("@part", "plate"),
             scale=scale,
         )
     else:
