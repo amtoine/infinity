@@ -222,6 +222,9 @@ if __name__ == "__main__":
         "                            thickness                                                    ",
         "                                                                                         ",
         " COVER:                                                                                  ",
+        "                                                                                         ",
+        "    > there will be quarters of circles in the 3 lx/hx corners if --rounded is raised    ",
+        "                                                                                         ",
         "                                                             l3                          ",
         "                                                     <---------------->                  ",
         "                                                     |                |                  ",
@@ -282,6 +285,7 @@ if __name__ == "__main__":
         else:
             flags = [short, long]
         parser_medium_decor.add_argument(*flags, type=float, required=True, help="in mm")
+    parser_medium_decor.add_argument("--rounded", action="store_true")
     for opt in common_options:
         parser_medium_decor.add_argument(*opt["args"], **opt["kwargs"], **opt["medium_decor_kwargs"])
 
@@ -420,6 +424,13 @@ if __name__ == "__main__":
             parser.error(f"-a must be strictly smaller than --height minus half --thickness, found a={args.a}, height={args.height} and thickness={args.thickness}")
         if args.b + args.thickness >= args.width:
             parser.error(f"-b plus the thickness must be strictly smaller than --width, found b={args.b}, thickness={args.thickness} and width={args.width}")
+        if args.rounded:
+            if args.l1 < args.h1:
+                parser.error(f"-l1 must be greater than -h1, found l1={args.l1} and h1={args.h1}")
+            if args.l2 < args.h2:
+                parser.error(f"-l2 must be greater than -h2, found l2={args.l2} and h2={args.h2}")
+            if args.l3 < args.h3:
+                parser.error(f"-l3 must be greater than -h3, found l3={args.l3} and h3={args.h3}")
 
         scale = args.width / sqrt((1 - cos(tau / 3)) ** 2 + sin(tau / 3) ** 2)
 
@@ -562,21 +573,35 @@ if __name__ == "__main__":
         #        <-------->
         #            c
         #
-        polygon = Polygon([
-           (0.0              , 0.0         ),
-           (c + l1 + l2 + l3 , 0.0         ),
-           (c + l1 + l2 + l3 , h3          ),
-           (c + l1 + l2      , h3          ),
-           (c + l1 + l2      , h3 + h2     ),
-           (c + l1           , h3 + h2     ),
-           (c + l1           , h3 + h2 + h1),
-           (c                , h3 + h2 + h1),
-           (c                , a           ),
-           (0.0              , a           ),
-        ])
+        vertices = []
+        vertices.append((0.0              , 0.0))
+        vertices.append((c + l1 + l2 + l3 , 0.0))
+        if args.rounded:
+            cx, cy = (c + l1 + l2 + l3 - h3, 0.0)
+            for alpha in np.linspace(0, tau / 4, 30):
+                vertices.append((cx + h3 * cos(alpha), cy + h3 * sin(alpha)))
+        else:
+           vertices.append((c + l1 + l2 + l3, h3))
+        vertices.append((c + l1 + l2, h3))
+        if args.rounded:
+            cx, cy = (c + l1 + l2 - h2, h3)
+            for alpha in np.linspace(0, tau / 4, 30):
+                vertices.append((cx + h2 * cos(alpha), cy + h2 * sin(alpha)))
+        else:
+            vertices.append((c + l1 + l2, h3 + h2))
+        vertices.append((c + l1, h3 + h2))
+        if args.rounded:
+            cx, cy = (c + l1 - h1, h3 + h2)
+            for alpha in np.linspace(0, tau / 4, 30):
+                vertices.append((cx + h1 * cos(alpha), cy + h1 * sin(alpha)))
+        else:
+            vertices.append((c + l1, h3 + h2 + h1))
+        vertices.append((c   , h3 + h2 + h1))
+        vertices.append((c   , a           ))
+        vertices.append((0.0 , a           ))
 
         save(
-            extrude(polygon, [], args.thickness, args.visualize, ensure_contained=True),
+            extrude(Polygon(vertices), [], args.thickness, args.visualize, ensure_contained=True),
             output=args.output.replace("@part", "cover"),
             scale=1.0,
         )
