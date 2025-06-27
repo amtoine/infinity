@@ -1,7 +1,7 @@
 #!/usr/bin/env -S uv run --script
 # /// script
 # requires-python = "==3.12"
-# dependencies = ["shapely", "matplotlib", "numpy", "numpy-stl"]
+# dependencies = ["shapely", "matplotlib", "numpy", "numpy-stl", "PyQt5==5.15.10"]
 # ///
 
 from shapely import affinity
@@ -11,16 +11,25 @@ import shapely
 
 from math import tau, cos, sin, sqrt
 import argparse
-import matplotlib.pyplot as plt
 import numpy as np
 import stl
 
 
-def extrude(polygon, holes, height):
+def extrude(polygon, holes, height, visualize: bool = False, ensure_contained: bool = False):
     face = list(filter(
-        lambda t: not any(shapely.equals(t.intersection(h), t) for h in holes),
+        lambda t: not any(shapely.equals(t.intersection(h), t) for h in holes) and (not ensure_contained or polygon.contains(t)),
         triangulate(polygon),
     ))
+
+    if visualize:
+        import matplotlib.pyplot as plt
+        from shapely.plotting import plot_polygon, plot_points
+        _, ax = plt.subplots()
+        for triangle in face:
+            plot_polygon(triangle, ax=ax, add_points=False, color="red")
+        plot_points(polygon, ax=ax, color="black")
+        plt.axis("equal")
+        plt.show()
 
     triangles = np.append(
         np.array([
@@ -81,6 +90,7 @@ if __name__ == "__main__":
     parser_small_decor.add_argument("-a",                type=float, required=True,   help="in mm")
     parser_small_decor.add_argument("-b",                type=float, required=True,   help="in mm")
     parser_small_decor.add_argument("-x",                type=float, required=True,   help="in mm")
+    parser_small_decor.add_argument("-v", "--visualize", action="store_true")
     parser_small_decor.add_argument("-o", "--output",                default="a.stl", help="@part will be replaced by the name of the part")
 
     args = parser.parse_args()
@@ -95,7 +105,11 @@ if __name__ == "__main__":
             for alpha in np.linspace(0, tau, args.nb_sides)
         ])
 
-        save(extrude(polygon, [], args.height), output=args.output, scale=1.0)
+        save(
+            extrude(polygon, [], args.height, args.visualize),
+            output=args.output,
+            scale=1.0,
+        )
     elif args.subcommand == "small-decor":
         scale = args.width / sqrt((1 - cos(tau / 3)) ** 2 + sin(tau / 3) ** 2)
 
@@ -147,7 +161,11 @@ if __name__ == "__main__":
             polygon = polygon.union(_b.difference(_h))
             holes.append(_h)
 
-        save(extrude(polygon, holes, thickness), output=args.output.replace("@part", "plate"), scale=scale)
+        save(
+            extrude(polygon, holes, thickness, args.visualize, ensure_contained=False),
+            output=args.output.replace("@part", "plate"),
+            scale=scale,
+        )
 
         ### side
         l, w = length, width
@@ -186,7 +204,12 @@ if __name__ == "__main__":
            (-a    , w_1),
            (0.0   , w_1),
         ])
-        save(extrude(polygon, [], thickness), output=args.output.replace("@part", "side"), scale=scale)
+
+        save(
+            extrude(polygon, [], thickness, args.visualize, ensure_contained=True),
+            output=args.output.replace("@part", "side"),
+            scale=scale,
+        )
     else:
         print("unreachable")
         exit(3)
