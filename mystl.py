@@ -92,6 +92,15 @@ if __name__ == "__main__":
     for opt in common_options:
         parser_cylinder.add_argument(*opt["args"], **opt["kwargs"], **opt["cylinder_kwargs"])
 
+    SMALL_DECOR_MEASUREMENTS = [
+        [ "-l", "--length"    ],
+        [ "-w", "--width"     ],
+        [ "-t", "--thickness" ],
+        [ "-a", None          ],
+        [ "-b", None          ],
+        [ "-x", None          ],
+    ]
+
     SMALL_DECOR_HELP = [
         "PLATE:                                                                ",
         "                                                                      ",
@@ -149,15 +158,6 @@ if __name__ == "__main__":
         "                                                                      ",
     ]
 
-    SMALL_DECOR_MEASUREMENTS = [
-        [ "-l", "--length"    ],
-        [ "-w", "--width"     ],
-        [ "-t", "--thickness" ],
-        [ "-a", None          ],
-        [ "-b", None          ],
-        [ "-x", None          ],
-    ]
-
     parser_small_decor = subparsers.add_parser(
         "small-decor",
         help="create a small STL decor",
@@ -174,6 +174,24 @@ if __name__ == "__main__":
         parser_small_decor.add_argument(*flags, type=float, required=True, help="in mm")
     for opt in common_options:
         parser_small_decor.add_argument(*opt["args"], **opt["kwargs"], **opt["small_decor_kwargs"])
+
+    MEDIUM_DECOR_MEASUREMENTS = [
+        [ None  , "--height"    ],
+        [ "-w"  , "--width"     ],
+        [ "-t"  , "--thickness" ],
+        [ "-x"  , None          ],
+        [ "-y"  , None          ],
+        [ "-a"  , None          ],
+        [ "-b"  , None          ],
+        [ "-z"  , None          ],
+        [ "-c"  , None          ],
+        [ "-l1" , None          ],
+        [ "-l2" , None          ],
+        [ "-l3" , None          ],
+        [ "-h1" , None          ],
+        [ "-h2" , None          ],
+        [ "-h3" , None          ],
+    ]
 
     MEDIUM_DECOR_HELP = [
         "PLATE:                                                                                   ",
@@ -270,23 +288,6 @@ if __name__ == "__main__":
         "        |        |                                                                       ",
         "        <-------->                                                                       ",
         "            c                                                                            ",
-    ]
-    MEDIUM_DECOR_MEASUREMENTS = [
-        [ None  , "--height"    ],
-        [ "-w"  , "--width"     ],
-        [ "-t"  , "--thickness" ],
-        [ "-x"  , None          ],
-        [ "-y"  , None          ],
-        [ "-a"  , None          ],
-        [ "-b"  , None          ],
-        [ "-z"  , None          ],
-        [ "-c"  , None          ],
-        [ "-l1" , None          ],
-        [ "-l2" , None          ],
-        [ "-l3" , None          ],
-        [ "-h1" , None          ],
-        [ "-h2" , None          ],
-        [ "-h3" , None          ],
     ]
 
     parser_medium_decor = subparsers.add_parser(
