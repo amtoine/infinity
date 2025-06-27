@@ -344,7 +344,7 @@ if __name__ == "__main__":
         ])
 
         save(
-            extrude(polygon, [], args.height, args.visualize),
+            extrude(polygon, [], [], args.height, args.visualize),
             output=args.output,
             scale=1.0,
         )
@@ -540,7 +540,7 @@ if __name__ == "__main__":
             polygon = polygon.union(poly_round(_b, precision=5))
 
         save(
-            extrude(polygon, [], thickness, args.visualize, ensure_contained=True),
+            extrude(polygon, [], [], thickness, args.visualize, ensure_contained=True),
             output=args.output.replace("@part", "plate"),
             scale=scale,
         )
@@ -597,7 +597,7 @@ if __name__ == "__main__":
         ])
 
         save(
-            extrude(polygon.difference(hole), [hole], args.thickness, args.visualize, ensure_contained=True),
+            extrude(polygon.difference(hole), [hole], [], args.thickness, args.visualize, ensure_contained=True),
             output=args.output.replace("@part", "side"),
             scale=1.0,
         )
@@ -665,7 +665,7 @@ if __name__ == "__main__":
         vertices.append((0.0 , a           ))
 
         save(
-            extrude(Polygon(vertices), [], args.thickness, args.visualize, ensure_contained=True),
+            extrude(Polygon(vertices), [], [], args.thickness, args.visualize, ensure_contained=True),
             output=args.output.replace("@part", "cover"),
             scale=1.0,
         )
