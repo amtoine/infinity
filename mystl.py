@@ -73,12 +73,17 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers(dest="subcommand")
 
+    common_options = [
+        { "args": ["-v", "--visualize"], "kwargs": { "action": "store_true" }, "cylinder_kwargs": {}, "small_decor_kwargs": {}  },
+        { "args": ["-o", "--output"],    "kwargs": { "default": "a.stl" },     "cylinder_kwargs": {}, "small_decor_kwargs": { "help": "@part will be replaced by the name of the part" }  },
+    ]
+
     parser_cylinder = subparsers.add_parser("cylinder",                         help="create an STL cylinder")
     parser_cylinder.add_argument(      "--height",   type=float, required=True, help="in mm")
     parser_cylinder.add_argument("-r", "--radius",   type=float, required=True, help="in mm")
     parser_cylinder.add_argument("-n", "--nb-sides", type=int,   default=100)
-    parser_cylinder.add_argument("-v", "--visualize", action="store_true")
-    parser_cylinder.add_argument("-o", "--output",               default="a.stl")
+    for opt in common_options:
+        parser_cylinder.add_argument(*opt["args"], **opt["kwargs"], **opt["cylinder_kwargs"])
 
     parser_small_decor = subparsers.add_parser("small-decor",                         help="create a small STL decor")
     parser_small_decor.add_argument("-l", "--length",    type=float, required=True,   help="in mm")
@@ -87,8 +92,8 @@ if __name__ == "__main__":
     parser_small_decor.add_argument("-a",                type=float, required=True,   help="in mm")
     parser_small_decor.add_argument("-b",                type=float, required=True,   help="in mm")
     parser_small_decor.add_argument("-x",                type=float, required=True,   help="in mm")
-    parser_small_decor.add_argument("-v", "--visualize", action="store_true")
-    parser_small_decor.add_argument("-o", "--output",                default="a.stl", help="@part will be replaced by the name of the part")
+    for opt in common_options:
+        parser_small_decor.add_argument(*opt["args"], **opt["kwargs"], **opt["small_decor_kwargs"])
 
     args = parser.parse_args()
 
