@@ -80,9 +80,9 @@ if __name__ == "__main__":
     subparsers = parser.add_subparsers(dest="subcommand")
 
     common_options = [
-        { "args": ["-v", "--visualize"]   , "kwargs": { "action": "store_true" } , "cylinder_kwargs": {                  } , "small_decor_kwargs": {                                                          } , "medium_decor_kwargs": {                                                          } },
-        { "args": ["-o", "--output"]      , "kwargs": { "default": "a.stl" }     , "cylinder_kwargs": {                  } , "small_decor_kwargs": { "help": "@part will be replaced by the name of the part" } , "medium_decor_kwargs": { "help": "@part will be replaced by the name of the part" } },
-        { "args": ["-m", "--hole-margin"] , "kwargs": { "default": 0.4 }         , "cylinder_kwargs": { "help": "unused" } , "small_decor_kwargs": {                                                          } , "medium_decor_kwargs": {                                                          } },
+        { "args": ["-v", "--visualize"]   , "kwargs": { "action": "store_true" }        , "cylinder_kwargs": {                  } , "small_decor_kwargs": {                                                          } , "medium_decor_kwargs": {                                                          } },
+        { "args": ["-o", "--output"]      , "kwargs": { "default": "a.stl" }            , "cylinder_kwargs": {                  } , "small_decor_kwargs": { "help": "@part will be replaced by the name of the part" } , "medium_decor_kwargs": { "help": "@part will be replaced by the name of the part" } },
+        { "args": ["-m", "--hole-margin"] , "kwargs": { "default": 0.4, "type": float } , "cylinder_kwargs": { "help": "unused" } , "small_decor_kwargs": {                                                          } , "medium_decor_kwargs": {                                                          } },
     ]
 
     parser_cylinder = subparsers.add_parser("cylinder",                         help="create an STL cylinder")
