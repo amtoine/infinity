@@ -86,6 +86,18 @@ def add_options_to_parser(parser, options, **kwargs):
         parser.add_argument(*flags, **kwargs)
 
 
+def check_positive_args(parser, options, args):
+    for (short, long) in options:
+        if short is None:
+            name, val = long, vars(args)[long.lstrip('-')]
+        elif long is None:
+            name, val = short, vars(args)[short.lstrip('-')]
+        else:
+            name, val = long, vars(args)[long.lstrip('-')]
+        if val <= 0:
+            parser.error(f"{name} must be strictly positive, found {val}")
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(formatter_class=RawTextHelpFormatter)
     subparsers = parser.add_subparsers(dest="subcommand")
@@ -315,6 +327,7 @@ if __name__ == "__main__":
         exit(0)
 
     if args.subcommand == "cylinder":
+        check_positive_args(parser, CYLINDER_MEASUREMENTS, args)
         polygon = Polygon([
             (args.radius * cos(alpha), args.radius * sin(alpha))
             for alpha in np.linspace(0, tau, args.nb_sides)
@@ -326,15 +339,7 @@ if __name__ == "__main__":
             scale=1.0,
         )
     elif args.subcommand == "small-decor":
-        for (short, long) in SMALL_DECOR_MEASUREMENTS:
-            if short is None:
-                name, val = long, vars(args)[long.lstrip('-')]
-            elif long is None:
-                name, val = short, vars(args)[short.lstrip('-')]
-            else:
-                name, val = long, vars(args)[long.lstrip('-')]
-            if val <= 0:
-                parser.error(f"{name} must be strictly positive, found {val}")
+        check_positive_args(parser, SMALL_DECOR_MEASUREMENTS, args)
         if args.b >= args.width / 2:
             parser.error(f"-b must be strictly less than half --width on PLATE, found b={args.b} and width={args.width}")
         if args.b + 2 * args.hole_margin >= args.width / 2:
@@ -443,15 +448,7 @@ if __name__ == "__main__":
             scale=scale,
         )
     elif args.subcommand == "medium-decor":
-        for (short, long) in MEDIUM_DECOR_MEASUREMENTS:
-            if short is None:
-                name, val = long, vars(args)[long.lstrip('-')]
-            elif long is None:
-                name, val = short, vars(args)[short.lstrip('-')]
-            else:
-                name, val = long, vars(args)[long.lstrip('-')]
-            if val <= 0:
-                parser.error(f"{name} must be strictly positive, found {val}")
+        check_positive_args(parser, MEDIUM_DECOR_MEASUREMENTS, args)
         if args.z <= args.thickness / 2 + args.hole_margin:
             parser.error(f"-z must be strictly greater than half --thickness (with hole margin), found z={args.z}, hole-margin={args.hole_margin} and thickness={args.thickness}")
         if args.y + 2 * args.hole_margin >= args.width:
