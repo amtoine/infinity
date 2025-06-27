@@ -326,6 +326,22 @@ if __name__ == "__main__":
             scale=1.0,
         )
     elif args.subcommand == "small-decor":
+        for (short, long) in SMALL_DECOR_MEASUREMENTS:
+            if short is None:
+                name, val = long, vars(args)[long.lstrip('-')]
+            elif long is None:
+                name, val = short, vars(args)[short.lstrip('-')]
+            else:
+                name, val = long, vars(args)[long.lstrip('-')]
+            if val <= 0:
+                parser.error(f"{name} must be strictly positive, found {val}")
+        if args.b >= args.width / 2:
+            parser.error(f"-b must be strictly less than half --width on PLATE, found b={args.b} and width={args.width}")
+        if args.b + 2 * args.hole_margin >= args.width / 2:
+            parser.error(f"-b (with hole margin) must be strictly less than half --width on SIDE, found b={args.b}, hole-margin={args.hole_margin} and width={args.width}")
+        if args.x <= args.thickness / 2 + args.hole_margin:
+            parser.error(f"-x must be strictly greater than half --thickness (with hole margin), found x={args.x}, hole-margin={args.hole_margin} and thickness={args.thickness}")
+
         scale = args.width / sqrt((1 - cos(tau / 3)) ** 2 + sin(tau / 3) ** 2)
 
         length    = args.length      / scale
