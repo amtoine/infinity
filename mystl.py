@@ -68,21 +68,20 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers(dest="subcommand")
 
-    parser_cylinder = subparsers.add_parser("cylinder", help="create an STL cylinder")
+    parser_cylinder = subparsers.add_parser("cylinder",                         help="create an STL cylinder")
     parser_cylinder.add_argument(      "--height",   type=float, required=True, help="in mm")
     parser_cylinder.add_argument("-r", "--radius",   type=float, required=True, help="in mm")
     parser_cylinder.add_argument("-n", "--nb-sides", type=int,   default=100)
-    parser_cylinder.add_argument("-o", "--output",   default="a.stl")
+    parser_cylinder.add_argument("-o", "--output",               default="a.stl")
 
-    parser_small_decor = subparsers.add_parser("small-decor", help="create a small STL decor")
-    parser_small_decor.add_argument("-l", "--length",    type=float, required=True, help="in mm")
-    parser_small_decor.add_argument("-w", "--width",     type=float, required=True, help="in mm")
-    parser_small_decor.add_argument("-t", "--thickness", type=float, required=True, help="in mm")
-    parser_small_decor.add_argument("-a",                type=float, required=True, help="in mm")
-    parser_small_decor.add_argument("-b",                type=float, required=True, help="in mm")
-    parser_small_decor.add_argument("-x",                type=float, required=True, help="in mm")
-    parser_small_decor.add_argument("-p", "--plate",     action="store_true")
-    parser_small_decor.add_argument("-o", "--output", default="a.stl")
+    parser_small_decor = subparsers.add_parser("small-decor",                         help="create a small STL decor")
+    parser_small_decor.add_argument("-l", "--length",    type=float, required=True,   help="in mm")
+    parser_small_decor.add_argument("-w", "--width",     type=float, required=True,   help="in mm")
+    parser_small_decor.add_argument("-t", "--thickness", type=float, required=True,   help="in mm")
+    parser_small_decor.add_argument("-a",                type=float, required=True,   help="in mm")
+    parser_small_decor.add_argument("-b",                type=float, required=True,   help="in mm")
+    parser_small_decor.add_argument("-x",                type=float, required=True,   help="in mm")
+    parser_small_decor.add_argument("-o", "--output",                default="a.stl", help="@part will be replaced by the name of the part")
 
     args = parser.parse_args()
 
@@ -107,86 +106,87 @@ if __name__ == "__main__":
         x         = args.x         / scale
         b         = args.b         / scale
 
-        if args.plate:
-            # y = (1 + abs(cos(tau / 3)) + x) * tan(tau / 12)
-            y = sin(tau / 3) * (1 + abs(cos(tau / 3)) + x) / (1 + abs(cos(tau / 3)))
+        ### plate
+        # y = (1 + abs(cos(tau / 3)) + x) * tan(tau / 12)
+        y = sin(tau / 3) * (1 + abs(cos(tau / 3)) + x) / (1 + abs(cos(tau / 3)))
 
-            # > [!note] this should be equilateral :eyes:
-            #
-            #   1.
-            #   .....
-            #   ........
-            #   ...........
-            #   ..............
-            #   ..4..3...........
-            #   ...  ...............
-            #   ...  .................0
-            #   ...  ...............
-            #   ..5..6...........
-            #   ..............
-            #   ...........
-            #   ........
-            #   .....
-            #   2.
-            #
-            base = Polygon([
-                (cos(0)           , sin(0)),
-                (cos(tau / 3) - x ,  y    ),
-                (cos(tau / 3) - x , -y    ),
-            ])
-            hole = Polygon([
-                (cos(tau / 3) + thickness / 2 ,  b / 2),
-                (cos(tau / 3) - thickness / 2 ,  b / 2),
-                (cos(tau / 3) - thickness / 2 , -b / 2),
-                (cos(tau / 3) + thickness / 2 , -b / 2),
-            ])
+        # > [!note] this should be equilateral :eyes:
+        #
+        #   1.
+        #   .....
+        #   ........
+        #   ...........
+        #   ..............
+        #   ..4..3...........
+        #   ...  ...............
+        #   ...  .................0
+        #   ...  ...............
+        #   ..5..6...........
+        #   ..............
+        #   ...........
+        #   ........
+        #   .....
+        #   2.
+        #
+        base = Polygon([
+            (cos(0)           , sin(0)),
+            (cos(tau / 3) - x ,  y    ),
+            (cos(tau / 3) - x , -y    ),
+        ])
+        hole = Polygon([
+            (cos(tau / 3) + thickness / 2 ,  b / 2),
+            (cos(tau / 3) - thickness / 2 ,  b / 2),
+            (cos(tau / 3) - thickness / 2 , -b / 2),
+            (cos(tau / 3) + thickness / 2 , -b / 2),
+        ])
 
-            polygon, holes = Polygon([]), []
-            for alpha in [-tau / 12, -3 * tau / 12, -5 * tau / 12]:
-                b = affinity.rotate(affinity.translate(base, xoff=-1.0), alpha, origin=(0, 0), use_radians=True)
-                h = affinity.rotate(affinity.translate(hole, xoff=-1.0), alpha, origin=(0, 0), use_radians=True)
-                polygon = polygon.union(b.difference(h))
-                holes.append(h)
+        polygon, holes = Polygon([]), []
+        for alpha in [-tau / 12, -3 * tau / 12, -5 * tau / 12]:
+            _b = affinity.rotate(affinity.translate(base, xoff=-1.0), alpha, origin=(0, 0), use_radians=True)
+            _h = affinity.rotate(affinity.translate(hole, xoff=-1.0), alpha, origin=(0, 0), use_radians=True)
+            polygon = polygon.union(_b.difference(_h))
+            holes.append(_h)
 
-            save(extrude(polygon, holes, thickness), output=args.output, scale=scale)
-        else:
-            l, w = length, width
+        save(extrude(polygon, holes, thickness), output=args.output.replace("@part", "plate"), scale=scale)
 
-            w_1 = (w - b) / 2
-            w_2 = (w + b) / 2
+        ### side
+        l, w = length, width
 
-            #
-            #
-            #           +---------------------------------------+     ^
-            #           |                                       |     |
-            #           |                                       |     |
-            #       +---+                                       +---+ |
-            #     ^ |                                               | |
-            #   b | |                                               | | width
-            #     v |                                               | |
-            #       +---+                                       +---+ |
-            #           |                                       |     |
-            #           |                                       |     |
-            #           +---------------------------------------+     v
-            #        <-> <-------------------------------------> <->
-            #         a                  length                   a
-            #
-            #
-            polygon = Polygon([
-               (0.0   , 0.0),
-               (l     , 0.0),
-               (l     , w_1),
-               (l + a , w_1),
-               (l + a , w_2),
-               (l     , w_2),
-               (l     , w  ),
-               (0.0   , w  ),
-               (0.0   , w_2),
-               (-a    , w_2),
-               (-a    , w_1),
-               (0.0   , w_1),
-            ])
-            save(extrude(polygon, [], thickness), output=args.output, scale=scale)
+        w_1 = (w - b) / 2
+        w_2 = (w + b) / 2
+
+        #
+        #
+        #           +---------------------------------------+     ^
+        #           |                                       |     |
+        #           |                                       |     |
+        #       +---+                                       +---+ |
+        #     ^ |                                               | |
+        #   b | |                                               | | width
+        #     v |                                               | |
+        #       +---+                                       +---+ |
+        #           |                                       |     |
+        #           |                                       |     |
+        #           +---------------------------------------+     v
+        #        <-> <-------------------------------------> <->
+        #         a                  length                   a
+        #
+        #
+        polygon = Polygon([
+           (0.0   , 0.0),
+           (l     , 0.0),
+           (l     , w_1),
+           (l + a , w_1),
+           (l + a , w_2),
+           (l     , w_2),
+           (l     , w  ),
+           (0.0   , w  ),
+           (0.0   , w_2),
+           (-a    , w_2),
+           (-a    , w_1),
+           (0.0   , w_1),
+        ])
+        save(extrude(polygon, [], thickness), output=args.output.replace("@part", "side"), scale=scale)
     else:
         print("unreachable")
         exit(3)
