@@ -80,8 +80,9 @@ if __name__ == "__main__":
     subparsers = parser.add_subparsers(dest="subcommand")
 
     common_options = [
-        { "args": ["-v", "--visualize"] , "kwargs": { "action": "store_true" } , "cylinder_kwargs": {} , "small_decor_kwargs": {}                                                           , "medium_decor_kwargs": {}                                                           },
-        { "args": ["-o", "--output"]    , "kwargs": { "default": "a.stl" }     , "cylinder_kwargs": {} , "small_decor_kwargs": { "help": "@part will be replaced by the name of the part" } , "medium_decor_kwargs": { "help": "@part will be replaced by the name of the part" } },
+        { "args": ["-v", "--visualize"]   , "kwargs": { "action": "store_true" } , "cylinder_kwargs": {                  } , "small_decor_kwargs": {                                                          } , "medium_decor_kwargs": {                                                          } },
+        { "args": ["-o", "--output"]      , "kwargs": { "default": "a.stl" }     , "cylinder_kwargs": {                  } , "small_decor_kwargs": { "help": "@part will be replaced by the name of the part" } , "medium_decor_kwargs": { "help": "@part will be replaced by the name of the part" } },
+        { "args": ["-m", "--hole-margin"] , "kwargs": { "default": 0.4 }         , "cylinder_kwargs": { "help": "unused" } , "small_decor_kwargs": {                                                          } , "medium_decor_kwargs": {                                                          } },
     ]
 
     parser_cylinder = subparsers.add_parser("cylinder",                         help="create an STL cylinder")
@@ -170,7 +171,7 @@ if __name__ == "__main__":
             flags = [short]
         else:
             flags = [short, long]
-        parser_medium_decor.add_argument(*flags, type=float, required=True, help="in mm")
+        parser_small_decor.add_argument(*flags, type=float, required=True, help="in mm")
     for opt in common_options:
         parser_small_decor.add_argument(*opt["args"], **opt["kwargs"], **opt["small_decor_kwargs"])
 
@@ -326,12 +327,13 @@ if __name__ == "__main__":
     elif args.subcommand == "small-decor":
         scale = args.width / sqrt((1 - cos(tau / 3)) ** 2 + sin(tau / 3) ** 2)
 
-        length    = args.length    / scale
-        width     = args.width     / scale
-        thickness = args.thickness / scale
-        a         = args.a         / scale
-        x         = args.x         / scale
-        b         = args.b         / scale
+        length    = args.length      / scale
+        width     = args.width       / scale
+        thickness = args.thickness   / scale
+        a         = args.a           / scale
+        x         = args.x           / scale
+        b         = args.b           / scale
+        margin    = args.hole_margin / scale
 
         ### plate
         # y = (1 + abs(cos(tau / 3)) + x) * tan(tau / 12)
@@ -361,10 +363,10 @@ if __name__ == "__main__":
             (cos(tau / 3) - x , -y    ),
         ])
         hole = Polygon([
-            (cos(tau / 3) + thickness / 2 ,  b / 2),
-            (cos(tau / 3) - thickness / 2 ,  b / 2),
-            (cos(tau / 3) - thickness / 2 , -b / 2),
-            (cos(tau / 3) + thickness / 2 , -b / 2),
+            (cos(tau / 3) + (thickness / 2 + margin) ,  (b / 2 + margin)),
+            (cos(tau / 3) - (thickness / 2 + margin) ,  (b / 2 + margin)),
+            (cos(tau / 3) - (thickness / 2 + margin) , -(b / 2 + margin)),
+            (cos(tau / 3) + (thickness / 2 + margin) , -(b / 2 + margin)),
         ])
 
         polygon, holes = Polygon([]), []
@@ -433,12 +435,14 @@ if __name__ == "__main__":
                 name, val = long, vars(args)[long.lstrip('-')]
             if val <= 0:
                 parser.error(f"{name} must be strictly positive, found {val}")
-        if args.z <= args.thickness / 2:
-            parser.error(f"-z must be strictly greater than half --thickness, found z={args.z} and thickness={args.thickness}")
-        if 2 * args.y >= args.width:
-            parser.error(f"-y must be strictly smaller than half --width, found y={args.y} and width={args.width}")
-        if args.a >= args.height - args.thickness / 2:
-            parser.error(f"-a must be strictly smaller than --height minus half --thickness, found a={args.a}, height={args.height} and thickness={args.thickness}")
+        if args.z <= args.thickness / 2 + args.hole_margin:
+            parser.error(f"-z must be strictly greater than half --thickness (with hole margin), found z={args.z}, hole-margin={args.hole_margin} and thickness={args.thickness}")
+        if args.y + 2 * args.hole_margin >= args.width:
+            parser.error(f"-y (with hole margin) must be strictly smaller than --width, found y={args.y}, hole-margin={args.hole_margin} and width={args.width}")
+        if args.a + args.hole_margin >= args.height - args.thickness / 2 - args.hole_margin:
+            parser.error(f"-a must be strictly smaller than --height minus half --thickness (with hole margin), found a={args.a}, height={args.height}, thickness={args.thickness} and hole-margin={args.hole_margin}")
+        if args.b - args.hole_margin <= 0:
+            parser.error(f"-b (with hole margin) must be strictly positive, found b={args.b} and hole-margin={args.hole_margin}")
         if args.b + args.thickness >= args.width:
             parser.error(f"-b plus the thickness must be strictly smaller than --width, found b={args.b}, thickness={args.thickness} and width={args.width}")
         if args.rounded:
@@ -451,10 +455,11 @@ if __name__ == "__main__":
 
         scale = args.width / sqrt((1 - cos(tau / 3)) ** 2 + sin(tau / 3) ** 2)
 
-        width     = args.width     / scale
-        thickness = args.thickness / scale
-        x         = args.x         / scale
-        y         = args.y         / scale
+        width     = args.width       / scale
+        thickness = args.thickness   / scale
+        x         = args.x           / scale
+        y         = args.y           / scale
+        margin    = args.hole_margin / scale
         # > [!note] this should be equilateral :eyes:
         #
         #               1.
@@ -533,20 +538,20 @@ if __name__ == "__main__":
         #                        b       c = thickness
         #
         polygon = Polygon([
-           (0.0   , 0.0  ),
-           (b     , 0.0  ),
-           (b     , a    ),
-           (b + c , a    ),
-           (b + c , 0.0  ),
-           (w     , 0.0  ),
-           (w     , h + z),
-           (0.0   , h + z),
+           (0.0            , 0.0       ),
+           (b     - margin , 0.0       ),
+           (b     - margin , a + margin),
+           (b + c + margin , a + margin),
+           (b + c + margin , 0.0       ),
+           (w              , 0.0       ),
+           (w              , h + z     ),
+           (0.0            , h + z     ),
         ])
         hole = Polygon([
-            (w / 2 - e / 2, h - d / 2),
-            (w / 2 + e / 2, h - d / 2),
-            (w / 2 + e / 2, h + d / 2),
-            (w / 2 - e / 2, h + d / 2),
+            (w / 2 - (e / 2 + margin), h - (d / 2 + margin)),
+            (w / 2 + (e / 2 + margin), h - (d / 2 + margin)),
+            (w / 2 + (e / 2 + margin), h + (d / 2 + margin)),
+            (w / 2 - (e / 2 + margin), h + (d / 2 + margin)),
         ])
 
         save(
