@@ -157,7 +157,7 @@ if __name__ == "__main__":
     for opt in common_options:
         parser_small_decor.add_argument(*opt["args"], **opt["kwargs"], **opt["small_decor_kwargs"])
 
-    lines = [
+    MEDIUM_DECOR_HELP = [
         "PLATE:                                                                                   ",
         "                                                                                         ",
         "    > this is a 6-rd of the full plate                                                   ",
@@ -250,23 +250,38 @@ if __name__ == "__main__":
         "        <-------->                                                                       ",
         "            c                                                                            ",
     ]
+    MEDIUM_DECOR_MEASUREMENTS = [
+        [ None  , "--height"    ],
+        [ "-w"  , "--width"     ],
+        [ "-t"  , "--thickness" ],
+        [ "-x"  , None          ],
+        [ "-y"  , None          ],
+        [ "-a"  , None          ],
+        [ "-b"  , None          ],
+        [ "-z"  , None          ],
+        [ "-c"  , None          ],
+        [ "-l1" , None          ],
+        [ "-l2" , None          ],
+        [ "-l3" , None          ],
+        [ "-h1" , None          ],
+        [ "-h2" , None          ],
+        [ "-h3" , None          ],
+    ]
 
-    parser_medium_decor = subparsers.add_parser("medium-decor",                        help="create a medium STL decor", description="\n".join(lines), formatter_class=RawTextHelpFormatter)
-    parser_medium_decor.add_argument(      "--height",    type=float, required=True,   help="in mm")
-    parser_medium_decor.add_argument("-w", "--width",     type=float, required=True,   help="in mm")
-    parser_medium_decor.add_argument("-t", "--thickness", type=float, required=True,   help="in mm")
-    parser_medium_decor.add_argument("-x",                type=float, required=True,   help="in mm")
-    parser_medium_decor.add_argument("-y",                type=float, required=True,   help="in mm")
-    parser_medium_decor.add_argument("-a",                type=float, required=True,   help="in mm")
-    parser_medium_decor.add_argument("-b",                type=float, required=True,   help="in mm")
-    parser_medium_decor.add_argument("-z",                type=float, required=True,   help="in mm")
-    parser_medium_decor.add_argument("-c",                type=float, required=True,   help="in mm")
-    parser_medium_decor.add_argument("-l1",               type=float, required=True,   help="in mm")
-    parser_medium_decor.add_argument("-l2",               type=float, required=True,   help="in mm")
-    parser_medium_decor.add_argument("-l3",               type=float, required=True,   help="in mm")
-    parser_medium_decor.add_argument("-h1",               type=float, required=True,   help="in mm")
-    parser_medium_decor.add_argument("-h2",               type=float, required=True,   help="in mm")
-    parser_medium_decor.add_argument("-h3",               type=float, required=True,   help="in mm")
+    parser_medium_decor = subparsers.add_parser(
+        "medium-decor",
+        help="create a medium STL decor",
+        description="\n".join(MEDIUM_DECOR_HELP),
+        formatter_class=RawTextHelpFormatter,
+    )
+    for (short, long) in MEDIUM_DECOR_MEASUREMENTS:
+        if short is None:
+            flags = [long]
+        elif long is None:
+            flags = [short]
+        else:
+            flags = [short, long]
+        parser_medium_decor.add_argument(*flags, type=float, required=True, help="in mm")
     for opt in common_options:
         parser_medium_decor.add_argument(*opt["args"], **opt["kwargs"], **opt["medium_decor_kwargs"])
 
@@ -388,6 +403,24 @@ if __name__ == "__main__":
             scale=scale,
         )
     elif args.subcommand == "medium-decor":
+        for (short, long) in MEDIUM_DECOR_MEASUREMENTS:
+            if short is None:
+                name, val = long, vars(args)[long.lstrip('-')]
+            elif long is None:
+                name, val = short, vars(args)[short.lstrip('-')]
+            else:
+                name, val = long, vars(args)[long.lstrip('-')]
+            if val <= 0:
+                parser.error(f"{name} must be strictly positive, found {val}")
+        if args.z <= args.thickness / 2:
+            parser.error(f"-z must be strictly greater than half --thickness, found z={args.z} and thickness={args.thickness}")
+        if 2 * args.y >= args.width:
+            parser.error(f"-y must be strictly smaller than half --width, found y={args.y} and width={args.width}")
+        if args.a >= args.height - args.thickness / 2:
+            parser.error(f"-a must be strictly smaller than --height minus half --thickness, found a={args.a}, height={args.height} and thickness={args.thickness}")
+        if args.b + args.thickness >= args.width:
+            parser.error(f"-b plus the thickness must be strictly smaller than --width, found b={args.b}, thickness={args.thickness} and width={args.width}")
+
         scale = args.width / sqrt((1 - cos(tau / 3)) ** 2 + sin(tau / 3) ** 2)
 
         width     = args.width     / scale
