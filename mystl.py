@@ -16,38 +16,31 @@ import stl
 
 
 def extrude(polygon, holes, height, visualize: bool = False, ensure_contained: bool = False):
-    face = list(filter(
+    face_triangles = list(filter(
         lambda t: not any(shapely.equals(t.intersection(h), t) for h in holes) and (not ensure_contained or polygon.contains(t)),
         triangulate(polygon),
     ))
 
+    face_mesh = np.array([
+        np.append(
+            np.array(t.exterior.coords[:-1]),
+            np.zeros((3,1), dtype=np.int64),
+            axis=1,
+        )
+        for t in face_triangles
+    ])
+
     triangles = np.append(
-        np.array([
-            np.append(
-                np.array(t.exterior.coords[:-1]),
-                np.zeros((3,1), dtype=np.int64) * (height),
-                axis=1,
-            )
-            for t in face
-        ]),
-        np.array([
-            np.append(
-                np.array(t.exterior.coords[:-1]),
-                np.ones((3,1), dtype=np.int64) * (height),
-                axis=1,
-            )
-            for t in face
-        ]),
+        face_mesh,
+        face_mesh + np.array([0, 0, height]),
         axis=0,
     )
 
-    edge = np.array(polygon.exterior.coords)
-    for a, b in list(zip(edge[:-1], edge[1:])):
-        a, b, c, d = np.append(a, [0], axis=0), np.append(b, [0], axis=0), np.append(a, [height], axis=0), np.append(b, [height], axis=0)
-        triangles = np.append(triangles, np.array([[a, b, c]]), axis=0)
-        triangles = np.append(triangles, np.array([[b, c, d]]), axis=0)
+    edges = [np.array(polygon.exterior.coords)]
     for hole in holes:
-        edge = np.array(hole.exterior.coords)
+        edges.append(np.array(hole.exterior.coords))
+
+    for edge in edges:
         for a, b in list(zip(edge[:-1], edge[1:])):
             a, b, c, d = np.append(a, [0], axis=0), np.append(b, [0], axis=0), np.append(a, [height], axis=0), np.append(b, [height], axis=0)
             triangles = np.append(triangles, np.array([[a, b, c]]), axis=0)
@@ -57,7 +50,7 @@ def extrude(polygon, holes, height, visualize: bool = False, ensure_contained: b
         import matplotlib.pyplot as plt
         from shapely.plotting import plot_polygon, plot_points
         _, ax = plt.subplots()
-        for triangle in face:
+        for triangle in face_triangles:
             plot_polygon(triangle, ax=ax, add_points=False, color="red")
         plot_polygon(Polygon(polygon.exterior.coords), ax=ax, add_points=False, facecolor=None, edgecolor="blue", linewidth=5)
         for hole in holes:
