@@ -91,7 +91,7 @@ if __name__ == "__main__":
     for opt in common_options:
         parser_cylinder.add_argument(*opt["args"], **opt["kwargs"], **opt["cylinder_kwargs"])
 
-    lines = [
+    SMALL_DECOR_HELP = [
         "PLATE:                                                                ",
         "                                                                      ",
         "    > this is a 3-rd of the full plate                                ",
@@ -147,13 +147,30 @@ if __name__ == "__main__":
         "            a                                           a             ",
         "                                                                      ",
     ]
-    parser_small_decor = subparsers.add_parser("small-decor",                         help="create a small STL decor", description="\n".join(lines), formatter_class=RawTextHelpFormatter)
-    parser_small_decor.add_argument("-l", "--length",    type=float, required=True,   help="in mm")
-    parser_small_decor.add_argument("-w", "--width",     type=float, required=True,   help="in mm")
-    parser_small_decor.add_argument("-t", "--thickness", type=float, required=True,   help="in mm")
-    parser_small_decor.add_argument("-a",                type=float, required=True,   help="in mm")
-    parser_small_decor.add_argument("-b",                type=float, required=True,   help="in mm")
-    parser_small_decor.add_argument("-x",                type=float, required=True,   help="in mm")
+
+    SMALL_DECOR_MEASUREMENTS = [
+        [ "-l", "--length"    ],
+        [ "-w", "--width"     ],
+        [ "-t", "--thickness" ],
+        [ "-a", None          ],
+        [ "-b", None          ],
+        [ "-x", None          ],
+    ]
+
+    parser_small_decor = subparsers.add_parser(
+        "small-decor",
+        help="create a small STL decor",
+        description="\n".join(SMALL_DECOR_HELP),
+        formatter_class=RawTextHelpFormatter,
+    )
+    for (short, long) in SMALL_DECOR_MEASUREMENTS:
+        if short is None:
+            flags = [long]
+        elif long is None:
+            flags = [short]
+        else:
+            flags = [short, long]
+        parser_medium_decor.add_argument(*flags, type=float, required=True, help="in mm")
     for opt in common_options:
         parser_small_decor.add_argument(*opt["args"], **opt["kwargs"], **opt["small_decor_kwargs"])
 
