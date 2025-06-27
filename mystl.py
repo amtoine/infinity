@@ -340,10 +340,10 @@ if __name__ == "__main__":
         )
     elif args.subcommand == "small-decor":
         check_positive_args(parser, SMALL_DECOR_MEASUREMENTS, args)
-        if args.b >= args.width / 2:
-            parser.error(f"-b must be strictly less than half --width on PLATE, found b={args.b} and width={args.width}")
-        if args.b + 2 * args.hole_margin >= args.width / 2:
-            parser.error(f"-b (with hole margin) must be strictly less than half --width on SIDE, found b={args.b}, hole-margin={args.hole_margin} and width={args.width}")
+        if args.b >= args.width:
+            parser.error(f"-b must be strictly less than --width on PLATE, found b={args.b} and width={args.width}")
+        if args.b + 2 * args.hole_margin >= args.width:
+            parser.error(f"-b (with hole margin) must be strictly less than --width on SIDE, found b={args.b}, hole-margin={args.hole_margin} and width={args.width}")
         if args.x <= args.thickness / 2 + args.hole_margin:
             parser.error(f"-x must be strictly greater than half --thickness (with hole margin), found x={args.x}, hole-margin={args.hole_margin} and thickness={args.thickness}")
 
