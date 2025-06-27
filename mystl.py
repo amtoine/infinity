@@ -352,7 +352,7 @@ if __name__ == "__main__":
             scale=scale,
         )
     elif args.subcommand == "medium-decor":
-        scale = args.width / sqrt(cos(tau / 3) ** 2 + sin(tau / 3) ** 2)
+        scale = args.width / sqrt((1 - cos(tau / 3)) ** 2 + sin(tau / 3) ** 2)
 
         width     = args.width     / scale
         thickness = args.thickness / scale
