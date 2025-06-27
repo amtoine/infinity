@@ -11,6 +11,7 @@ import shapely
 
 from math import tau, cos, sin, sqrt
 import argparse
+from argparse import RawTextHelpFormatter
 import numpy as np
 import stl
 
@@ -75,7 +76,7 @@ def save(triangles, scale=1.0, output="a.stl"):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(formatter_class=RawTextHelpFormatter)
     subparsers = parser.add_subparsers(dest="subcommand")
 
     common_options = [
@@ -90,17 +91,138 @@ if __name__ == "__main__":
     for opt in common_options:
         parser_cylinder.add_argument(*opt["args"], **opt["kwargs"], **opt["cylinder_kwargs"])
 
-    parser_medium_decor = subparsers.add_parser("small-decor",                         help="create a small STL decor")
-    parser_medium_decor.add_argument("-l", "--length",    type=float, required=True,   help="in mm")
-    parser_medium_decor.add_argument("-w", "--width",     type=float, required=True,   help="in mm")
-    parser_medium_decor.add_argument("-t", "--thickness", type=float, required=True,   help="in mm")
-    parser_medium_decor.add_argument("-a",                type=float, required=True,   help="in mm")
-    parser_medium_decor.add_argument("-b",                type=float, required=True,   help="in mm")
-    parser_medium_decor.add_argument("-x",                type=float, required=True,   help="in mm")
+    lines = [
+        "PLATE:                                                                ",
+        "                                                                      ",
+        "    > this is a 3-rd of the full plate                                ",
+        "                                                                      ",
+        "             thickness                                                ",
+        "              <----->                                                 ",
+        "              |     |                                                 ",
+        "           .  |     |                                                 ",
+        "           ...|.    |                                                 ",
+        "           ...|..*--+-------------------------------------^           ",
+        "           ...|.....|...                                  |           ",
+        "           ...|.....|.......                              |           ",
+        "           ...|.....|...........                          |           ",
+        "      ^-------*     *...............                      |           ",
+        "      |    ...       ...................                  |           ",
+        "      |    ...       .......................              |           ",
+        "      |    ...       ...........................          |           ",
+        "    b |    ...       ...............................      |  width    ",
+        "      |    ...       ...........................          |           ",
+        "      |    ...       .......................              |           ",
+        "      |    ...       ...................                  |           ",
+        "      v-------*  *   ...............                      |           ",
+        "           ......|..............                          |           ",
+        "           ......|..........                              |           ",
+        "           ......|......                                  |           ",
+        "           ......|..                                      |           ",
+        "           ......*----------------------------------------v           ",
+        "           *     |                                                    ",
+        "           |     |                                                    ",
+        "           <----->                                                    ",
+        "              x                                                       ",
+        "                                                                      ",
+        " SIDE:                                                                ",
+        "                                                                      ",
+        "                               length                                 ",
+        "              <--------------------------------------->               ",
+        "              |                                       |               ",
+        "              |                                       |               ",
+        "              *.......................................*--------^      ",
+        "              .........................................        |      ",
+        "              .........................................        |      ",
+        "     ^----*................................................    |      ",
+        "     |    .................................................    |      ",
+        "   b |    .................................................    | width",
+        "     |    .................................................    |      ",
+        "     v----*...*.......................................*...*    |      ",
+        "          |   |.......................................|   |    |      ",
+        "          |   |.......................................|   |    |      ",
+        "          |   |.......................................+---+----v      ",
+        "          |   |                                       |   |           ",
+        "          |   |                                       |   |           ",
+        "          <--->                                       <--->           ",
+        "            a                                           a             ",
+        "                                                                      ",
+    ]
+    parser_small_decor = subparsers.add_parser("small-decor",                         help="create a small STL decor", description="\n".join(lines), formatter_class=RawTextHelpFormatter)
+    parser_small_decor.add_argument("-l", "--length",    type=float, required=True,   help="in mm")
+    parser_small_decor.add_argument("-w", "--width",     type=float, required=True,   help="in mm")
+    parser_small_decor.add_argument("-t", "--thickness", type=float, required=True,   help="in mm")
+    parser_small_decor.add_argument("-a",                type=float, required=True,   help="in mm")
+    parser_small_decor.add_argument("-b",                type=float, required=True,   help="in mm")
+    parser_small_decor.add_argument("-x",                type=float, required=True,   help="in mm")
     for opt in common_options:
-        parser_medium_decor.add_argument(*opt["args"], **opt["kwargs"], **opt["small_decor_kwargs"])
+        parser_small_decor.add_argument(*opt["args"], **opt["kwargs"], **opt["small_decor_kwargs"])
 
-    parser_medium_decor = subparsers.add_parser("medium-decor",                        help="create a medium STL decor")
+    lines = [
+        "PLATE:                                                                 ",
+        "                                                                       ",
+        "    > this is a 6-rd of the full plate                                 ",
+        "                                                                       ",
+        "                *----------------------------------------------^       ",
+        "                .....                                          |       ",
+        "                ........                                       |       ",
+        "                .............                                  |       ",
+        "                .................                              |       ",
+        "                .....................                          |       ",
+        "      ^---*..............................                      |       ",
+        "      |   ...................................                  |       ",
+        "      |   .......................................              |       ",
+        "      |   ...........................................          |       ",
+        "    y |   ...............................................      |  width",
+        "      |   ...........................................          |       ",
+        "      |   .......................................              |       ",
+        "      |   ...................................                  |       ",
+        "      v---*.....*........................                      |       ",
+        "          |     |....................                          |       ",
+        "          |     |................                              |       ",
+        "          |     |............                                  |       ",
+        "          |     |........                                      |       ",
+        "          |     |....                                          |       ",
+        "          |     +----------------------------------------------v       ",
+        "          |     |                                                      ",
+        "          <----->                                                      ",
+        "             x                                                         ",
+        "                                                                       ",
+        " SIDE:                                                                 ",
+        "                                                                       ",
+        "                              width                                    ",
+        "                  <--------------------------->                        ",
+        "                  |                           |                        ",
+        "                  |             y             |                        ",
+        "                  |      <-------------->     |                        ",
+        "                  |      |              |     |                        ",
+        "                  |      |              |     |                        ",
+        "                  *......|..............|.....*-----^                  ",
+        "                  .......|..............|......     |                  ",
+        "                  .......|..............|......     | z                ",
+        "               ^---------*..............*......     |                  ",
+        "               |  ........              .......     |                  ",
+        "     thickness |  ........              *--------^--v                  ",
+        "               |  ........              .......  |                     ",
+        "               b---------*.....................  |                     ",
+        "                  .............................  |                     ",
+        "                  .............................  |                     ",
+        "                  .............................  | height              ",
+        "                  .............................  |                     ",
+        "                  .............................  |                     ",
+        "               ^--------------*   .............  |                     ",
+        "               |  .............   .............  |                     ",
+        "             a |  .............   .............  |                     ",
+        "               |  .............   .............  |                     ",
+        "               v--*...........*   *...........*--v                     ",
+        "                  |           |   |                                    ",
+        "                  |           |   |                                    ",
+        "                  <----------->   |                                    ",
+        "                        b     |   |                                    ",
+        "                              <--->                                    ",
+        "                            thickness                                  ",
+        "                                                                       ",
+    ]
+    parser_medium_decor = subparsers.add_parser("medium-decor",                        help="create a medium STL decor", description="\n".join(lines), formatter_class=RawTextHelpFormatter)
     parser_medium_decor.add_argument(      "--height",    type=float, required=True,   help="in mm")
     parser_medium_decor.add_argument("-w", "--width",     type=float, required=True,   help="in mm")
     parser_medium_decor.add_argument("-t", "--thickness", type=float, required=True,   help="in mm")
@@ -230,7 +352,7 @@ if __name__ == "__main__":
             scale=scale,
         )
     elif args.subcommand == "medium-decor":
-        scale = args.width / sqrt((1 - cos(tau / 3)) ** 2 + sin(tau / 3) ** 2)
+        scale = args.width / sqrt(cos(tau / 3) ** 2 + sin(tau / 3) ** 2)
 
         width     = args.width     / scale
         thickness = args.thickness / scale
@@ -274,7 +396,7 @@ if __name__ == "__main__":
             polygon = polygon.union(poly_round(_b, precision=5))
 
         save(
-            extrude(polygon, [], thickness, True, ensure_contained=True),
+            extrude(polygon, [], thickness, args.visualize, ensure_contained=True),
             output=args.output.replace("@part", "plate"),
             scale=scale,
         )
