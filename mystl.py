@@ -148,9 +148,9 @@ if __name__ == "__main__":
     subparsers = parser.add_subparsers(dest="subcommand")
 
     common_options = [
-        { "args": ["-v", "--visualize"]   , "kwargs": { "action": "store_true" }        , "cylinder_kwargs": {                  } , "small_decor_kwargs": {                                                          } , "medium_decor_kwargs": {                                                          } },
-        { "args": ["-o", "--output"]      , "kwargs": { "default": "a.stl" }            , "cylinder_kwargs": {                  } , "small_decor_kwargs": { "help": "@part will be replaced by the name of the part" } , "medium_decor_kwargs": { "help": "@part will be replaced by the name of the part" } },
-        { "args": ["-m", "--hole-margin"] , "kwargs": { "default": 0.4, "type": float } , "cylinder_kwargs": { "help": "unused" } , "small_decor_kwargs": {                                                          } , "medium_decor_kwargs": {                                                          } },
+        { "args": ["-v", "--visualize"]   , "kwargs": { "action": "store_true" }        , "cylinder_kwargs": {                  } , "small_decor_kwargs": {                                                          } , "medium_decor_kwargs": {                                                          }, "large_decor_kwargs": {} },
+        { "args": ["-o", "--output"]      , "kwargs": { "default": "a.stl" }            , "cylinder_kwargs": {                  } , "small_decor_kwargs": { "help": "@part will be replaced by the name of the part" } , "medium_decor_kwargs": { "help": "@part will be replaced by the name of the part" }, "large_decor_kwargs": {} },
+        { "args": ["-m", "--hole-margin"] , "kwargs": { "default": 0.4, "type": float } , "cylinder_kwargs": { "help": "unused" } , "small_decor_kwargs": {                                                          } , "medium_decor_kwargs": {                                                          }, "large_decor_kwargs": {} },
     ]
 
     CYLINDER_MEASUREMENTS = [
@@ -365,6 +365,24 @@ if __name__ == "__main__":
     parser_medium_decor.add_argument("--rounded", action="store_true")
     for opt in common_options:
         parser_medium_decor.add_argument(*opt["args"], **opt["kwargs"], **opt["medium_decor_kwargs"])
+
+    LARGE_DECOR_MEASUREMENTS = [
+        [ "-t"  , "--thickness" ],
+    ]
+
+    LARGE_DECOR_HELP = [
+        "TODO",
+    ]
+
+    parser_large_decor = subparsers.add_parser(
+        "large-decor",
+        help="create a large STL decor",
+        description="\n".join(LARGE_DECOR_HELP),
+        formatter_class=RawTextHelpFormatter,
+    )
+    add_options_to_parser(parser_large_decor, LARGE_DECOR_MEASUREMENTS, type=float, required=True, help="in mm")
+    for opt in common_options:
+        parser_large_decor.add_argument(*opt["args"], **opt["kwargs"], **opt["large_decor_kwargs"])
 
     args = parser.parse_args()
 
@@ -719,6 +737,62 @@ if __name__ == "__main__":
         save(
             extrude(Polygon(vertices), [], [], args.thickness, args.visualize, ensure_contained=True),
             output=args.output.replace("@part", "cover"),
+            scale=1.0,
+        )
+    elif args.subcommand == "large-decor":
+        check_positive_args(parser, LARGE_DECOR_MEASUREMENTS, args)
+
+
+
+
+        #                                                .....................
+        #                                                .....................
+        #                   .                            .....................
+        #               .......        .........................................................
+        #             ...........  .................................................................
+        #               ................................................................................
+        #                 ..................................................................................
+        #              .........................................................................................
+        #          .................................................................................................
+        #              .........................................................................................
+        #                  .................................................................................
+        #                      .........................................................................
+        #                          .................................................................
+        #                              .........................................................
+        #                                                .....................
+        #                                                .....................
+        #                                                .....................
+        #
+
+        a = 35
+        b = 25
+        c = 10
+        d = 4
+        e = 15
+        f = 8
+        g = 4
+
+        x_0, y_0 = a / 2     , -b / 2
+        x_3, y_3 = a / 2 + e , 0
+        gamma = sqrt(e ** 2 + b ** 2 / 4)
+        p_2 = (gamma - f) / (2 * gamma)
+        p_1 = 1 - p_2
+        bottom_right = [
+            (c / 2                       , -b / 2 - d                 ),
+            (c / 2                       , -b / 2                     ),
+            (      x_0                   ,       y_0                  ),
+            (p_1 * x_0 + (1 - p_1) * x_3 , p_1 * y_0 + (1 - p_1) * y_3),
+            (p_2 * x_0 + (1 - p_2) * x_3 , p_2 * y_0 + (1 - p_2) * y_3),
+        ]
+        top_right   = [( x, -y) for (x, y) in reversed(bottom_right)]
+        top_left    = [(-x, -y) for (x, y) in bottom_right]
+        bottom_left = [(-x,  y) for (x, y) in reversed(bottom_right)]
+
+        polygon = Polygon(bottom_right + [(x_3, y_3)] + top_right + top_left + [(-x_3, y_3)] + bottom_left)
+
+        save(
+            extrude(polygon, [], [], args.thickness, args.visualize, ensure_contained=True),
+            output=args.output,
             scale=1.0,
         )
     else:
