@@ -489,40 +489,36 @@ if __name__ == "__main__":
         #         a                  length                   a
         #
         #
-        z = chamfer
-        polygon = Polygon([
-           (0.0   , -z   + margin),  #
-           (l     , -z   + margin),  #
-           (l     ,  z   + margin),  # chamfer
-           (l     , w_1  ),
-           (l + a , w_1  ),
-           (l + a , w_2  ),
-           (l     , w_2  ),
-           (l     , w - z - margin),  # chamfer
-           (l     , w + z - margin),  #
-           (0.0   , w + z - margin),  #
-           (0.0   , w - z - margin),  # chamfer
-           (0.0   , w_2  ),
-           (-a    , w_2  ),
-           (-a    , w_1  ),
-           (0.0   , w_1  ),
-           (0.0   ,   z   + margin),  # chamfer
-        ])
-
-        chamfers = [
-            Polygon([
-                (0.0 , -z + margin),
-                (l   , -z + margin),
-                (l   ,  z + margin),
-                (0.0 ,  z + margin),
-            ]),
-            Polygon([
-                (l   , w + z - margin),
-                (0.0 , w + z - margin),
-                (0.0 , w - z - margin),
-                (l   , w - z - margin),
-            ]),
+        vertices = [
+           (0.0   , -chamfer + margin    , (0, 0)),
+           (l     , -chamfer + margin    , (0, 1)),
+           (l     ,  chamfer + margin    , (0, 2)),
+           (l     , w_1                  , None ),
+           (l + a , w_1                  , None ),
+           (l + a , w_2                  , None ),
+           (l     , w_2                  , None ),
+           (l     , w - chamfer - margin , (1, 3)),
+           (l     , w + chamfer - margin , (1, 0)),
+           (0.0   , w + chamfer - margin , (1, 1)),
+           (0.0   , w - chamfer - margin , (1, 2)),
+           (0.0   , w_2                  , None ),
+           (-a    , w_2                  , None ),
+           (-a    , w_1                  , None ),
+           (0.0   , w_1                  , None ),
+           (0.0   , chamfer + margin     , (0, 3)),
         ]
+
+        polygon = Polygon([(x, y) for (x, y, _) in vertices])
+
+        # extract chamfers from vertices
+        d = {}
+        for (x, y, (i, j)) in filter(lambda x: x[2] is not None, vertices):
+             if i not in d:
+                 d[i] = []
+             d[i].append((x, y, j))
+        chamfers = []
+        for v in d.values():
+            chamfers.append(Polygon(list(map(lambda x: (x[0], x[1]), sorted(v, key=lambda x: x[2])))))
 
         save(
             extrude(polygon, [], chamfers, thickness, args.visualize, ensure_contained=True),
