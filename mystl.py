@@ -326,6 +326,7 @@ if __name__ == "__main__":
         formatter_class=RawTextHelpFormatter,
     )
     add_options_to_parser(parser_medium_decor, MEDIUM_DECOR_MEASUREMENTS, type=float, required=True, help="in mm")
+    parser_medium_decor.add_argument("--rounded", action="store_true")
     for opt in common_options:
         parser_medium_decor.add_argument(*opt["args"], **opt["kwargs"], **opt["medium_decor_kwargs"])
 
