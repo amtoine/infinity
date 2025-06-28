@@ -31,7 +31,7 @@ let changes = {
 
 ## Decors
 ```nushell
-3 | ./mystl.py small-decor --output "stl/small-@part.stl" -l 50 -w 25 -t $in -a ($in + 2) -b 15 -x ($in + 1) --chamfer ($in / ($math.tau / 6 | math tan))
+3 | ./mystl.py small-decor --output "stl/small-@part.stl" -l 50 -w 25 -t $in -a ($in + 2) -b 15 -x ($in + 1)
 ```
 
 ## Credits

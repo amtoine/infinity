@@ -9,7 +9,7 @@ from shapely.geometry import Polygon
 from shapely.ops import triangulate
 import shapely
 
-from math import tau, cos, sin, sqrt
+from math import tau, cos, sin, sqrt, tan
 import argparse
 from argparse import RawTextHelpFormatter
 import numpy as np
@@ -201,7 +201,6 @@ if __name__ == "__main__":
         formatter_class=RawTextHelpFormatter,
     )
     add_options_to_parser(parser_small_decor, SMALL_DECOR_MEASUREMENTS, type=float, required=True, help="in mm")
-    parser_small_decor.add_argument("--chamfer", type=float, required=False, default=0.0, help="in mm")
     for opt in common_options:
         parser_small_decor.add_argument(*opt["args"], **opt["kwargs"], **opt["small_decor_kwargs"])
 
@@ -356,8 +355,6 @@ if __name__ == "__main__":
             parser.error(f"-b (with hole margin) must be strictly less than --width on SIDE, found b={args.b}, hole-margin={args.hole_margin} and width={args.width}")
         if args.x <= args.thickness / 2 + args.hole_margin:
             parser.error(f"-x must be strictly greater than half --thickness (with hole margin), found x={args.x}, hole-margin={args.hole_margin} and thickness={args.thickness}")
-        if args.chamfer > (args.width - args.b) / 2:
-            parser.error(f"--chamfer must be strictly greater than half --width minus half -b, found:\n    chamfer={args.chamfer}\n    width={args.width}\n    b={args.b}\n    ((w - b) / 2)={(args.width - args.b) / 2}")
 
         scale = args.width / sqrt((1 - cos(tau / 3)) ** 2 + sin(tau / 3) ** 2)
 
@@ -368,7 +365,10 @@ if __name__ == "__main__":
         x         = args.x           / scale
         b         = args.b           / scale
         margin    = args.hole_margin / scale
-        chamfer   = args.chamfer     / scale
+        chamfer   = thickness / tan(tau / 6)
+
+        if chamfer * scale > (args.width - args.b) / 2:
+            parser.error(f"chamfer must be strictly greater than half --width minus half -b, found:\n    chamfer={chamfer * scale}\n    width={args.width}\n    b={args.b}\n    ((w - b) / 2)={(args.width - args.b) / 2}")
 
         ### plate
         # y = (1 + abs(cos(tau / 3)) + x) * tan(tau / 12)
@@ -460,15 +460,12 @@ if __name__ == "__main__":
            (0.0   , z    ),  # chamfer
         ])
 
-        if args.chamfer == 0:
-            chamfer = []
-        else:
-            chamfer = [
-               (0.0   , 0.0  ),  #
-               (l     , 0.0  ),  #
-               (l     , w    ),  #
-               (0.0   , w    ),  #
-            ]
+        chamfer = [
+           (0.0   , 0.0  ),  #
+           (l     , 0.0  ),  #
+           (l     , w    ),  #
+           (0.0   , w    ),  #
+        ]
 
         save(
             extrude(polygon, [], chamfer, thickness, args.visualize, ensure_contained=True),
