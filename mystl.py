@@ -375,6 +375,8 @@ if __name__ == "__main__":
         [ "-e" , None          ],
         [ "-f" , None          ],
         [ "-g" , None          ],
+        [ None , "--height"    ],
+        [ "-z" , None          ],
     ]
 
     LARGE_DECOR_HELP = [
@@ -756,6 +758,9 @@ if __name__ == "__main__":
         e = args.e
         f = args.f
         g = args.g
+        h = args.height
+        z = args.thickness / 2 + 2
+        margin = args.hole_margin
 
         x_0, y_0 = a / 2     , -b / 2
         x_5, y_5 = a / 2 + e , 0
@@ -786,6 +791,39 @@ if __name__ == "__main__":
         save(
             extrude(polygon, [], [], args.thickness, args.visualize, ensure_contained=True),
             output=args.output.replace("@part", "plate"),
+            scale=1.0,
+        )
+
+        vertices = [
+           (0.0 , 0.0   , None),
+           (a   , 0.0   , None),
+           (a   , h + z , None),
+           (0.0 , h + z , None),
+        ]
+
+        polygon, chamfers = poly_and_chamfers_from_vertices(vertices)
+        hole = rect_hole(a / 2, h, c + 2 * margin, args.thickness + 2 * margin)
+
+        save(
+            extrude(polygon.difference(hole), [hole], chamfers, args.thickness, args.visualize, ensure_contained=True),
+            output=args.output.replace("@part", "large-side"),
+            scale=1.0,
+        )
+
+        w = gamma
+        vertices = [
+           (0.0 , 0.0   , None),
+           (w   , 0.0   , None),
+           (w   , h + z , None),
+           (0.0 , h + z , None),
+        ]
+
+        polygon, chamfers = poly_and_chamfers_from_vertices(vertices)
+        hole = rect_hole(w / 2, h, f + 2 * margin, args.thickness + 2 * margin)
+
+        save(
+            extrude(polygon.difference(hole), [hole], chamfers, args.thickness, args.visualize, ensure_contained=True),
+            output=args.output.replace("@part", "small-side"),
             scale=1.0,
         )
     else:
