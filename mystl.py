@@ -21,6 +21,19 @@ def poly_round(polygon: Polygon, precision: int):
     return Polygon([(round(x, precision), round(y, precision)) for (x, y) in polygon.exterior.coords])
 
 
+def rotate_unit_poly(polygon: Polygon, alpha: float):
+    return affinity.rotate(affinity.translate(polygon, xoff=-1.0), alpha, origin=(0, 0), use_radians=True)
+
+
+def rect_hole(x, y, w, h):
+    return Polygon([
+        (x - w / 2 , y - h / 2),
+        (x + w / 2 , y - h / 2),
+        (x + w / 2 , y + h / 2),
+        (x - w / 2 , y + h / 2),
+    ])
+
+
 def poly_and_chamfers_from_vertices(vertices):
     polygon = Polygon([(x, y) for (x, y, _) in vertices])
 
@@ -462,18 +475,13 @@ if __name__ == "__main__":
             (cos(tau / 3) - x ,  y    ),
             (cos(tau / 3) - x , -y    ),
         ])
-        hole = Polygon([
-            (cos(tau / 3) + (thickness / 2 + margin) ,  (b / 2 + margin)),
-            (cos(tau / 3) - (thickness / 2 + margin) ,  (b / 2 + margin)),
-            (cos(tau / 3) - (thickness / 2 + margin) , -(b / 2 + margin)),
-            (cos(tau / 3) + (thickness / 2 + margin) , -(b / 2 + margin)),
-        ])
+        hole = rect_hole(cos(tau / 3), 0, thickness + 2 * margin, b + 2 * margin)
 
         polygon, holes = Polygon([]), []
         for alpha in [-tau / 12, -3 * tau / 12, -5 * tau / 12]:
-            _b = affinity.rotate(affinity.translate(base, xoff=-1.0), alpha, origin=(0, 0), use_radians=True)
-            _h = affinity.rotate(affinity.translate(hole, xoff=-1.0), alpha, origin=(0, 0), use_radians=True)
-            polygon = polygon.union(poly_round(_b, precision=5).difference(_h))
+            _b = poly_round(rotate_unit_poly(base, alpha), precision=5)
+            _h = rotate_unit_poly(hole, alpha)
+            polygon = polygon.union(_b.difference(_h))
             holes.append(_h)
 
         save(
@@ -657,15 +665,14 @@ if __name__ == "__main__":
             (cos(1 * tau / 3) - x ,  y / 2),
             (cos(2 * tau / 3) - x , -y / 2),
             (cos(2 * tau / 3)     , -y / 2),
-            (cos(1 * tau / 3)     ,  sin(2 * tau / 3)),
+            (cos(2 * tau / 3)     ,  sin(2 * tau / 3)),
         ])
 
         PRECISION = 5
 
         polygon = Polygon([])
         for alpha in [0, 2 * tau / 12, 4 * tau / 12, 6 * tau / 12, 8 * tau / 12, 10 * tau / 12]:
-            _b = affinity.rotate(affinity.translate(base, xoff=-1.0), alpha, origin=(0, 0), use_radians=True)
-            polygon = polygon.union(poly_round(_b, precision=5))
+            polygon = polygon.union(poly_round(rotate_unit_poly(base, alpha), precision=5))
 
         save(
             extrude(polygon, [], [], thickness, args.visualize, ensure_contained=True),
@@ -746,12 +753,7 @@ if __name__ == "__main__":
         ]
 
         polygon, chamfers = poly_and_chamfers_from_vertices(vertices)
-        hole = Polygon([
-            (w / 2 - (e / 2 + margin), h - (d / 2 + margin)),
-            (w / 2 + (e / 2 + margin), h - (d / 2 + margin)),
-            (w / 2 + (e / 2 + margin), h + (d / 2 + margin)),
-            (w / 2 - (e / 2 + margin), h + (d / 2 + margin)),
-        ])
+        hole = rect_hole(w / 2, h, e + 2 * margin, d + 2 * margin)
 
         save(
             extrude(polygon.difference(hole), [hole], chamfers, args.thickness, args.visualize, ensure_contained=True),
