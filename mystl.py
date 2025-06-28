@@ -14,17 +14,21 @@ import argparse
 from argparse import RawTextHelpFormatter
 import numpy as np
 import stl
+from functools import reduce
 
 
 def poly_round(polygon: Polygon, precision: int):
     return Polygon([(round(x, precision), round(y, precision)) for (x, y) in polygon.exterior.coords])
 
 
-def extrude(polygon, holes, chamfer, height, visualize: bool = False, ensure_contained: bool = False):
+def extrude(polygon, holes, chamfers, height, visualize: bool = False, ensure_contained: bool = False):
+    poly_without_chamfers = polygon if len(chamfers) == 0 else reduce(lambda acc, it: acc.difference(it), [polygon] + chamfers)
     face_triangles = list(filter(
         lambda t: not any(shapely.equals(t.intersection(h), t) for h in holes) and (not ensure_contained or polygon.contains(t)),
-        triangulate(polygon),
+        triangulate(poly_without_chamfers),
     ))
+    for c in chamfers:
+        face_triangles += triangulate(c)
 
     if visualize:
         import matplotlib.pyplot as plt
@@ -55,8 +59,11 @@ def extrude(polygon, holes, chamfer, height, visualize: bool = False, ensure_con
         axis=0,
     )
 
-    for c in chamfer:
-        triangles[np.all(abs(triangles[:,:,0:2] - c) < 1e-5, axis=2),2] = 0
+    low_points = []
+    for c in chamfers:
+        low_points += c.exterior.coords[:2]
+    for pt in low_points:
+        triangles[np.all(abs(triangles[:,:,0:2] - pt) < 1e-5, axis=2),2] = 0
 
     edges = [np.array(polygon.exterior.coords)]
     for hole in holes:
@@ -64,12 +71,12 @@ def extrude(polygon, holes, chamfer, height, visualize: bool = False, ensure_con
 
     for edge in edges:
         for a, b in list(zip(edge[:-1], edge[1:])):
-            if chamfer == []:
+            if chamfers == []:
                 ha = height
                 hb = height
             else:
-                ha = 0 if np.any(np.all(abs(np.array(chamfer) - a) == 0, axis=1)) else height
-                hb = 0 if np.any(np.all(abs(np.array(chamfer) - b) == 0, axis=1)) else height
+                ha = 0 if np.any(np.all(abs(np.array(low_points) - a) == 0, axis=1)) else height
+                hb = 0 if np.any(np.all(abs(np.array(low_points) - b) == 0, axis=1)) else height
             a, b, c, d = np.append(a, [0], axis=0), np.append(b, [0], axis=0), np.append(a, [ha], axis=0), np.append(b, [hb], axis=0)
             triangles = np.append(triangles, np.array([[a, b, c]]), axis=0)
             triangles = np.append(triangles, np.array([[b, c, d]]), axis=0)
@@ -480,15 +487,23 @@ if __name__ == "__main__":
            (0.0   , z    ),  # chamfer
         ])
 
-        chamfer = [
-           (0.0   , 0.0  ),  #
-           (l     , 0.0  ),  #
-           (l     , w    ),  #
-           (0.0   , w    ),  #
+        chamfers = [
+            Polygon([
+                (0.0 , 0.0  ),
+                (l   , 0.0  ),
+                (l   , z    ),
+                (0.0 , z    ),
+            ]),
+            Polygon([
+                (l   , w    ),
+                (0.0 , w    ),
+                (0.0 , w - z),
+                (l   , w - z),
+            ]),
         ]
 
         save(
-            extrude(polygon, [], chamfer, thickness, args.visualize, ensure_contained=True),
+            extrude(polygon, [], chamfers, thickness, args.visualize, ensure_contained=True),
             output=args.output.replace("@part", "side"),
             scale=scale,
         )
@@ -570,13 +585,14 @@ if __name__ == "__main__":
         d    = args.thickness
         e    = args.y
         z    = args.z
+        chamfer = c / tan(tau / 6)
         #
         #
         #                              width
         #                   <------------------------->
         #                                e = y
         #                             <------>
-        #                  7---------------------------6
+        #                  7*-------------------------*6
         #                  |                           | ^
         #                  |                           | | z
         #                  |        11--------10       | |
@@ -592,19 +608,23 @@ if __name__ == "__main__":
         #                ^ |           |   |           | |
         #              a | |           |   |           | |
         #                v |           |   |           | v
-        #                  0-----------1   4-----------5
+        #                  0*----------1   4----------*5
         #                   <---------> <->
         #                        b       c = thickness
         #
         polygon = Polygon([
-           (0.0            , 0.0       ),
-           (b     - margin , 0.0       ),
-           (b     - margin , a + margin),
-           (b + c + margin , a + margin),
-           (b + c + margin , 0.0       ),
-           (w              , 0.0       ),
-           (w              , h + z     ),
-           (0.0            , h + z     ),
+           (0.0             , 0.0       ), #
+           (chamfer         , 0.0       ), # chamfer
+           (b     - margin  , 0.0       ),
+           (b     - margin  , a + margin),
+           (b + c + margin  , a + margin),
+           (b + c + margin  , 0.0       ),
+           (w - chamfer     , 0.0       ), # chamfer
+           (w               , 0.0       ), #
+           (w               , h + z     ), #
+           (w - chamfer     , h + z     ), # chamfer
+           (chamfer         , h + z     ), # chamfer
+           (0.0             , h + z     ), #
         ])
         hole = Polygon([
             (w / 2 - (e / 2 + margin), h - (d / 2 + margin)),
@@ -612,9 +632,23 @@ if __name__ == "__main__":
             (w / 2 + (e / 2 + margin), h + (d / 2 + margin)),
             (w / 2 - (e / 2 + margin), h + (d / 2 + margin)),
         ])
+        chamfers = [
+            Polygon([
+                (0.0         , 0.0  ),
+                (0.0         , h + z),
+                (chamfer     , h + z),
+                (chamfer     , 0.0  ),
+            ]),
+            Polygon([
+                (w           , 0.0  ),
+                (w           , h + z),
+                (w - chamfer , h + z),
+                (w - chamfer , 0.0  ),
+            ]),
+        ]
 
         save(
-            extrude(polygon.difference(hole), [hole], [], args.thickness, args.visualize, ensure_contained=True),
+            extrude(polygon.difference(hole), [hole], chamfers, args.thickness, args.visualize, ensure_contained=True),
             output=args.output.replace("@part", "side"),
             scale=1.0,
         )
