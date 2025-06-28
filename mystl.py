@@ -378,7 +378,8 @@ if __name__ == "__main__":
                 f"    --hole-margin : {args.hole_margin:9.3f}\t`-> rhs = {args.thickness / 2 + args.hole_margin:9.3f}",
             ]))
 
-        scale = args.width / sqrt((1 - cos(tau / 3)) ** 2 + sin(tau / 3) ** 2)
+        unit_triangle_side_length = sqrt((1 - cos(tau / 3)) ** 2 + sin(tau / 3) ** 2)
+        scale = args.width / unit_triangle_side_length
 
         length    = args.length      / scale
         width     = args.width       / scale
