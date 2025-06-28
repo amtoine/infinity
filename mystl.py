@@ -360,22 +360,28 @@ if __name__ == "__main__":
         if args.b >= args.width:
             parser.error("\n".join([
                 f"condition `b < width` for SIDE unsatisfied",
-                f"     -b     : {args.b:9.3f}\t -> lhs = {args.b:9.3f}",
-                f"    --width : {args.width:9.3f}\t -> rhs = {args.width:9.3f}",
+                f"     -b     : {args.b:9.3f}",
+                f"    --width : {args.width:9.3f}",
+                f"  lhs = {args.b:9.3f}",
+                f"  rhs = {args.width:9.3f}",
             ]))
         if args.b + 2 * args.hole_margin >= args.width:
             parser.error("\n".join([
                 f"condition `b + 2 hole_margin < width` for PLATE unsatisfied",
-                f"     -b           : {args.b:9.3f}\t|",
-                f"    --hole-margin : {args.hole_margin:9.3f}\t`-> lhs = {args.b + 2 * args.hole_margin:9.3f}",
-                f"    --width       : {args.width:9.3f}\t -> rhs = {args.width:9.3f}",
+                f"     -b           : {args.b:9.3f}",
+                f"    --hole-margin : {args.hole_margin:9.3f}",
+                f"    --width       : {args.width:9.3f}",
+                f"  lhs = {args.b + 2 * args.hole_margin:9.3f}",
+                f"  rhs = {args.width:9.3f}",
             ]))
         if args.x <= args.thickness / 2 + args.hole_margin:
             parser.error("\n".join([
                 f"condition `x > thickness / 2 + hole_margin` for PLATE unsatisfied",
-                f"     -x           : {args.x:9.3f}\t -> lhs = {args.x:9.3f}",
-                f"    --thickness   : {args.thickness:9.3f}\t|",
-                f"    --hole-margin : {args.hole_margin:9.3f}\t`-> rhs = {args.thickness / 2 + args.hole_margin:9.3f}",
+                f"     -x           : {args.x:9.3f}",
+                f"    --thickness   : {args.thickness:9.3f}",
+                f"    --hole-margin : {args.hole_margin:9.3f}",
+                f"  lhs = {args.x:9.3f}",
+                f"  rhs = {args.thickness / 2 + args.hole_margin:9.3f}",
             ]))
 
         unit_triangle_side_length = sqrt((1 - cos(tau / 3)) ** 2 + sin(tau / 3) ** 2)
@@ -406,9 +412,11 @@ if __name__ == "__main__":
         if chamfer * scale > (args.width - args.b) / 2:
             parser.error("\n".join([
                 f"condition `chamfer <= (width - b) / 2` for SIDE unsatisfied",
-                f"     chamfer : {chamfer * scale:9.3f}\t -> lhs = {chamfer * scale:9.3f}",
-                f"    --width  : {args.width:9.3f}\t|",
-                f"     -b      : {args.b:9.3f}\t`-> rhs = {(args.width - args.b) / 2:9.3f}",
+                f"     chamfer : {chamfer * scale:9.3f}",
+                f"    --width  : {args.width:9.3f}",
+                f"     -b      : {args.b:9.3f}",
+                f"  lhs = {chamfer * scale:9.3f}",
+                f"  rhs = {(args.width - args.b) / 2:9.3f}",
             ]))
 
         ### plate
@@ -526,22 +534,28 @@ if __name__ == "__main__":
         if args.y >= args.width:
             parser.error("\n".join([
                 f"condition `y < width` for PLATE unsatisfied",
-                f"     -y     : {args.y:9.3f}\t -> lhs = {args.y:9.3f}",
-                f"    --width : {args.width:9.3f}\t -> rhs = {args.width:9.3f}",
+                f"     -y     : {args.y:9.3f}",
+                f"    --width : {args.width:9.3f}",
+                f"  lhs = {args.y:9.3f}",
+                f"  rhs = {args.width:9.3f}",
             ]))
         if args.z <= args.thickness / 2 + args.hole_margin:
             parser.error("\n".join([
                 f"condition `z > thickness / 2 + hole_margin` for SIDE unsatisfied",
-                f"     -z           : {args.z:9.3f}\t -> lhs = {args.z:9.3f}",
-                f"    --thickness   : {args.thickness:9.3f}\t|",
-                f"    --hole-margin : {args.hole_margin:9.3f}\t`-> rhs = {args.thickness / 2 + args.hole_margin:9.3f}",
+                f"     -z           : {args.z:9.3f}",
+                f"    --thickness   : {args.thickness:9.3f}",
+                f"    --hole-margin : {args.hole_margin:9.3f}",
+                f"  lhs = {args.z:9.3f}",
+                f"  rhs = {args.thickness / 2 + args.hole_margin:9.3f}",
             ]))
         if args.y + 2 * args.hole_margin >= args.width:
             parser.error("\n".join([
                 f"condition `y + 2 * hole_margin < width` for SIDE unsatisfied",
-                f"     -y           : {args.y:9.3f}\t|",
-                f"    --hole-margin : {args.hole_margin:9.3f}\t`-> lhs = {args.y + 2 * args.hole_margin:9.3f}",
-                f"    --width       : {args.width:9.3f}\t -> rhs = {args.width:9.3f}",
+                f"     -y           : {args.y:9.3f}",
+                f"    --hole-margin : {args.hole_margin:9.3f}",
+                f"    --width       : {args.width:9.3f}",
+                f"  lhs = {args.y + 2 * args.hole_margin:9.3f}",
+                f"  rhs = {args.width:9.3f}",
             ]))
         if args.a + args.hole_margin >= args.height - (args.thickness / 2 + args.hole_margin):
             parser.error("\n".join([
@@ -574,29 +588,37 @@ if __name__ == "__main__":
         if args.a > args.h1 + args.h2 + args.h3:
             parser.error("\n".join([
                 f"condition `l1 >= h1` for COVER with unsatisfied",
-                f"    -a  : {args.a:9.3f}\t -> lhs = {args.a:9.3f}",
-                f"    -h1 : {args.h1:9.3f}\t|",
-                f"    -h2 : {args.h2:9.3f}\t|",
-                f"    -h3 : {args.h3:9.3f}\t`-> rhs = {args.h1 + args.h2 + args.h3:9.3f}",
+                f"    -a  : {args.a:9.3f}",
+                f"    -h1 : {args.h1:9.3f}",
+                f"    -h2 : {args.h2:9.3f}",
+                f"    -h3 : {args.h3:9.3f}",
+                f"  lhs = {args.a:9.3f}",
+                f"  rhs = {args.h1 + args.h2 + args.h3:9.3f}",
             ]))
         if args.rounded:
             if args.l1 < args.h1:
                 parser.error("\n".join([
                     f"condition `l1 >= h1` for COVER with --rounded unsatisfied",
-                    f"    -l1 : {args.l1:9.3f}\t -> lhs = {args.l1:9.3f}",
-                    f"    -h1 : {args.h1:9.3f}\t -> rhs = {args.h1:9.3f}",
+                    f"    -l1 : {args.l1:9.3f}",
+                    f"    -h1 : {args.h1:9.3f}",
+                f"  lhs = {args.l1:9.3f}",
+                f"  rhs = {args.h1:9.3f}",
                 ]))
             if args.l2 < args.h2:
                 parser.error("\n".join([
                     f"condition `l2 >= h2` for COVER with --rounded unsatisfied",
-                    f"    -l2 : {args.l2:9.3f}\t -> lhs = {args.l2:9.3f}",
-                    f"    -h2 : {args.h2:9.3f}\t -> rhs = {args.h2:9.3f}",
+                    f"    -l2 : {args.l2:9.3f}",
+                    f"    -h2 : {args.h2:9.3f}",
+                f"  lhs = {args.l2:9.3f}",
+                f"  rhs = {args.h2:9.3f}",
                 ]))
             if args.l3 < args.h3:
                 parser.error("\n".join([
                     f"condition `l3 >= h3` for COVER with --rounded unsatisfied",
-                    f"    -l3 : {args.l3:9.3f}\t -> lhs = {args.l3:9.3f}",
-                    f"    -h3 : {args.h3:9.3f}\t -> rhs = {args.h3:9.3f}",
+                    f"    -l3 : {args.l3:9.3f}",
+                    f"    -h3 : {args.h3:9.3f}",
+                f"  lhs = {args.l3:9.3f}",
+                f"  rhs = {args.h3:9.3f}",
                 ]))
 
         scale = args.width / sqrt((1 - cos(tau / 3)) ** 2 + sin(tau / 3) ** 2)
