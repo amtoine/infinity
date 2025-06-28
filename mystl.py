@@ -794,27 +794,33 @@ if __name__ == "__main__":
             scale=1.0,
         )
 
-        vertices = [
-           (0.0 , 0.0   , None),
-           (a   , 0.0   , None),
-           (a   , h + z , None),
-           (0.0 , h + z , None),
-        ]
+        w = gamma
+        alpha = tau / 4 - asin(b / (2 * gamma))
+        alpha_beta = tau / 4 - atan(2 * e / b)
+        delta = tau / 4 - alpha_beta
+        x = sin(alpha_beta) / sin(delta)
+        pi = cos(alpha_beta) + x * cos(delta)
+        beta = atan(pi / args.thickness)
+        chamfer_1 = args.thickness * tan(alpha)
+        chamfer_2 = args.thickness * tan(alpha_beta - beta)
 
+        vertices = [
+           (-chamfer_2    , 0.0   , (0, 1)),
+           (0.0           , 0.0   , (0, 2)),
+           (a             , 0.0   , (1, 3)),
+           (a + chamfer_2 , 0.0   , (1, 0)),
+           (a + chamfer_2 , h + z , (1, 1)),
+           (a             , h + z , (1, 2)),
+           (0.0           , h + z , (0, 3)),
+           (-chamfer_2    , h + z , (0, 0)),
+        ]
         polygon, chamfers = poly_and_chamfers_from_vertices(vertices)
         hole = rect_hole(a / 2, h, c + 2 * margin, args.thickness + 2 * margin)
-
         save(
             extrude(polygon.difference(hole), [hole], chamfers, args.thickness, args.visualize, ensure_contained=True),
             output=args.output.replace("@part", "large-side"),
             scale=1.0,
         )
-
-        w = gamma
-        alpha = tau / 4 - asin(b / (2 * gamma))
-        beta = tau / 4 - atan(2 * e / b)
-        chamfer_1 = args.thickness * tan(alpha)
-        chamfer_2 = args.thickness * tan(beta)
 
         vertices = [
            (-chamfer_1    , 0.0   , (0, 1)),
