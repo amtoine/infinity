@@ -367,7 +367,14 @@ if __name__ == "__main__":
         parser_medium_decor.add_argument(*opt["args"], **opt["kwargs"], **opt["medium_decor_kwargs"])
 
     LARGE_DECOR_MEASUREMENTS = [
-        [ "-t"  , "--thickness" ],
+        [ "-t" , "--thickness" ],
+        [ "-a" , None          ],
+        [ "-b" , None          ],
+        [ "-c" , None          ],
+        [ "-d" , None          ],
+        [ "-e" , None          ],
+        [ "-f" , None          ],
+        [ "-g" , None          ],
     ]
 
     LARGE_DECOR_HELP = [
@@ -742,57 +749,43 @@ if __name__ == "__main__":
     elif args.subcommand == "large-decor":
         check_positive_args(parser, LARGE_DECOR_MEASUREMENTS, args)
 
-
-
-
-        #                                                .....................
-        #                                                .....................
-        #                   .                            .....................
-        #               .......        .........................................................
-        #             ...........  .................................................................
-        #               ................................................................................
-        #                 ..................................................................................
-        #              .........................................................................................
-        #          .................................................................................................
-        #              .........................................................................................
-        #                  .................................................................................
-        #                      .........................................................................
-        #                          .................................................................
-        #                              .........................................................
-        #                                                .....................
-        #                                                .....................
-        #                                                .....................
-        #
-
-        a = 35
-        b = 25
-        c = 10
-        d = 4
-        e = 15
-        f = 8
-        g = 4
+        a = args.a
+        b = args.b
+        c = args.c
+        d = args.d
+        e = args.e
+        f = args.f
+        g = args.g
 
         x_0, y_0 = a / 2     , -b / 2
-        x_3, y_3 = a / 2 + e , 0
+        x_5, y_5 = a / 2 + e , 0
         gamma = sqrt(e ** 2 + b ** 2 / 4)
         p_1 = (gamma - f) / (2 * gamma)
-        p_2 = 1 - p_1
+        x_1, y_1 = (1 - p_1) * x_0 + p_1 * x_5 , (1 - p_1) * y_0 + p_1 * y_5
+        p_2 = (p_1 * gamma + g) / gamma
+        x_2, y_2 = (1 - p_2) * x_0 + p_2 * x_5 , (1 - p_2) * y_0 + p_2 * y_5
+        v_x, v_y = x_2 - x_1, y_2 - y_1
+        v_x, v_y = v_y, -v_x # rotate by 90 degres clockwise
+        p_4 = 1 - p_1
+        x_4, y_4 = (1 - p_4) * x_0 + p_4 * x_5 , (1 - p_4) * y_0 + p_4 * y_5
         bottom_right = [
             (c / 2                       , -b / 2 - d                 ),
             (c / 2                       , -b / 2                     ),
             (      x_0                   ,       y_0                  ),
-            ((1 - p_1) * x_0 + p_1 * x_3 , (1 - p_1) * y_0 + p_1 * y_3),
-            ((1 - p_2) * x_0 + p_2 * x_3 , (1 - p_2) * y_0 + p_2 * y_3),
+            (x_1                         , y_1                        ),
+            (x_1 + v_x                   , y_1 + v_y                  ),
+            (x_4 + v_x                   , y_4 + v_y                  ),
+            (x_4                         , y_4                        ),
         ]
         top_right   = [( x, -y) for (x, y) in reversed(bottom_right)]
         top_left    = [(-x, -y) for (x, y) in bottom_right]
         bottom_left = [(-x,  y) for (x, y) in reversed(bottom_right)]
 
-        polygon = Polygon(bottom_right + [(x_3, y_3)] + top_right + top_left + [(-x_3, y_3)] + bottom_left)
+        polygon = Polygon(bottom_right + [(x_5, y_5)] + top_right + top_left + [(-x_5, y_5)] + bottom_left)
 
         save(
             extrude(polygon, [], [], args.thickness, args.visualize, ensure_contained=True),
-            output=args.output,
+            output=args.output.replace("@part", "plate"),
             scale=1.0,
         )
     else:
