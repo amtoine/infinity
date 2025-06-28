@@ -388,7 +388,20 @@ if __name__ == "__main__":
         x         = args.x           / scale
         b         = args.b           / scale
         margin    = args.hole_margin / scale
-        chamfer   = thickness / tan(tau / 6)
+        chamfer   = thickness * tan(tau / 12) / 2
+
+        beta = 1 + abs(cos(tau / 3))
+        z = (beta - thickness / 2) / beta
+        if args.b + 2 * args.hole_margin >= args.width * z:
+            parser.error("\n".join([
+                f"condition `b + 2 * hole_margin < width * z` for PLATE unsatisfied",
+                f"     -b           : {args.b:9.3f}",
+                f"    --hole-margin : {args.hole_margin:9.3f}",
+                f"    --width       : {args.width:9.3f}",
+                f"      z           : {z:9.3f}",
+                f"  lhs = {args.b + 2 * args.hole_margin:9.3f}",
+                f"  rhs = {args.width * z:9.3f}",
+            ]))
 
         if chamfer * scale > (args.width - args.b) / 2:
             parser.error("\n".join([
@@ -470,34 +483,34 @@ if __name__ == "__main__":
         #
         z = chamfer
         polygon = Polygon([
-           (0.0   , 0.0  ),  #
-           (l     , 0.0  ),  #
-           (l     , z    ),  # chamfer
+           (0.0   , -z   ),  #
+           (l     , -z   ),  #
+           (l     ,  z   ),  # chamfer
            (l     , w_1  ),
            (l + a , w_1  ),
            (l + a , w_2  ),
            (l     , w_2  ),
            (l     , w - z),  # chamfer
-           (l     , w    ),  #
-           (0.0   , w    ),  #
+           (l     , w + z),  #
+           (0.0   , w + z),  #
            (0.0   , w - z),  # chamfer
            (0.0   , w_2  ),
            (-a    , w_2  ),
            (-a    , w_1  ),
            (0.0   , w_1  ),
-           (0.0   , z    ),  # chamfer
+           (0.0   ,   z  ),  # chamfer
         ])
 
         chamfers = [
             Polygon([
-                (0.0 , 0.0  ),
-                (l   , 0.0  ),
-                (l   , z    ),
-                (0.0 , z    ),
+                (0.0 , -z),
+                (l   , -z),
+                (l   ,  z),
+                (0.0 ,  z),
             ]),
             Polygon([
-                (l   , w    ),
-                (0.0 , w    ),
+                (l   , w + z),
+                (0.0 , w + z),
                 (0.0 , w - z),
                 (l   , w - z),
             ]),
