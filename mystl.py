@@ -491,36 +491,36 @@ if __name__ == "__main__":
         #
         z = chamfer
         polygon = Polygon([
-           (0.0   , -z   ),  #
-           (l     , -z   ),  #
-           (l     ,  z   ),  # chamfer
+           (0.0   , -z   + margin),  #
+           (l     , -z   + margin),  #
+           (l     ,  z   + margin),  # chamfer
            (l     , w_1  ),
            (l + a , w_1  ),
            (l + a , w_2  ),
            (l     , w_2  ),
-           (l     , w - z),  # chamfer
-           (l     , w + z),  #
-           (0.0   , w + z),  #
-           (0.0   , w - z),  # chamfer
+           (l     , w - z - margin),  # chamfer
+           (l     , w + z - margin),  #
+           (0.0   , w + z - margin),  #
+           (0.0   , w - z - margin),  # chamfer
            (0.0   , w_2  ),
            (-a    , w_2  ),
            (-a    , w_1  ),
            (0.0   , w_1  ),
-           (0.0   ,   z  ),  # chamfer
+           (0.0   ,   z   + margin),  # chamfer
         ])
 
         chamfers = [
             Polygon([
-                (0.0 , -z),
-                (l   , -z),
-                (l   ,  z),
-                (0.0 ,  z),
+                (0.0 , -z + margin),
+                (l   , -z + margin),
+                (l   ,  z + margin),
+                (0.0 ,  z + margin),
             ]),
             Polygon([
-                (l   , w + z),
-                (0.0 , w + z),
-                (0.0 , w - z),
-                (l   , w - z),
+                (l   , w + z - margin),
+                (0.0 , w + z - margin),
+                (0.0 , w - z - margin),
+                (l   , w - z - margin),
             ]),
         ]
 
