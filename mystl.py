@@ -53,7 +53,7 @@ def poly_and_chamfers_from_vertices(vertices):
 def extrude(polygon, holes, chamfers, height, visualize: bool = False, ensure_contained: bool = False):
     poly_without_chamfers = polygon if len(chamfers) == 0 else reduce(lambda acc, it: acc.difference(it), [polygon] + chamfers)
     face_triangles = list(filter(
-        lambda t: not any(shapely.equals(t.intersection(h), t) for h in holes) and (not ensure_contained or polygon.contains(t)),
+        lambda t: not any(shapely.equals(t.intersection(h), t) for h in holes) and (not ensure_contained or poly_without_chamfers.contains(t)),
         triangulate(poly_without_chamfers),
     ))
     for c in chamfers:
