@@ -9,7 +9,7 @@ from shapely.geometry import Polygon
 from shapely.ops import triangulate
 import shapely
 
-from math import tau, cos, sin, sqrt, tan
+from math import tau, cos, sin, sqrt, tan, asin, atan
 import argparse
 from argparse import RawTextHelpFormatter
 import numpy as np
@@ -811,19 +811,44 @@ if __name__ == "__main__":
         )
 
         w = gamma
-        vertices = [
-           (0.0 , 0.0   , None),
-           (w   , 0.0   , None),
-           (w   , h + z , None),
-           (0.0 , h + z , None),
-        ]
+        alpha = tau / 4 - asin(b / (2 * gamma))
+        beta = tau / 4 - atan(2 * e / b)
+        chamfer_1 = args.thickness * tan(alpha)
+        chamfer_2 = args.thickness * tan(beta)
 
+        vertices = [
+           (-chamfer_1    , 0.0   , (0, 1)),
+           (0.0           , 0.0   , (0, 2)),
+           (w             , 0.0   , (1, 3)),
+           (w + chamfer_2 , 0.0   , (1, 0)),
+           (w + chamfer_2 , h + z , (1, 1)),
+           (w             , h + z , (1, 2)),
+           (0.0           , h + z , (0, 3)),
+           (-chamfer_1    , h + z , (0, 0)),
+        ]
         polygon, chamfers = poly_and_chamfers_from_vertices(vertices)
         hole = rect_hole(w / 2, h, f + 2 * margin, args.thickness + 2 * margin)
-
         save(
             extrude(polygon.difference(hole), [hole], chamfers, args.thickness, args.visualize, ensure_contained=True),
-            output=args.output.replace("@part", "small-side"),
+            output=args.output.replace("@part", "small-side-left"),
+            scale=1.0,
+        )
+
+        vertices = [
+           (-chamfer_2    , 0.0   , (0, 1)),
+           (0.0           , 0.0   , (0, 2)),
+           (w             , 0.0   , (1, 3)),
+           (w + chamfer_1 , 0.0   , (1, 0)),
+           (w + chamfer_1 , h + z , (1, 1)),
+           (w             , h + z , (1, 2)),
+           (0.0           , h + z , (0, 3)),
+           (-chamfer_2    , h + z , (0, 0)),
+        ]
+        polygon, chamfers = poly_and_chamfers_from_vertices(vertices)
+        hole = rect_hole(w / 2, h, f + 2 * margin, args.thickness + 2 * margin)
+        save(
+            extrude(polygon.difference(hole), [hole], chamfers, args.thickness, args.visualize, ensure_contained=True),
+            output=args.output.replace("@part", "small-side-right"),
             scale=1.0,
         )
     else:
