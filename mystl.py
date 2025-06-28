@@ -775,14 +775,14 @@ if __name__ == "__main__":
         x_0, y_0 = a / 2     , -b / 2
         x_3, y_3 = a / 2 + e , 0
         gamma = sqrt(e ** 2 + b ** 2 / 4)
-        p_2 = (gamma - f) / (2 * gamma)
-        p_1 = 1 - p_2
+        p_1 = (gamma - f) / (2 * gamma)
+        p_2 = 1 - p_1
         bottom_right = [
             (c / 2                       , -b / 2 - d                 ),
             (c / 2                       , -b / 2                     ),
             (      x_0                   ,       y_0                  ),
-            (p_1 * x_0 + (1 - p_1) * x_3 , p_1 * y_0 + (1 - p_1) * y_3),
-            (p_2 * x_0 + (1 - p_2) * x_3 , p_2 * y_0 + (1 - p_2) * y_3),
+            ((1 - p_1) * x_0 + p_1 * x_3 , (1 - p_1) * y_0 + p_1 * y_3),
+            ((1 - p_2) * x_0 + p_2 * x_3 , (1 - p_2) * y_0 + p_2 * y_3),
         ]
         top_right   = [( x, -y) for (x, y) in reversed(bottom_right)]
         top_left    = [(-x, -y) for (x, y) in bottom_right]
