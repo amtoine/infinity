@@ -21,6 +21,22 @@ def poly_round(polygon: Polygon, precision: int):
     return Polygon([(round(x, precision), round(y, precision)) for (x, y) in polygon.exterior.coords])
 
 
+def poly_and_chamfers_from_vertices(vertices):
+    polygon = Polygon([(x, y) for (x, y, _) in vertices])
+
+    # extract chamfers from vertices
+    d = {}
+    for (x, y, (i, j)) in filter(lambda x: x[2] is not None, vertices):
+         if i not in d:
+             d[i] = []
+         d[i].append((x, y, j))
+    chamfers = []
+    for v in d.values():
+        chamfers.append(Polygon(list(map(lambda x: (x[0], x[1]), sorted(v, key=lambda x: x[2])))))
+
+    return polygon, chamfers
+
+
 def extrude(polygon, holes, chamfers, height, visualize: bool = False, ensure_contained: bool = False):
     poly_without_chamfers = polygon if len(chamfers) == 0 else reduce(lambda acc, it: acc.difference(it), [polygon] + chamfers)
     face_triangles = list(filter(
@@ -508,17 +524,7 @@ if __name__ == "__main__":
            (0.0   , chamfer + margin     , (0, 3)),
         ]
 
-        polygon = Polygon([(x, y) for (x, y, _) in vertices])
-
-        # extract chamfers from vertices
-        d = {}
-        for (x, y, (i, j)) in filter(lambda x: x[2] is not None, vertices):
-             if i not in d:
-                 d[i] = []
-             d[i].append((x, y, j))
-        chamfers = []
-        for v in d.values():
-            chamfers.append(Polygon(list(map(lambda x: (x[0], x[1]), sorted(v, key=lambda x: x[2])))))
+        polygon, chamfers = poly_and_chamfers_from_vertices(vertices)
 
         save(
             extrude(polygon, [], chamfers, thickness, args.visualize, ensure_contained=True),
@@ -617,7 +623,8 @@ if __name__ == "__main__":
                 f"  rhs = {args.h3:9.3f}",
                 ]))
 
-        scale = args.width / sqrt((1 - cos(tau / 3)) ** 2 + sin(tau / 3) ** 2)
+        unit_triangle_side_length = sqrt((1 - cos(tau / 3)) ** 2 + sin(tau / 3) ** 2)
+        scale = args.width / unit_triangle_side_length
 
         width     = args.width       / scale
         thickness = args.thickness   / scale
@@ -674,7 +681,7 @@ if __name__ == "__main__":
         d    = args.thickness
         e    = args.y
         z    = args.z
-        chamfer = c / tan(tau / 6)
+        chamfer = c * tan(tau / 12)
         margin  = args.hole_margin
 
         if chamfer > args.b - args.hole_margin:
@@ -723,40 +730,28 @@ if __name__ == "__main__":
         #                   <---------> <->
         #                        b       c = thickness
         #
-        polygon = Polygon([
-           (0.0             , 0.0       ), #
-           (chamfer         , 0.0       ), # chamfer
-           (b     - margin  , 0.0       ),
-           (b     - margin  , a + margin),
-           (b + c + margin  , a + margin),
-           (b + c + margin  , 0.0       ),
-           (w - chamfer     , 0.0       ), # chamfer
-           (w               , 0.0       ), #
-           (w               , h + z     ), #
-           (w - chamfer     , h + z     ), # chamfer
-           (chamfer         , h + z     ), # chamfer
-           (0.0             , h + z     ), #
-        ])
+        vertices = [
+           (0.0             , 0.0        , (0, 0)),
+           (chamfer         , 0.0        , (0, 3)),
+           (b     - margin  , 0.0        , None  ),
+           (b     - margin  , a + margin , None  ),
+           (b + c + margin  , a + margin , None  ),
+           (b + c + margin  , 0.0        , None  ),
+           (w - chamfer     , 0.0        , (1, 3)),
+           (w               , 0.0        , (1, 0)),
+           (w               , h + z      , (1, 1)),
+           (w - chamfer     , h + z      , (1, 2)),
+           (chamfer         , h + z      , (0, 2)),
+           (0.0             , h + z      , (0, 1)),
+        ]
+
+        polygon, chamfers = poly_and_chamfers_from_vertices(vertices)
         hole = Polygon([
             (w / 2 - (e / 2 + margin), h - (d / 2 + margin)),
             (w / 2 + (e / 2 + margin), h - (d / 2 + margin)),
             (w / 2 + (e / 2 + margin), h + (d / 2 + margin)),
             (w / 2 - (e / 2 + margin), h + (d / 2 + margin)),
         ])
-        chamfers = [
-            Polygon([
-                (0.0         , 0.0  ),
-                (0.0         , h + z),
-                (chamfer     , h + z),
-                (chamfer     , 0.0  ),
-            ]),
-            Polygon([
-                (w           , 0.0  ),
-                (w           , h + z),
-                (w - chamfer , h + z),
-                (w - chamfer , 0.0  ),
-            ]),
-        ]
 
         save(
             extrude(polygon.difference(hole), [hole], chamfers, args.thickness, args.visualize, ensure_contained=True),
