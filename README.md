@@ -69,6 +69,21 @@ let changes = {
     --hole-margin $in.h
 ]
 ```
+```nushell
+{ t: 3 } | ./mystl.py large-decor --output "stls/large-@part.stl" ...[
+    -t $in.t
+    -a 35
+    -b 25
+    -c 10
+    -d ($in.t + 1)
+    -e 15
+    -f 8
+    -g ($in.t + 1)
+    --height 35
+    -z ($in.t / 2 + 2)
+    -v
+]
+```
 
 ## Credits
 - statistics have been taken from the official [Infinity ARMY online tool][army]
