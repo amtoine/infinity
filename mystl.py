@@ -795,13 +795,16 @@ if __name__ == "__main__":
         )
 
         w = gamma
-        alpha = tau / 4 - asin(b / (2 * gamma))
-        alpha_beta = tau / 4 - atan(2 * e / b)
+
+        theta = 2 * asin(b / (2 * gamma))
+        alpha = tau / 4 - theta / 2
+        chamfer_1 = args.thickness * tan(alpha)
+
+        alpha_beta = theta
         delta = tau / 4 - alpha_beta
         x = sin(alpha_beta) / sin(delta)
         pi = cos(alpha_beta) + x * cos(delta)
         beta = atan(pi / args.thickness)
-        chamfer_1 = args.thickness * tan(alpha)
         chamfer_2 = args.thickness * tan(alpha_beta - beta)
 
         vertices = [
