@@ -731,18 +731,18 @@ if __name__ == "__main__":
         #                        b       c = thickness
         #
         vertices = [
-           (0.0             , 0.0        , (0, 0)),
-           (chamfer         , 0.0        , (0, 3)),
-           (b     - margin  , 0.0        , None  ),
-           (b     - margin  , a + margin , None  ),
-           (b + c + margin  , a + margin , None  ),
-           (b + c + margin  , 0.0        , None  ),
-           (w - chamfer     , 0.0        , (1, 3)),
-           (w               , 0.0        , (1, 0)),
-           (w               , h + z      , (1, 1)),
-           (w - chamfer     , h + z      , (1, 2)),
-           (chamfer         , h + z      , (0, 2)),
-           (0.0             , h + z      , (0, 1)),
+           (-chamfer    + margin , 0.0        , (0, 0)),
+           (0.0         + margin , 0.0        , (0, 3)),
+           (b           - margin , 0.0        , None  ),
+           (b           - margin , a + margin , None  ),
+           (b + c       + margin , a + margin , None  ),
+           (b + c       + margin , 0.0        , None  ),
+           (w           - margin , 0.0        , (1, 3)),
+           (w + chamfer - margin , 0.0        , (1, 0)),
+           (w + chamfer - margin , h + z      , (1, 1)),
+           (w           - margin , h + z      , (1, 2)),
+           (0.0         + margin , h + z      , (0, 2)),
+           (-chamfer    + margin , h + z      , (0, 1)),
         ]
 
         polygon, chamfers = poly_and_chamfers_from_vertices(vertices)
