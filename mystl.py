@@ -98,11 +98,11 @@ def add_options_to_parser(parser, options, **kwargs):
 def check_positive_args(parser, options, args):
     for (short, long) in options:
         if short is None:
-            name, val = long, vars(args)[long.lstrip('-')]
+            name, val = long, vars(args)[long.lstrip('-').replace('-', '_')]
         elif long is None:
-            name, val = short, vars(args)[short.lstrip('-')]
+            name, val = short, vars(args)[short.lstrip('-').replace('-', '_')]
         else:
-            name, val = long, vars(args)[long.lstrip('-')]
+            name, val = long, vars(args)[long.lstrip('-').replace('-', '_')]
         if val <= 0:
             parser.error(f"{name} must be strictly positive, found {val}")
 
@@ -349,7 +349,7 @@ if __name__ == "__main__":
             scale=1.0,
         )
     elif args.subcommand == "small-decor":
-        check_positive_args(parser, SMALL_DECOR_MEASUREMENTS, args)
+        check_positive_args(parser, SMALL_DECOR_MEASUREMENTS + [(None, "--hole-margin")], args)
         if args.b >= args.width:
             parser.error(f"-b must be strictly less than --width on PLATE, found b={args.b} and width={args.width}")
         if args.b + 2 * args.hole_margin >= args.width:
@@ -474,7 +474,7 @@ if __name__ == "__main__":
             scale=scale,
         )
     elif args.subcommand == "medium-decor":
-        check_positive_args(parser, MEDIUM_DECOR_MEASUREMENTS, args)
+        check_positive_args(parser, MEDIUM_DECOR_MEASUREMENTS + [(None, "--hole-margin")], args)
         if args.z <= args.thickness / 2 + args.hole_margin:
             parser.error(f"-z must be strictly greater than half --thickness (with hole margin), found z={args.z}, hole-margin={args.hole_margin} and thickness={args.thickness}")
         if args.y + 2 * args.hole_margin >= args.width:
