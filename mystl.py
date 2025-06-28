@@ -351,11 +351,25 @@ if __name__ == "__main__":
     elif args.subcommand == "small-decor":
         check_positive_args(parser, SMALL_DECOR_MEASUREMENTS + [(None, "--hole-margin")], args)
         if args.b >= args.width:
-            parser.error(f"-b must be strictly less than --width on PLATE, found b={args.b} and width={args.width}")
+            parser.error("\n".join([
+                f"condition `b < width` for SIDE unsatisfied",
+                f"     -b     : {args.b:9.3f}\t -> lhs = {args.b:9.3f}",
+                f"    --width : {args.width:9.3f}\t -> rhs = {args.width:9.3f}",
+            ]))
         if args.b + 2 * args.hole_margin >= args.width:
-            parser.error(f"-b (with hole margin) must be strictly less than --width on SIDE, found b={args.b}, hole-margin={args.hole_margin} and width={args.width}")
+            parser.error("\n".join([
+                f"condition `b + 2 hole_margin < width` for PLATE unsatisfied",
+                f"     -b           : {args.b:9.3f}\t|",
+                f"    --hole-margin : {args.hole_margin:9.3f}\t`-> lhs = {args.b + 2 * args.hole_margin:9.3f}",
+                f"    --width       : {args.width:9.3f}\t -> rhs = {args.width:9.3f}",
+            ]))
         if args.x <= args.thickness / 2 + args.hole_margin:
-            parser.error(f"-x must be strictly greater than half --thickness (with hole margin), found x={args.x}, hole-margin={args.hole_margin} and thickness={args.thickness}")
+            parser.error("\n".join([
+                f"condition `x > thickness / 2 + hole_margin` for PLATE unsatisfied",
+                f"     -x           : {args.x:9.3f}\t -> lhs = {args.x:9.3f}",
+                f"    --thickness   : {args.thickness:9.3f}\t|",
+                f"    --hole-margin : {args.hole_margin:9.3f}\t`-> rhs = {args.thickness / 2 + args.hole_margin:9.3f}",
+            ]))
 
         scale = args.width / sqrt((1 - cos(tau / 3)) ** 2 + sin(tau / 3) ** 2)
 
@@ -369,7 +383,12 @@ if __name__ == "__main__":
         chamfer   = thickness / tan(tau / 6)
 
         if chamfer * scale > (args.width - args.b) / 2:
-            parser.error(f"chamfer must be strictly greater than half --width minus half -b, found:\n    chamfer={chamfer * scale}\n    width={args.width}\n    b={args.b}\n    ((w - b) / 2)={(args.width - args.b) / 2}")
+            parser.error("\n".join([
+                f"condition `chamfer <= (width - b) / 2` for SIDE unsatisfied",
+                f"     chamfer : {chamfer * scale:9.3f}\t -> lhs = {chamfer * scale:9.3f}",
+                f"    --width  : {args.width:9.3f}\t|",
+                f"     -b      : {args.b:9.3f}\t`-> rhs = {(args.width - args.b) / 2:9.3f}",
+            ]))
 
         ### plate
         # y = (1 + abs(cos(tau / 3)) + x) * tan(tau / 12)
