@@ -31,7 +31,43 @@ let changes = {
 
 ## Decors
 ```nushell
-3 | ./mystl.py small-decor --output "stl/small-@part.stl" -l 50 -w 25 -t $in -a ($in + 2) -b 15 -x ($in + 1)
+3 | ./mystl.py small-decor --output "stl/small-@part.stl" ...[
+    -l 100
+    -w 25
+    -t $in
+    -a ($in + 1)             # through
+    -b 15
+    -x ($in / 2 + 2)         # top margin
+    --hole-margin 0.2
+]
+```
+```nushell
+{ t: 3, w: 25, h: 0.2 } | ./mystl.py medium-decor --output "stl/medium-@part.stl" ...[
+    --height 35
+    --width $in.w
+    -t $in.t
+
+    # plate
+    -x ($in.t + 1)                         # through
+    -y 15
+
+    # side
+    -a 8
+    -b ($in.w / 2 - $in.t / 2 - $in.h)     # center
+    -z ($in.t / 2 + 2)                     # top margin
+
+    # cover
+    -c ($in.t + 1)                         # through
+    -l1 8
+    -h1 2
+    -l2 8
+    -h2 4
+    -l3 12
+    -h3 5
+    --rounded
+
+    --hole-margin $in.h
+]
 ```
 
 ## Credits
