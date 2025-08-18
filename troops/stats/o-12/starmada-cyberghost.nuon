@@ -1,0 +1,47 @@
+{
+    isc: "Cyberghosts, Quantronic Intervention Unit",
+    name: "CYBERGHOSTS, Quantronic Intervention Unit",
+    short_name: "CYBERGHOSTS",
+    asset: "o-12-starmada-cyberghost.1",
+    faction: "o-12",
+    allowed_factions: ["o-12", "starmada"],
+    classification: "Support Troops",
+    reference: "https://infinityuniverse.com/army/infinity/starmada/cyberghosts",
+    type: "LI",
+    characteristics: [
+        "cube",
+        "regular",
+        "hackable",
+    ],
+    stats: {
+        MOV:  "4-4",
+        CC:   14,
+        BS:   11,
+        PH:   10,
+        WIP:  14,
+        ARM:   1,
+        BTS:   6,
+        VITA:  1,
+        S:     2,
+        AVA:   1,
+    }
+    special_skills: [ "Stealth" ],
+    profiles: [
+        {
+            weaponry: ["Combi Rifle", "Pitcher"],
+            equipment: ["Hacking Device Plus"],
+            special_skills: ["Hacker"],
+            melee_weapons: ["Breaker Pistol", { name: "PARA CC Weapon", mod: "-3" }],
+            SWC: 0.5,
+            C: 21,
+        },
+        {
+            weaponry: ["Combi Rifle", "Pitcher"],
+            equipment: ["Killer Hacking Device"],
+            special_skills: ["Hacker"],
+            melee_weapons: ["Breaker Pistol", { name: "PARA CC Weapon", mod: "-3" }],
+            SWC: 0,
+            C: 18,
+        },
+    ],
+}

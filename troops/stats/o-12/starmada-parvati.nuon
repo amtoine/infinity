@@ -1,0 +1,45 @@
+{
+    isc: "Parvati, Circle League star",
+    name: "PARVATI, Circle League star",
+    short_name: "PARVATI",
+    asset: "o-12-starmada-cyberghost.1",
+    faction: "o-12",
+    allowed_factions: ["o-12", "starmada", "sss"],
+    classification: "Character",
+    reference: "https://infinityuniverse.com/army/infinity/starmada/parvati-circle-league-star",
+    type: "LI",
+    characteristics: [
+        "regular",
+    ],
+    stats: {
+        MOV:  "6-2",
+        CC:   15,
+        BS:   12,
+        PH:   10,
+        WIP:  15,
+        ARM:   2,
+        BTS:   6,
+        VITA:  2,
+        S:     2,
+        AVA:   1,
+    }
+    special_skills: [
+        [ name              , mod  ];
+        [ "Courage"         , null ],
+        [ "Doctor"          , "2W" ],
+        [ "Dodge"           , "+3" ],
+        [ "Engineer"        , "+3" ],
+        [ "Remote Presence" , null ],
+        [ "Super Jump"      , null ],
+    ],
+    equipment: [ "Deactivator" ],
+    profiles: [
+        {
+            weaponry: [{ name: "Submachine Gun", mod: "+1B" }, "Flash Pulse"],
+            equipment: ["Gizmokit", "Medikit"],
+            melee_weapons: ["Pistol", "CC Weapon"],
+            SWC: 0,
+            C: 36,
+        },
+    ],
+}

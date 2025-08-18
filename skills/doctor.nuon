@@ -1,0 +1,21 @@
+{
+    name: "DOCTOR",
+    type: "SHORT SKILL",
+    description: "Troopers with this Special Skill have the medical know-how to stabilize their unconscious comrades while in the field, saving their lives and returning them to active duty.",
+    labels: ["Optional"],
+    requirements: [
+        "Troopers using this Special Skill must be in Silhouette contact with their target.",
+        "The target must have the Vitality Attribute and be in Unconscious State.",
+    ],
+    effects: [
+        "By passing a Normal WIP Roll, the target’s Unconscious State is cancelled, by removing 1 single Wound from those it has received, unless a rule or Skill specified otherwise. If the WIP Roll fails, the target automatically enters the Dead State and is removed from the game table .",
+        "Troopers may be recovered from the Unconscious State as many times as necessary, as long as the Doctor passes the WIP Roll.",
+        "This Skill may present the following variations in the Unit Profile:",
+        "Doctor (2W): Allows the target to remove 2 Wounds when their Unconscious State is cancelled.",
+        "Doctor (ReRoll -X): Once per Order, any failed Roll with this Skill may be rerolled,but with a negative MOD (-X) to the WIP Attribute. The player must accept the result of this last Roll. This reroll does not provide a new ARO to the enemy.",
+    ],
+    important: [
+    ],
+    remember: [
+    ],
+}

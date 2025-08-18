@@ -1,0 +1,57 @@
+{
+    isc: "Raveneye Officers",
+    name: "RAVENEYE Officers",
+    short_name: "RAVENEYE",
+    faction: "o-12",
+    allowed_factions: ["military-orders", "kosmoflot", "corregidor", "o-12", "starmada", "torchlight"],
+    classification: "Support Troops",
+    reference: "https://infinityuniverse.com/army/infinity/starmada/raveneye-officers",
+    type: "LI",
+    characteristics: [
+        "cube",
+        "regular",
+    ],
+    stats: {
+        MOV:  "4-4",
+        CC:   15,
+        BS:   11,
+        PH:   10,
+        WIP:  13,
+        ARM:   1,
+        BTS:   3,
+        VITA:  1,
+        S:     2,
+        AVA:   2,
+    }
+    special_skills: [
+        [ name               , mod     ];
+        [ "Forward Observer" , null    ],
+        [ "Immunity"         , "Shock" ],
+        [ "Minelayer"        , null    ],
+    ],
+    equipment: [ "Deactivator" ],
+    profiles: [
+        {
+            asset: "o-12-starmada-raveneye-officer.1",
+            weaponry: ["Submachine Gun", "E/Marat", "Flash Pulse", "E/M Mines"],
+            melee_weapons: ["Pistol", "CC Weapon"],
+            SWC: 0,
+            C: 12,
+        },
+        {
+            asset: "o-12-starmada-raveneye-officer.1",
+            weaponry: ["Submachine Gun", "E/Marat", "Flash Pulse", "Cybermines"],
+            melee_weapons: ["Pistol", "CC Weapon"],
+            SWC: 0,
+            C: 12,
+        },
+        {
+            asset: "o-12-starmada-raveneye-officer.1",
+            special_skills: ["Lieutenant"],
+            weaponry: ["Submachine Gun", "E/Marat", "Flash Pulse", "E/M Mines"],
+            melee_weapons: ["Pistol", "CC Weapon"],
+            SWC: 0,
+            C: 12,
+        },
+    ],
+}

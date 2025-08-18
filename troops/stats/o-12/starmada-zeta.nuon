@@ -1,0 +1,58 @@
+{
+    isc: "Zeta Unit",
+    name: "ZETA UNIT",
+    short_name: "ZETA",
+    faction: "o-12",
+    allowed_factions: ["o-12", "starmada"],
+    classification: "Mechanized Troops",
+    reference: "https://infinityuniverse.com/army/infinity/starmada/zeta-unit",
+    type: "TAG",
+    characteristics: [
+        "regular",
+        "hackable",
+    ],
+    stats: {
+        MOV:  "6-4",
+        CC:   17,
+        BS:   14,
+        PH:   16,
+        WIP:  13,
+        ARM:   8,
+        BTS:   6,
+        VITA:  3,
+        S:     7,
+        AVA:   1,
+    }
+    special_skills: [
+        [ name              , mod     ];
+        [ "BS Attack"       , "SR-1"  ],
+        [ "Climbing Plus"   , null    ],
+        [ "Courage"         , null    ],
+        [ "Dodge"           , "PH=11" ],
+        [ "Gizmokit"        , "PH=13" ],
+        [ "Remote Presence" , null    ],
+    ],
+    equipment: [{ name: "ECM: Guided", mod: "-8" }],
+    profiles: [
+        {
+            asset: "o-12-starmada-zeta.1",
+            short_name: "ZETA"
+            weaponry: ["Hyper-Rapid Magnetic Cannon", "Heavy Riotstopper"],
+            special_skills: ["NCO"],
+            peripheral: ["ZETBOT"]
+            melee_weapons: [{ name: "AP CC Weapon", mod: "PS=4" }],
+            SWC: 2,
+            C: 73,
+        },
+        {
+            asset: "o-12-starmada-zeta.1",
+            short_name: "ZETA"
+            weaponry: ["Hyper-Rapid Magnetic Cannon", "Heavy Riotstopper"],
+            special_skills: ["Lieutenant"],
+            peripheral: ["ZETBOT"]
+            melee_weapons: [{ name: "AP CC Weapon", mod: "PS=4" }],
+            SWC: 2,
+            C: 70,
+        },
+    ],
+}
