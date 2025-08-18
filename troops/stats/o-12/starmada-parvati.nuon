@@ -2,7 +2,7 @@
     isc: "Parvati, Circle League star",
     name: "PARVATI, Circle League star",
     short_name: "PARVATI",
-    asset: "o-12-starmada-cyberghost.1",
+    asset: "parvati",
     faction: "o-12",
     allowed_factions: ["o-12", "starmada", "sss"],
     classification: "Character",
@@ -30,12 +30,12 @@
         [ "Dodge"           , "+3" ],
         [ "Engineer"        , "+3" ],
         [ "Remote Presence" , null ],
-        [ "Super Jump"      , null ],
+        [ "Super-Jump"      , null ],
     ],
     equipment: [ "Deactivator" ],
     profiles: [
         {
-            weaponry: [{ name: "Submachine Gun", mod: "+1B" }, "Flash Pulse"],
+            weaponry: [{ name: "Submachine Gun", mod: "+1B" }, "Flash Pulse", "Gizmokit"],
             equipment: ["Gizmokit", "Medikit"],
             melee_weapons: ["Pistol", "CC Weapon"],
             SWC: 0,

@@ -39,6 +39,7 @@
         [ name                   , mod         ];
         [ "ECM: Guided"          , "-6"        ],
         [ "Multispectral Visor"  , "L2"        ],
+        [ "Gizmokit"             , null        ],
     ],
     melee_weapons: [
         [ name           , mod    , spec ];

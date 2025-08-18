@@ -32,7 +32,7 @@
         [ "Gizmokit"        , "PH=13" ],
         [ "Remote Presence" , null    ],
     ],
-    equipment: [{ name: "ECM: Guided", mod: "-8" }],
+    equipment: [{ name: "ECM: Guided", mod: "-8" }, "Gizmokit"],
     profiles: [
         {
             asset: "o-12-starmada-zeta.1",

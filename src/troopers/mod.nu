@@ -18,6 +18,7 @@ const UNSUPPORTED_SKILLS = [
     "Marksmanship", "Climbing Plus", "Transmutation", "Combat Instinct",
     "Religious Troop", "Chain of Command", "Forward Observer",
     "Forward Deployment", "Natural Born Warrior", "Specialist Operative",
+    "Remote Presence", "Gizmokit", "Doctor", "Engineer",
 ]
 
 # skills that modify the stats directly
