@@ -1,0 +1,70 @@
+{
+    isc: "Beasthunters Free Guild",
+    name: "BEASTHUNTERS Free Guild",
+    short_name: "BEASTHUNTER",
+    faction: null,
+    allowed_factions: [],
+    classification: "Mercenary Troops",
+    asset: "mercenaries-beasthunter.1",
+    reference: "https://infinityuniverse.com/army/infinity/ikari/merc-beasthunters-free-guild",
+    type: "SK",
+    characteristics: [
+        "cube",
+        "irregular",
+    ],
+    stats: {
+        MOV:  "4-4",
+        CC:   21,
+        BS:   11,
+        PH:   13,
+        WIP:  12,
+        ARM:   0,
+        BTS:   0,
+        VITA:  1,
+        S:     2,
+        AVA:   1,
+    },
+    special_skills: [
+        [ name              , mod     ];
+        [ "Mimetism"        , "-3"    ]
+        [ "Stealth"         , null    ],
+        [ "Super-Jump"      , null    ],
+        [ "Terrain"         , "Total" ],
+        [ "Religious Troop" , null    ],
+    ],
+    profiles: [
+        {
+            short_name: "BEASTHUNTER FTO",
+            weaponry: ["Heavy Flamethrower", "Panzerfaust", "AP Mines"],
+            melee_weapons: ["Pistol", { name: "DA CC Weapon", mod: "PS=5" }],
+            SWC: 0,
+            C: 9,
+        },
+        {
+            short_name: "BEASTHUNTER FTO",
+            weaponry: ["Heavy Flamethrower", "Tactical Bow", "AP Mines"],
+            melee_weapons: ["Pistol", { name: "DA CC Weapon", mod: "PS=5" }],
+            special_skills: [
+                [ name                 , mod  ];
+                [ "Surprise Attack"    , "-3" ],
+                [ "Camouflage"         , null ],
+                [ "Forward Deployment" , "+8" ],
+            ],
+            SWC: 0,
+            C: 15,
+        },
+        {
+            short_name: "BEASTHUNTER FTO",
+            weaponry: ["Heavy Flamethrower", "Panzerfaust", "AP Mines"],
+            melee_weapons: ["Pistol", { name: "DA CC Weapon", mod: "PS=5" }],
+            special_skills: [
+                [ name                 , mod  ];
+                [ "Surprise Attack"    , "-3" ],
+                [ "Camouflage"         , null ],
+                [ "Forward Deployment" , "+8" ],
+            ],
+            SWC: 0,
+            C: 15,
+        },
+    ],
+}

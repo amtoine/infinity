@@ -1,0 +1,43 @@
+{
+    isc: "Avicenna, Mercenary Doctor",
+    name: "AVICENNA, Mercenary Doctor",
+    short_name: "AVICENNA",
+    asset: "aleph-avicenna",
+    faction: "aleph",
+    allowed_factions: [ "aleph", "sss" ],
+    classification: "Character",
+    reference: "https://www.human-sphere.com/Avicenna",
+    type: "LI",
+    characteristics: [
+        "cube",
+        "regular",
+    ],
+    stats: {
+        MOV:  "6-2",
+        CC:   16,
+        BS:   11,
+        PH:   11,
+        WIP:  15,
+        ARM:   2,
+        BTS:   3,
+        STR:   1,
+        S:     2,
+        AVA:   1,
+    },
+    special_skills: [
+        [ name                      , mod   ];
+        [ "Courage"                 , null  ],
+        [ "Immunity"                , "ARM" ],
+        [ "Doctor"                  , "+3"  ],
+        [ "No Wound Incapacitation" , null  ],
+    ],
+    equipment: ["Medikit"],
+    profiles: [
+        {
+            weaponry: ["Combi Rifle", "Flash Pulse", "Nanopulser"],
+            melee_weapons: ["Pistol", "CC Weapon"],
+            SWC: 0,
+            C: 28,
+        },
+    ],
+}

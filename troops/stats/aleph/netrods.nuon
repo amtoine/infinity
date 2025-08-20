@@ -1,0 +1,39 @@
+{
+    isc: "Netrods",
+    name: "NETRODS (*)",
+    short_name: "NETRODS",
+    asset: "aleph-netrods.1",
+    faction: "aleph",
+    allowed_factions: [ "aleph", "steel-phalanx", "sss" ],
+    classification: "Support Troops",
+    reference: "https://infinityuniverse.com/army/infinity/aleph/netrods",
+    type: "LI",
+    characteristics: [
+        "regular",
+    ],
+    stats: {
+        MOV:   "---",
+        CC:    "-",
+        BS:    "-",
+        PH:    "-",
+        WIP:   "-",
+        ARM:   0,
+        BTS:   3,
+        STR:   1,
+        S:     2,
+        AVA:   3,
+
+    },
+    special_skills: [
+        [ name              , mod     ];
+        [ "Combat Jump"     , "PH=12" ],
+        [ "Religious Troop" , null    ],
+        [ "Warhorse"        , null    ],
+    ],
+    profiles: [
+        {
+            SWC: 0,
+            C: 6,
+        },
+    ],
+}

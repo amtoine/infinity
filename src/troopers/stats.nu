@@ -572,7 +572,7 @@ export def gen-stats-page [
                     },
                     "MOV" => {
                         let skill = $modifiers."Terrain"?
-                        let mov = $it.item.v | parse "{f}-{s}" | into record | into int f s
+                        let mov = $it.item.v | parse "{f}-{s}" | into record
 
                         if $skill != null {
                             match $skill.v {

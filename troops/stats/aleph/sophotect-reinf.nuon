@@ -1,0 +1,53 @@
+{
+    isc: "Reinf. Sophotects",
+    name: "REINF: SOPHOTECTS",
+    short_name: "SOPHOTECT REINF.",
+    asset: "aleph-sophotect",
+    faction: "aleph",
+    allowed_factions: [ "ank-program" ],
+    classification: "Support Troops",
+    reference: "https://infinityuniverse.com/army/infinity/aleph/reinf-sophotects",
+    type: "LI",
+    characteristics: [
+        "cube.2",
+        "regular",
+    ],
+    stats: {
+        MOV:   "6-4",
+        CC:    13,
+        BS:    11,
+        PH:    11,
+        WIP:   15,
+        ARM:   2,
+        BTS:   3,
+        STR:   1,
+        S:     2,
+        AVA:   1,
+    },
+    special_skills: [
+        [ name                      , mod         ];
+        [ "Courage"                 , null        ],
+        [ "Dodge"                   , "+1\""      ],
+        [ "Engineer"                , "Reroll -3" ],
+        [ "Immunity"                , "Shock"     ],
+        [ "Jump"                    , "3\""       ],
+        [ "No Wound Incapacitation" , null        ],
+    ],
+    equipment: ["Deployable Cover", "Gizmokit"],
+    profiles: [
+        {
+            weaponry: ["Combi Rifle", "D-Charges", "Pulzar"],
+            equipment: [{ name: "MediKit", mod: "+1B" }]
+            melee_weapons: ["Pistol", "CC Weapon"],
+            special_skills: ["Doctor"],
+            SWC: 0,
+            C: 29,
+        },
+        {
+            weaponry: ["Boarding Shotgun", "D-Charges", "Pulzar", { name: "Flash Pulse", mod: "+1B" }],
+            melee_weapons: ["Pistol", "CC Weapon"],
+            SWC: 0,
+            C: 23,
+        },
+    ],
+}

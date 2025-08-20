@@ -1,0 +1,43 @@
+{
+    isc: "Reinf. Yudbots",
+    name: "REINF: YUDBOTS",
+    short_name: "YUDBOTS REINF.",
+    asset: "aleph-yudbots.1",
+    faction: "aleph",
+    allowed_factions: [ "ank-program", "team-gladius" ],
+    classification: "Support Troops",
+    reference: "https://infinityuniverse.com/army/infinity/aleph/reinf-yudbots",
+    type: "REM",
+    characteristics: [
+        "peripheral",
+        "hackable",
+    ],
+    stats: {
+        MOV:   "6-4",
+        CC:    11,
+        BS:    8,
+        PH:    10,
+        WIP:   13,
+        ARM:   0,
+        BTS:   3,
+        STR:   1,
+        S:     1,
+        AVA:   1,
+
+    },
+    special_skills: [
+        [ name         , mod       ];
+        [ "Peripheral" , "Servant" ],
+        [ "Courage"    , null      ],
+        [ "Mimetism"   , "-3"      ],
+    ],
+    profiles: [
+        {
+            weaponry: ["Combi Rifle", "D-Charges", "Pulzar"],
+            equipment: [{ name: "MediKit", mod: "+1B" }]
+            melee_weapons: [{ name: "PARA CC Weapon", mod: "-3" }],
+            SWC: 0,
+            C: 3,
+        },
+    ],
+}
