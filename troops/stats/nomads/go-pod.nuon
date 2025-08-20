@@ -1,0 +1,56 @@
+{
+    isc: "Go-Pod",
+    name: "GO-POD",
+    short_name: "GO-POD",
+    asset: "nomads-go-pod",
+    faction: "nomads",
+    allowed_factions: [ "nomads", "bakunin", "tunguska" ],
+    classification: "Elite Troops",
+    reference: "https://infinityuniverse.com/army/infinity/tunguska/go-pod",
+    type: "VH",
+    characteristics: [
+        "cube",
+        "regular",
+        "hackable",
+    ],
+    stats: {
+        MOV:   "8-2",
+        CC:    "-",
+        BS:    13,
+        PH:    13,
+        WIP:   13,
+        ARM:   2,
+        BTS:   6,
+        STR:   2,
+        S:     7,
+        AVA:   1,
+    },
+    special_skills: [
+        [ name         , mod              ];
+        [ "BS Attack"  , "-3"             ],
+        [ "BS Attack"  , "+1B"            ],
+        [ "Aerial"     , null             ],
+        [ "Courage"    , null             ],
+        [ "Dodge"      , "-3"             ],
+        [ "Mimetism"   , "-3"             ],
+        [ "No Cover"   , null             ],
+        [ "Super-Jump" , "Jet Propulsion" ],
+        [ "Terrain"    , "Total"          ],
+        [ "Super-Jump" , "+3\""           ],
+    ],
+    profiles: [
+        {
+            weaponry: ["MULTI Rifle", "E/Mitter"],
+            peripheral: ["GO-BOT"],
+            SWC: 0.5,
+            C: 38,
+        },
+        {
+            weaponry: ["Heavy Rocket Launcher", "AP Submachine Gun"],
+            peripheral: ["GO-BOT"],
+            special_skills: [{ name: "BS Attack", mod: "SR-1" }]
+            SWC: 1.5,
+            C: 33,
+        },
+    ],
+}

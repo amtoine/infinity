@@ -1,0 +1,47 @@
+{
+    isc: "Go-Bot",
+    name: "GO-BOT",
+    short_name: "GO-BOT",
+    asset: "nomads-go-bot",
+    faction: "nomads",
+    allowed_factions: [ "nomads", "bakunin", "tunguska" ],
+    classification: "",
+    reference: "https://infinityuniverse.com/army/infinity/tunguska/go-pod",
+    type: "REM",
+    characteristics: [
+        "hackable",
+        "peripheral",
+    ],
+    stats: {
+        MOV:   "8-2",
+        CC:    "-",
+        BS:    5,
+        PH:    11,
+        WIP:   13,
+        ARM:   1,
+        BTS:   3,
+        STR:   1,
+        S:     2,
+        AVA:   "-",
+    },
+    special_skills: [
+        [ name         , mod              ];
+        [ "Aerial"     , null             ],
+        [ "BS Attack"  , "-3"             ],
+        [ "Courage"    , null             ],
+        [ "Dodge"      , "-3"             ],
+        [ "Mimetism"   , "-3"             ],
+        [ "No Cover"   , null             ],
+        [ "Peripheral" , "Synchronized"   ],
+        [ "Super-Jump" , "Jet Propulsion" ],
+        [ "Super-Jump" , "+3\""           ],
+        [ "Terrain"    , "Total"          ],
+    ],
+    profiles: [
+        {
+            weaponry: ["Flash Pulse", "Chain-colt"],
+            SWC: 0,
+            C: 7,
+        },
+    ],
+}
